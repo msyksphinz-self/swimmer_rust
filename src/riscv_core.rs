@@ -1,17 +1,18 @@
+pub const DRAM_BASE: u32 = 0x1000_0000;
+pub const DRAM_SIZE: usize = 0x01_0000;
+
 pub struct EnvBase
 {
-    pub m_regs: Vec<u64>,   // general register
-    pub m_memory: Vec<u32>,  // memory
+    pub m_regs:  [i32; 32],
+    pub m_memory: [u32; DRAM_SIZE], // memory
 }
 
 
 impl EnvBase {
-    const DRAM_BASE: u32 = 0x1000_0000;
-    const DRAM_SIZE: usize = 0x10_0000;
-
-    pub fn new() -> Self {
-        Self { m_memory: vec![0; Self::DRAM_SIZE],
-               m_regs: vec![0; 32],
+    pub fn new() -> EnvBase {
+        EnvBase {
+            m_memory: [0; DRAM_SIZE],
+            m_regs: [0; 32],
         }
     }
 }
@@ -20,25 +21,24 @@ impl EnvBase {
 pub trait Riscv64Core {
     const XLEN: u32;
 
-    fn FetchMemory(&mut self, addr:usize, data:&mut u32) -> u32;
-    fn ReadMemory (&self, addr:usize) -> u32;
-    fn WriteMemory(&mut self, addr:usize, data:u32) -> u32;
+    fn fetch_memory(&mut self, addr:usize) -> u32;
+    fn read_memory (&mut self, addr:usize) -> u32;
+    fn write_memory(&mut self, addr:usize, data:u32) -> u32;
 }
 
 
 impl Riscv64Core for EnvBase {
     const XLEN: u32 = 64;
 
-    fn FetchMemory(&mut self, addr:usize, data:&mut u32) -> u32 {
-        data = &mut self.m_memory[addr];
+    fn fetch_memory(&mut self, addr:usize) -> u32 {
         return self.m_memory[addr];
     }
 
-    fn ReadMemory(&self, addr:usize) -> u32 {
+    fn read_memory(&mut self, addr:usize) -> u32 {
         return self.m_memory[addr];
     }
 
-    fn WriteMemory(&mut self, addr:usize, data:u32) -> u32 {
+    fn write_memory(&mut self, addr:usize, data:u32) -> u32 {
         self.m_memory[addr + 0] = (data >>  0) & 0x0ff;
         self.m_memory[addr + 1] = (data >>  8) & 0x0ff;
         self.m_memory[addr + 2] = (data >> 16) & 0x0ff;
