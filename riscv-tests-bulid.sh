@@ -11,7 +11,7 @@ for f in `ls -1 | grep -e rv32..- -e rv64..- | grep -v "\.dump$" | grep -v "\.he
 do
     echo "Compile ${f} ..."
     riscv64-unknown-elf-objcopy -O binary ${f} ${f}.bin
-    hexdump -v -e ' 1/4 "%08x " "\n"' ${f}.bin > ${f}.hex
+    # hexdump -v -e ' 1/4 "%08x " "\n"' ${f}.bin > ${f}.hex
 done
 
 cd ${PWD}
