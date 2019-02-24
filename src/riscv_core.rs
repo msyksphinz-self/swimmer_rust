@@ -229,7 +229,6 @@ impl Riscv64Core for EnvBase {
 
     fn fetch_memory(&mut self) -> XlenType {
         let base_addr: AddrType = self.m_pc - DRAM_BASE;
-        println!("BeseAddr = {:08x} {:08x} {:08x}", self.m_pc, DRAM_BASE, base_addr);
         let fetch_data = ((self.m_memory[base_addr as usize + 3] as XlenType) << 24) |
                          ((self.m_memory[base_addr as usize + 2] as XlenType) << 16) |
                          ((self.m_memory[base_addr as usize + 1] as XlenType) <<  8) |
