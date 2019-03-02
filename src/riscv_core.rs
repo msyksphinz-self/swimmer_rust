@@ -20,7 +20,7 @@ pub enum RiscvInst {
     LUI, AUIPC,
     ADDI, SLTI, SLTIU, XORI, ORI, ANDI, SLLI, SRLI, SRAI,
     ADD, SUB, SLL ,SLT, SLTU, XOR, SRL, SRA, OR, AND,
-    LB, LH, LW, LBU, LHU, SW,
+    LB, LH, LW, LBU, LHU, SW, SH, SB,
     JAL, JALR,
     BEQ, BNE, BLT, BGE, BLTU, BGEU,
     FENCE, FENCEI,
@@ -50,8 +50,15 @@ pub enum ExceptCode {
 }
 
 pub enum MemType {
-  LOAD = 0,
-  STORE = 1
+  LOAD  = 0,
+  STORE = 1,
+}
+
+pub enum MemSize {
+    BYTE  = 0,
+    HWORD = 1,
+    WORD  = 2,
+    DWORD = 3,
 }
 
 
@@ -179,6 +186,7 @@ impl EnvBase {
 
     fn sext_xlen (hex: InstType) -> XlenType  { return hex as XlenType; }
     fn uext_xlen (hex: InstType) -> UXlenType { return hex as UXlenType; }
+
 }
 
 
@@ -188,9 +196,12 @@ pub trait Riscv64Core {
     fn get_rd_addr  (inst:InstType) -> RegAddrType;
 
     fn fetch_memory(&mut self) -> XlenType;
-    fn read_memory (&mut self, addr:AddrType) -> XlenType;
-    fn write_memory(&mut self, addr:AddrType, data:XlenType) -> XlenType;
-    fn write_memory_byte(&mut self, addr:AddrType, data:u8) -> XlenType;
+    fn read_memory_word (&mut self, addr:AddrType) -> XlenType;
+    fn read_memory_hword(&mut self, addr:AddrType) -> XlenType;
+    fn read_memory_byte (&mut self, addr:AddrType) -> XlenType;
+    fn write_memory_word (&mut self, addr:AddrType, data:XlenType) -> XlenType;
+    fn write_memory_hword(&mut self, addr:AddrType, data:XlenType) -> XlenType;
+    fn write_memory_byte (&mut self, addr:AddrType, data:XlenType) -> XlenType;
 
     fn read_reg (&mut self, reg_addr: RegAddrType) -> i32;
     fn write_reg (&mut self, reg_addr: RegAddrType, data:XlenType);
@@ -198,7 +209,12 @@ pub trait Riscv64Core {
     fn decode_inst(&mut self, inst:XlenType) -> RiscvInst;
     fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstType);
 
-    fn mem_access (&mut self, op: MemType, data: XlenType, addr: AddrType) -> XlenType;
+    fn mem_access (&mut self, op: MemType, size: MemSize, data: XlenType, addr: AddrType) -> XlenType;
+
+    fn get_is_finish_cpu (&mut self) -> bool;
+
+    fn get_tohost (&mut self) -> XlenType;
+    fn get_fromhost (&mut self) -> XlenType;
 }
 
 impl Riscv64Core for EnvBase {
@@ -236,7 +252,7 @@ impl Riscv64Core for EnvBase {
         return fetch_data;
     }
 
-    fn read_memory(&mut self, addr:AddrType) -> XlenType {
+    fn read_memory_word (&mut self, addr:AddrType) -> XlenType {
         let base_addr: AddrType = addr - DRAM_BASE;
         return ((self.m_memory[base_addr as usize + 3] as XlenType) << 24) |
                ((self.m_memory[base_addr as usize + 2] as XlenType) << 16) |
@@ -244,7 +260,19 @@ impl Riscv64Core for EnvBase {
                ((self.m_memory[base_addr as usize + 0] as XlenType) <<  0);
     }
 
-    fn write_memory(&mut self, addr:AddrType, data:XlenType) -> XlenType {
+    fn read_memory_hword (&mut self, addr:AddrType) -> XlenType {
+        let base_addr: AddrType = addr - DRAM_BASE;
+        return ((self.m_memory[base_addr as usize + 1] as XlenType) <<  8) |
+               ((self.m_memory[base_addr as usize + 0] as XlenType) <<  0);
+    }
+
+    fn read_memory_byte (&mut self, addr:AddrType) -> XlenType {
+        let base_addr: AddrType = addr - DRAM_BASE;
+        return self.m_memory[base_addr as usize + 0] as XlenType;
+    }
+
+
+    fn write_memory_word (&mut self, addr:AddrType, data:XlenType) -> XlenType {
         let base_addr: AddrType = addr - DRAM_BASE;
         self.m_memory[base_addr as usize + 0] = ((data >>  0) & 0x0ff) as u8;
         self.m_memory[base_addr as usize + 1] = ((data >>  8) & 0x0ff) as u8;
@@ -254,9 +282,17 @@ impl Riscv64Core for EnvBase {
         return 0;
     }
 
-    fn write_memory_byte (&mut self, addr:AddrType, data:u8) -> XlenType {
+    fn write_memory_hword (&mut self, addr:AddrType, data:XlenType) -> XlenType {
         let base_addr: AddrType = addr - DRAM_BASE;
-        self.m_memory[base_addr as usize] = data;
+        self.m_memory[base_addr as usize + 0] = ((data >>  0) & 0x0ff) as u8;
+        self.m_memory[base_addr as usize + 1] = ((data >>  8) & 0x0ff) as u8;
+
+        return 0;
+    }
+
+    fn write_memory_byte (&mut self, addr:AddrType, data:XlenType) -> XlenType {
+        let base_addr: AddrType = addr - DRAM_BASE;
+        self.m_memory[base_addr as usize] = (data & 0xff) as u8;
         return 0;
     }
 
@@ -310,7 +346,13 @@ impl Riscv64Core for EnvBase {
                     0b101 => dec_inst = RiscvInst::LHU,
                     _     => dec_inst = RiscvInst::NOP,
                 }
-            0x23 => dec_inst = RiscvInst::SW,
+            0x23 =>
+                match funct3 {
+                    0b000 => dec_inst = RiscvInst::SB,
+                    0b001 => dec_inst = RiscvInst::SH,
+                    0b010 => dec_inst = RiscvInst::SW,
+                    _     => dec_inst = RiscvInst::NOP,
+                }
             0x37 => dec_inst = RiscvInst::LUI,
             0x17 => dec_inst = RiscvInst::AUIPC,
             0x63 => {
@@ -427,41 +469,34 @@ impl Riscv64Core for EnvBase {
             }
             RiscvInst::LB  => {
                 let rs1_data = self.read_reg(rs1);
-                let imm: AddrType = ((inst >> 20) & 0xfff) as AddrType;
-                let addr: AddrType = (self.read_reg(rs1) as AddrType) + imm;
-                let mut reg_data:XlenType = self.mem_access(MemType::LOAD, rs1_data, addr);
-                reg_data = reg_data >> (8 * (addr & 0x03));
+                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
+                let mut reg_data:XlenType = self.mem_access(MemType::LOAD, MemSize::BYTE, rs1_data, addr as AddrType);
+                reg_data = Self::extend_sign(reg_data, 7);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::LH  => {
                 let rs1_data = self.read_reg(rs1);
-                let imm: AddrType = ((inst >> 20) & 0xfff) as AddrType;
-                let addr: AddrType = (self.read_reg(rs1) as AddrType) + imm;
-                let mut reg_data:XlenType = self.mem_access(MemType::LOAD, rs1_data, addr);
-                reg_data = reg_data >> (8 * (addr & 0x02)) ;
+                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
+                let mut reg_data:XlenType = self.mem_access(MemType::LOAD, MemSize::HWORD, rs1_data, addr as AddrType);
+                reg_data = Self::extend_sign(reg_data, 15);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::LW  => {
                 let rs1_data = self.read_reg(rs1);
-                let imm: AddrType = ((inst >> 20) & 0xfff) as AddrType;
-                let addr: AddrType = (self.read_reg(rs1) as AddrType) + imm;
-                let reg_data:XlenType = self.mem_access(MemType::LOAD, rs1_data, addr);
+                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
+                let reg_data:XlenType = self.mem_access(MemType::LOAD, MemSize::WORD, rs1_data, addr as AddrType);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::LBU  => {
                 let rs1_data = self.read_reg(rs1);
-                let imm: AddrType = ((inst >> 20) & 0xfff) as AddrType;
-                let addr: AddrType = (self.read_reg(rs1) as AddrType) + imm;
-                let mut reg_data:UXlenType = self.mem_access(MemType::LOAD, rs1_data, addr) as UXlenType;
-                reg_data = reg_data >> (8 * (addr & 0x03));
+                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
+                let reg_data:UXlenType = self.mem_access(MemType::LOAD, MemSize::BYTE, rs1_data, addr as AddrType) as UXlenType;
                 self.write_reg(rd, reg_data as XlenType);
             }
             RiscvInst::LHU  => {
                 let rs1_data = self.read_reg(rs1);
-                let imm: AddrType = ((inst >> 20) & 0xfff) as AddrType;
-                let addr: AddrType = (self.read_reg(rs1) as AddrType) + imm;
-                let mut reg_data:UXlenType = self.mem_access(MemType::LOAD, rs1_data, addr) as UXlenType;
-                reg_data = reg_data >> (8 * (addr & 0x02)) ;
+                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
+                let reg_data:UXlenType = self.mem_access(MemType::LOAD, MemSize::HWORD, rs1_data, addr as AddrType) as UXlenType;
                 self.write_reg(rd, reg_data as XlenType);
             }
             RiscvInst::ADDI => {
@@ -504,15 +539,21 @@ impl Riscv64Core for EnvBase {
             }
 
             RiscvInst::ADD => {
-                let reg_data:XlenType = self.read_reg(rs1) + self.read_reg(rs2);
+                let rs1_data = self.read_reg(rs1);
+                let rs2_data = self.read_reg(rs2);
+                let reg_data:XlenType = (Wrapping(rs1_data) + Wrapping(rs2_data)).0;
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SUB => {
-                let reg_data:XlenType = self.read_reg(rs1) - self.read_reg(rs2);
+                let rs1_data = self.read_reg(rs1);
+                let rs2_data = self.read_reg(rs2);
+                let reg_data:XlenType = (Wrapping(rs1_data) - Wrapping(rs2_data)).0;
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SLL => {
-                let reg_data:XlenType = self.read_reg(rs1) << (self.read_reg(rs2) as UXlenType);
+                let rs1_data = self.read_reg(rs1);
+                let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
+                let reg_data: XlenType = (Wrapping(rs1_data) << rs2_data as usize).0;
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SLT => {
@@ -528,11 +569,15 @@ impl Riscv64Core for EnvBase {
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SRL => {
-                let reg_data:UXlenType = (self.read_reg(rs1) as UXlenType) >> (self.read_reg(rs2) as UXlenType);
+                let rs1_data = self.read_reg(rs1) as UXlenType;
+                let rs2_data = self.read_reg(rs2);
+                let reg_data = (Wrapping(rs1_data) >> rs2_data as usize).0;
                 self.write_reg(rd, reg_data as XlenType);
             }
             RiscvInst::SRA => {
-                let reg_data:XlenType = self.read_reg(rs1) >> (self.read_reg(rs2) as UXlenType);
+                let rs1_data = self.read_reg(rs1);
+                let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
+                let reg_data: XlenType = (Wrapping(rs1_data) >> rs2_data as usize).0;
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::OR => {
@@ -543,15 +588,25 @@ impl Riscv64Core for EnvBase {
                 let reg_data:XlenType = self.read_reg(rs1) & self.read_reg(rs2);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::SW  => {
+            RiscvInst::SB  => {
                 let rs2_data = self.read_reg(rs2);
                 let addr:AddrType = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrType;
-                self.mem_access(MemType::STORE, rs2_data, addr);
+                self.mem_access(MemType::STORE, MemSize::BYTE, rs2_data, addr);
+            }
+            RiscvInst::SH  => {
+                let rs2_data = self.read_reg(rs2);
+                let addr:AddrType = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrType;
+                self.mem_access(MemType::STORE, MemSize::HWORD, rs2_data, addr);
+            }
+            RiscvInst::SW  => {
+                let rs2_data = self.read_reg(rs2);
+                let addr = (self.read_reg(rs1) + Self::extract_sfield(inst));
+                self.mem_access(MemType::STORE, MemSize::WORD, rs2_data, addr as AddrType);
             }
             RiscvInst::JAL => {
                 let addr:AddrType = Self::extract_uj_field(inst) as AddrType;
+                self.write_reg(rd, (self.m_pc + 4) as XlenType);
                 self.m_pc = (Wrapping(self.m_pc) + Wrapping(addr)).0;
-                self.write_reg(rd, (addr + 4) as XlenType);
                 update_pc = true;
             }
             RiscvInst::BEQ | RiscvInst::BNE | RiscvInst::BLT | RiscvInst::BGE | RiscvInst::BLTU | RiscvInst::BGEU => {
@@ -564,19 +619,23 @@ impl Riscv64Core for EnvBase {
                     RiscvInst::BNE  => jump_en = rs1_data != rs2_data,
                     RiscvInst::BLT  => jump_en = rs1_data <  rs2_data,
                     RiscvInst::BGE  => jump_en = rs1_data >= rs2_data,
-                    RiscvInst::BLTU => jump_en = (rs1_data as UXlenType) >= (rs2_data as UXlenType),
+                    RiscvInst::BLTU => jump_en = (rs1_data as UXlenType) <  (rs2_data as UXlenType),
                     RiscvInst::BGEU => jump_en = (rs1_data as UXlenType) >= (rs2_data as UXlenType),
                     _               => panic!("Unknown value Branch"),
                 }
                 if jump_en {
-                    self.m_pc = self.m_pc + addr;
+                    self.m_pc = (Wrapping(self.m_pc) + Wrapping(addr)).0;
                     update_pc = true;
                 }
             }
             RiscvInst::JALR => {
-                let addr: AddrType = Self::extract_ifield (inst) as AddrType;
+                let mut addr: AddrType = Self::extract_ifield (inst) as AddrType;
+                let rs1_data: AddrType = self.read_reg(rs1) as AddrType;
+                addr = (Wrapping(rs1_data) + Wrapping(addr)).0;
+                addr = addr & (!0x01);
+
+                self.write_reg(rd, (self.m_pc + 4) as XlenType);
                 self.m_pc = addr;
-                self.write_reg(rd, (addr + 4) as XlenType);
                 update_pc = true;
             }
             RiscvInst::FENCE   => {  }
@@ -609,7 +668,7 @@ impl Riscv64Core for EnvBase {
         }
     }
 
-    fn mem_access (&mut self, op: MemType, data: XlenType, addr: AddrType) -> XlenType
+    fn mem_access (&mut self, op: MemType, size: MemSize, data: XlenType, addr: AddrType) -> XlenType
     {
         match op {
             MemType::STORE => {
@@ -620,9 +679,13 @@ impl Riscv64Core for EnvBase {
                     self.m_finish_cpu = true;
                     self.m_fromhost = data;
                 } else {
-                    self.write_memory(addr, data);
+                    match size {
+                        MemSize::BYTE  => self.write_memory_byte (addr, data),
+                        MemSize::HWORD => self.write_memory_hword(addr, data),
+                        MemSize::WORD  => self.write_memory_word (addr, data),
+                        _              => 1
+                    };
                 }
-
             }
             MemType::LOAD  => {
                 if addr == self.m_tohost_addr {
@@ -630,12 +693,20 @@ impl Riscv64Core for EnvBase {
                 } else if addr == self.m_fromhost_addr {
                     return self.m_fromhost;
                 } else {
-                    return self.read_memory(addr);
+                    match size {
+                        MemSize::BYTE  => return self.read_memory_byte (addr),
+                        MemSize::HWORD => return self.read_memory_hword(addr),
+                        MemSize::WORD  => return self.read_memory_word (addr),
+                        _              => 1
+                    };
                 }
             }
         }
         return 0;
     }
 
+    fn get_is_finish_cpu (&mut self) -> bool { return self.m_finish_cpu; }
 
+    fn get_tohost (&mut self) -> XlenType { return self.m_tohost; }
+    fn get_fromhost (&mut self) -> XlenType { return self.m_fromhost; }
 }
