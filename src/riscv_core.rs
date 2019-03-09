@@ -23,6 +23,7 @@ pub enum RiscvInst {
     LB, LH, LW, LBU, LHU, SW, SH, SB,
     JAL, JALR,
     BEQ, BNE, BLT, BGE, BLTU, BGEU,
+    MUL, MULH, MULHSU, MULHU, DIV, DIVU, REM, REMU,
     FENCE, FENCEI,
     ECALL, EBREAK,
     MRET, SRET, URET,
@@ -313,28 +314,41 @@ impl Riscv64Core for EnvBase {
                 }
             }
             0x33 => {
-                match funct3 {
-                    0b000 => {
-                        match funct5 {
-                            0b0000000 => dec_inst = RiscvInst::ADD,
-                            0b0100000 => dec_inst = RiscvInst::SUB,
-                            _         => dec_inst = RiscvInst::NOP
+                match funct5 {
+                    0b0000000 => {
+                        match funct3 {
+                            0b000 => dec_inst = RiscvInst::ADD,
+                            0b001 => dec_inst = RiscvInst::SLL,
+                            0b010 => dec_inst = RiscvInst::SLT,
+                            0b011 => dec_inst = RiscvInst::SLTU,
+                            0b100 => dec_inst = RiscvInst::XOR,
+                            0b101 => dec_inst = RiscvInst::SRL,
+                            0b110 => dec_inst = RiscvInst::OR,
+                            0b111 => dec_inst = RiscvInst::AND,
+                            _     => dec_inst = RiscvInst::NOP
                         }
                     }
-                    0b001 => dec_inst = RiscvInst::SLL,
-                    0b010 => dec_inst = RiscvInst::SLT,
-                    0b011 => dec_inst = RiscvInst::SLTU,
-                    0b100 => dec_inst = RiscvInst::XOR,
-                    0b101 => {
-                        match funct5 {
-                            0b0000000 => dec_inst = RiscvInst::SRL,
-                            0b0100000 => dec_inst = RiscvInst::SRA,
-                            _         => dec_inst = RiscvInst::NOP
+                    0b0100000 => {
+                        match funct3 {
+                            0b000 => dec_inst = RiscvInst::SUB,
+                            0b101 => dec_inst = RiscvInst::SRA,
+                            _     => dec_inst = RiscvInst::NOP
                         }
                     }
-                    0b110 => dec_inst = RiscvInst::OR,
-                    0b111 => dec_inst = RiscvInst::AND,
-                    _     => dec_inst = RiscvInst::NOP,
+                    0b0000001 => {
+                        match funct3 {
+                            0b000 => dec_inst = RiscvInst::MUL,
+                            0b001 => dec_inst = RiscvInst::MULH,
+                            0b010 => dec_inst = RiscvInst::MULHSU,
+                            0b011 => dec_inst = RiscvInst::MULHU,
+                            0b100 => dec_inst = RiscvInst::DIV,
+                            0b101 => dec_inst = RiscvInst::DIVU,
+                            0b110 => dec_inst = RiscvInst::REM,
+                            0b111 => dec_inst = RiscvInst::REMU,
+                            _     => dec_inst = RiscvInst::NOP
+                        }
+                    }
+                    _        => dec_inst = RiscvInst::NOP
                 }
             }
             0x03 =>
@@ -577,9 +591,90 @@ impl Riscv64Core for EnvBase {
             RiscvInst::SRA => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
-                let reg_data: XlenType = (Wrapping(rs1_data) >> rs2_data as usize).0;
+                let reg_data: XlenType = (Wrapping(rs1_data) >> (rs2_data as usize)).0;
                 self.write_reg(rd, reg_data);
             }
+
+            RiscvInst::MUL => {
+                let rs1_data = self.read_reg(rs1);
+                let rs2_data = self.read_reg(rs2);
+                let reg_data: XlenType = (Wrapping(rs1_data) * Wrapping(rs2_data)).0;
+                self.write_reg(rd, reg_data);
+            }
+            RiscvInst::MULH => {
+                let rs1_data: i64 = self.read_reg(rs1) as i64;
+                let rs2_data: i64 = self.read_reg(rs2) as i64;
+                let mut reg_data: i64 = (Wrapping(rs1_data) * Wrapping(rs2_data)).0;
+                reg_data = (reg_data >> 32) & 0x0ffffffff;
+                self.write_reg(rd, reg_data as XlenType);
+            }
+            RiscvInst::MULHSU => {
+                let rs1_data: i64 = (self.read_reg(rs1) as i32) as i64;
+                let rs2_data: i64 = (self.read_reg(rs2) as u32) as i64;
+                let mut reg_data: i64 = rs1_data * rs2_data;
+                reg_data = (reg_data >> 32) & 0xffffffff;
+                self.write_reg(rd, reg_data as XlenType);
+            }
+            RiscvInst::MULHU => {
+                let rs1_data:u64 = (self.read_reg(rs1) as u32) as u64;
+                let rs2_data:u64 = (self.read_reg(rs2) as u32) as u64;
+                let reg_data:u64 = (Wrapping(rs1_data) * Wrapping(rs2_data)).0 >> 32;
+                self.write_reg(rd, reg_data as XlenType);
+            }
+
+            RiscvInst::REM => {
+                let rs1_data = self.read_reg(rs1);
+                let rs2_data = self.read_reg(rs2);
+                let mut reg_data: XlenType;
+                if rs2_data == 0 {
+                    reg_data = rs1_data;
+                } else if rs2_data == -1 {
+                    reg_data = 0;
+                } else {
+                    reg_data = (Wrapping(rs1_data) % Wrapping(rs2_data)).0;
+                }
+                self.write_reg(rd, reg_data);
+            }
+            RiscvInst::REMU => {
+                let rs1_data: UXlenType = self.read_reg(rs1) as UXlenType;
+                let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
+                let mut reg_data: UXlenType;
+                if rs2_data == 0 {
+                    reg_data = rs1_data;
+                } else {
+                    reg_data = (Wrapping(rs1_data) % Wrapping(rs2_data)).0;
+                }
+                self.write_reg(rd, reg_data as XlenType);
+            }
+
+            RiscvInst::DIV => {
+                let rs1_data = self.read_reg(rs1);
+                let rs2_data = self.read_reg(rs2);
+                let mut reg_data: XlenType;
+                if rs2_data == 0 {
+                    reg_data = -1;
+                } else if rs2_data == -1 {
+                    reg_data = rs1_data.wrapping_neg();
+                } else {
+                    reg_data = rs1_data;
+                    reg_data = (Wrapping(rs1_data) / Wrapping(rs2_data)).0;
+                    // reg_data.wrapping_div(rs2_data);
+                }
+                self.write_reg(rd, reg_data);
+            }
+            RiscvInst::DIVU => {
+                let rs1_data: UXlenType = self.read_reg(rs1) as UXlenType;
+                let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
+                let mut reg_data: UXlenType;
+                if rs2_data == 0 {
+                    reg_data = 0xffffffff;
+                } else {
+                    reg_data = (Wrapping(rs1_data) / Wrapping(rs2_data)).0;
+                }
+                self.write_reg(rd, reg_data as XlenType);
+            }
+
+
             RiscvInst::OR => {
                 let reg_data:XlenType = self.read_reg(rs1) | self.read_reg(rs2);
                 self.write_reg(rd, reg_data);
@@ -600,7 +695,7 @@ impl Riscv64Core for EnvBase {
             }
             RiscvInst::SW  => {
                 let rs2_data = self.read_reg(rs2);
-                let addr = (self.read_reg(rs1) + Self::extract_sfield(inst));
+                let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
                 self.mem_access(MemType::STORE, MemSize::WORD, rs2_data, addr as AddrType);
             }
             RiscvInst::JAL => {

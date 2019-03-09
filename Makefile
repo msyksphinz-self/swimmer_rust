@@ -1,4 +1,7 @@
-TEST_PATTERNS = $(wildcard ./riscv-tests/isa/rv32ui-p-*.bin)
+TEST_PATTERNS =
+TEST_PATTERNS += $(wildcard ./riscv-tests/isa/rv32ui-p-*.bin)
+TEST_PATTERNS += $(wildcard ./riscv-tests/isa/rv32um-p-*.bin)
+
 RUN_PATTERNS = $(addsuffix _run,$(notdir $(basename $(TEST_PATTERNS))))
 
 .PHONY : all
