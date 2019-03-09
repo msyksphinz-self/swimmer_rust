@@ -478,7 +478,7 @@ impl Riscv64Core for EnvBase {
             }
             RiscvInst::AUIPC => {
                 let mut imm: XlenType = Self::extend_sign (Self::extract_bit_field (inst, 31, 12), 19);
-                imm = (Wrapping(imm << 12) + Wrapping(self.m_pc as XlenType)).0;
+                imm = (imm << 12).wrapping_add (self.m_pc as XlenType);
                 self.write_reg(rd, imm);
             }
             RiscvInst::LB  => {
@@ -516,7 +516,7 @@ impl Riscv64Core for EnvBase {
             RiscvInst::ADDI => {
                 let rs1_data = self.read_reg(rs1);
                 let imm_data = Self::extract_ifield (inst);
-                let reg_data:XlenType = (Wrapping(rs1_data) + Wrapping(imm_data)).0;
+                let reg_data: XlenType = rs1_data.wrapping_add(imm_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SLTI => {
@@ -555,19 +555,19 @@ impl Riscv64Core for EnvBase {
             RiscvInst::ADD => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let reg_data:XlenType = (Wrapping(rs1_data) + Wrapping(rs2_data)).0;
+                let reg_data:XlenType = rs1_data.wrapping_add(rs2_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SUB => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let reg_data:XlenType = (Wrapping(rs1_data) - Wrapping(rs2_data)).0;
+                let reg_data:XlenType = rs1_data.wrapping_sub(rs2_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SLL => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
-                let reg_data: XlenType = (Wrapping(rs1_data) << rs2_data as usize).0;
+                let reg_data: XlenType = rs1_data.wrapping_shl(rs2_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SLT => {
@@ -585,64 +585,65 @@ impl Riscv64Core for EnvBase {
             RiscvInst::SRL => {
                 let rs1_data = self.read_reg(rs1) as UXlenType;
                 let rs2_data = self.read_reg(rs2);
-                let reg_data = (Wrapping(rs1_data) >> rs2_data as usize).0;
+                let reg_data = rs1_data.wrapping_shr(rs2_data as u32);
                 self.write_reg(rd, reg_data as XlenType);
             }
             RiscvInst::SRA => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
-                let reg_data: XlenType = (Wrapping(rs1_data) >> (rs2_data as usize)).0;
+                let reg_data: XlenType = rs1_data.wrapping_shr(rs2_data as u32);
                 self.write_reg(rd, reg_data);
             }
 
             RiscvInst::MUL => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let reg_data: XlenType = (Wrapping(rs1_data) * Wrapping(rs2_data)).0;
+                let reg_data: XlenType = rs1_data.wrapping_mul(rs2_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::MULH => {
                 let rs1_data: i64 = self.read_reg(rs1) as i64;
                 let rs2_data: i64 = self.read_reg(rs2) as i64;
-                let mut reg_data: i64 = (Wrapping(rs1_data) * Wrapping(rs2_data)).0;
+                let mut reg_data: i64 = rs1_data.wrapping_mul(rs2_data);
                 reg_data = (reg_data >> 32) & 0x0ffffffff;
                 self.write_reg(rd, reg_data as XlenType);
             }
             RiscvInst::MULHSU => {
                 let rs1_data: i64 = (self.read_reg(rs1) as i32) as i64;
                 let rs2_data: i64 = (self.read_reg(rs2) as u32) as i64;
-                let mut reg_data: i64 = rs1_data * rs2_data;
+                let mut reg_data: i64 = rs1_data.wrapping_mul(rs2_data);
                 reg_data = (reg_data >> 32) & 0xffffffff;
                 self.write_reg(rd, reg_data as XlenType);
             }
             RiscvInst::MULHU => {
                 let rs1_data:u64 = (self.read_reg(rs1) as u32) as u64;
                 let rs2_data:u64 = (self.read_reg(rs2) as u32) as u64;
-                let reg_data:u64 = (Wrapping(rs1_data) * Wrapping(rs2_data)).0 >> 32;
+                let mut reg_data:u64 = rs1_data.wrapping_mul(rs2_data);
+                reg_data = (reg_data >> 32) & 0xffffffff;
                 self.write_reg(rd, reg_data as XlenType);
             }
 
             RiscvInst::REM => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let mut reg_data: XlenType;
+                let reg_data: XlenType;
                 if rs2_data == 0 {
                     reg_data = rs1_data;
                 } else if rs2_data == -1 {
                     reg_data = 0;
                 } else {
-                    reg_data = (Wrapping(rs1_data) % Wrapping(rs2_data)).0;
+                    reg_data = rs1_data.wrapping_rem(rs2_data);
                 }
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::REMU => {
                 let rs1_data: UXlenType = self.read_reg(rs1) as UXlenType;
                 let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
-                let mut reg_data: UXlenType;
+                let reg_data: UXlenType;
                 if rs2_data == 0 {
                     reg_data = rs1_data;
                 } else {
-                    reg_data = (Wrapping(rs1_data) % Wrapping(rs2_data)).0;
+                    reg_data = rs1_data.wrapping_rem(rs2_data);
                 }
                 self.write_reg(rd, reg_data as XlenType);
             }
@@ -650,26 +651,22 @@ impl Riscv64Core for EnvBase {
             RiscvInst::DIV => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let mut reg_data: XlenType;
+                let reg_data: XlenType;
                 if rs2_data == 0 {
                     reg_data = -1;
-                } else if rs2_data == -1 {
-                    reg_data = rs1_data.wrapping_neg();
                 } else {
-                    reg_data = rs1_data;
-                    reg_data = (Wrapping(rs1_data) / Wrapping(rs2_data)).0;
-                    // reg_data.wrapping_div(rs2_data);
+                    reg_data = rs1_data.wrapping_div(rs2_data);
                 }
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::DIVU => {
                 let rs1_data: UXlenType = self.read_reg(rs1) as UXlenType;
                 let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
-                let mut reg_data: UXlenType;
+                let reg_data: UXlenType;
                 if rs2_data == 0 {
                     reg_data = 0xffffffff;
                 } else {
-                    reg_data = (Wrapping(rs1_data) / Wrapping(rs2_data)).0;
+                    reg_data = rs1_data.wrapping_div(rs2_data);
                 }
                 self.write_reg(rd, reg_data as XlenType);
             }
@@ -701,7 +698,7 @@ impl Riscv64Core for EnvBase {
             RiscvInst::JAL => {
                 let addr:AddrType = Self::extract_uj_field(inst) as AddrType;
                 self.write_reg(rd, (self.m_pc + 4) as XlenType);
-                self.m_pc = (Wrapping(self.m_pc) + Wrapping(addr)).0;
+                self.m_pc = self.m_pc.wrapping_add(addr);
                 update_pc = true;
             }
             RiscvInst::BEQ | RiscvInst::BNE | RiscvInst::BLT | RiscvInst::BGE | RiscvInst::BLTU | RiscvInst::BGEU => {
@@ -719,14 +716,14 @@ impl Riscv64Core for EnvBase {
                     _               => panic!("Unknown value Branch"),
                 }
                 if jump_en {
-                    self.m_pc = (Wrapping(self.m_pc) + Wrapping(addr)).0;
+                    self.m_pc = self.m_pc.wrapping_add(addr);
                     update_pc = true;
                 }
             }
             RiscvInst::JALR => {
                 let mut addr: AddrType = Self::extract_ifield (inst) as AddrType;
                 let rs1_data: AddrType = self.read_reg(rs1) as AddrType;
-                addr = (Wrapping(rs1_data) + Wrapping(addr)).0;
+                addr = rs1_data.wrapping_add(addr);
                 addr = addr & (!0x01);
 
                 self.write_reg(rd, (self.m_pc + 4) as XlenType);
