@@ -179,6 +179,19 @@ pub enum CsrAddr {
     // Mhpmcounter29h = 0xb9d,
     // Mhpmcounter30h = 0xb9e,
     // Mhpmcounter31h = 0xb9f,
+
+    Sstatus    = 0x100,
+    Sedeleg    = 0x102,
+    Sideleg    = 0x103,
+    Sie        = 0x104,
+    Stvec      = 0x105,
+    Scounteren = 0x106,
+    Sscratch   = 0x140,
+    Sepc       = 0x141,
+    Scause     = 0x142,
+    Stval      = 0x143,
+    Sip        = 0x144,
+    Satp       = 0x180,
 }
 
 
@@ -367,6 +380,18 @@ impl CsrAddr {
             // 0xb9d => CsrAddr::Mhpmcounter29h,
             // 0xb9e => CsrAddr::Mhpmcounter30h,
             // 0xb9f => CsrAddr::Mhpmcounter31h,
+            0x100 => CsrAddr::Sstatus    ,
+            0x102 => CsrAddr::Sedeleg    ,
+            0x103 => CsrAddr::Sideleg    ,
+            0x104 => CsrAddr::Sie        ,
+            0x105 => CsrAddr::Stvec      ,
+            0x106 => CsrAddr::Scounteren ,
+            0x140 => CsrAddr::Sscratch   ,
+            0x141 => CsrAddr::Sepc       ,
+            0x142 => CsrAddr::Scause     ,
+            0x143 => CsrAddr::Stval      ,
+            0x144 => CsrAddr::Sip        ,
+            0x180 => CsrAddr::Satp       ,
             _     => CsrAddr::None,
         }
     }
@@ -435,6 +460,8 @@ pub struct RiscvCsr
     pub m_dpc       : RiscvCsrBase,
     pub m_dscratch  : RiscvCsrBase,
     pub m_medeleg   : RiscvCsrBase,
+
+    pub m_satp : RiscvCsrBase,
 }
 
 pub trait Riscv64Csr {
@@ -467,6 +494,8 @@ impl Riscv64Csr for RiscvCsr {
             CsrAddr::Dpc       => return self.m_dpc       .csrrw(data),
             CsrAddr::Dscratch  => return self.m_dscratch  .csrrw(data),
             CsrAddr::Medeleg   => return self.m_medeleg   .csrrw(data),
+
+            CsrAddr::Satp      => return self.m_satp      .csrrw(data),
             _                  => return 0x0,
         }
     }
@@ -493,6 +522,8 @@ impl Riscv64Csr for RiscvCsr {
             CsrAddr::Dpc       => return self.m_dpc       .csrrs(data),
             CsrAddr::Dscratch  => return self.m_dscratch  .csrrs(data),
             CsrAddr::Medeleg   => return self.m_medeleg   .csrrs(data),
+
+            CsrAddr::Medeleg   => return self.m_satp      .csrrs(data),
             _                  => return 0x0,
         }
     }
@@ -520,6 +551,8 @@ impl Riscv64Csr for RiscvCsr {
             CsrAddr::Dpc       => return self.m_dpc       .csrrc(data),
             CsrAddr::Dscratch  => return self.m_dscratch  .csrrc(data),
             CsrAddr::Medeleg   => return self.m_medeleg   .csrrc(data),
+
+            CsrAddr::Medeleg   => return self.m_satp      .csrrc(data),
             _                  => return 0x0,
         }
     }

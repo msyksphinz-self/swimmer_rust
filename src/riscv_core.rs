@@ -1,4 +1,5 @@
 use std::num::Wrapping;
+use num::iter::range;
 
 use crate::riscv_csr::RiscvCsrBase;
 use crate::riscv_csr::RiscvCsr;
@@ -29,6 +30,21 @@ pub enum RiscvInst {
     MRET, SRET, URET,
     NOP,
     WFI
+}
+
+pub enum MemAccType {
+    Fetch = 0,
+    Write = 1,
+    Read  = 2,
+}
+
+
+pub enum MemResult {
+    NoExcept = 0,
+    MisAlign   = 1 << 0,
+    NotDefined = 1 << 1,
+    NewRegion  = 1 << 2,
+    TlbError   = 1 << 3
 }
 
 
@@ -211,6 +227,12 @@ pub trait Riscv64Core {
     fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstType);
 
     fn mem_access (&mut self, op: MemType, size: MemSize, data: XlenType, addr: AddrType) -> XlenType;
+
+    fn WalkPageTable (&mut self, vaddr:AddrType, acc_type:MemAccType,
+                      init_level:u32 , ppn_idx:Vec<u32>,
+                      pte_len:Vec<AddrType>, pte_idx:Vec<AddrType>,
+                      vpn_len:Vec<AddrType>, vpn_idx:Vec<u32>,
+                      PAGESIZE:i32, PTESIZE:i32) -> MemResult;
 
     fn get_is_finish_cpu (&mut self) -> bool;
 
@@ -795,6 +817,227 @@ impl Riscv64Core for EnvBase {
             }
         }
         return 0;
+    }
+
+    fn WalkPageTable (&mut self, vaddr:AddrType, acc_type:MemAccType,
+                      init_level:u32 , ppn_idx:Vec<u32>,
+                      pte_len:Vec<AddrType>, pte_idx:Vec<AddrType>,
+                      vpn_len:Vec<AddrType>, vpn_idx:Vec<u32>,
+                      PAGESIZE:i32, PTESIZE:i32) -> (MemResult, AddrType) {
+        //===================
+        // Simple TLB Search
+        //===================
+        // let vaddr_vpn: AddrType = (vaddr >> 12);
+        // let vaddr_tag: u8 = vaddr_vpn & (tlb_width-1);
+        // if (m_tlb_en[vaddr_tag] && m_tlb_tag[vaddr_tag] == vaddr_vpn) {
+        //     let paddr:AddrType = (m_tlb_addr[vaddr_tag] & !0x0fff) + (vaddr & 0x0fff);
+        //     let pte_val:u64 = m_tlb_addr[vaddr_tag] & 0x0ff;
+        //
+        //     if (!IsAllowedAccess ((pte_val >> 1) & 0x0f, acc_type, GetPrivMode())) {
+        //         DebugPrint ("<Page Access Failed. Allowed Access Failed PTE_VAL=%016lx>\n", pte_val);
+        //         return (MemResult::TlbError, paddr);
+        //     }
+        //     if (((pte_val & 0x40) == 0) || // PTE.A
+        //         ((acc_type == MemAccType::WriteMemType) && (pte_val & 0x80) == 0)) { // PTE.D
+        //         println!("<Access Fault : Page Permission Fault {:01x}>\n", (pte_val >> 1) & 0x0f);
+        //         if (acc_type == MemAccType::FetchMemType) {
+        //             GenerateException (ExceptCode::InstPageFault, vaddr);
+        //         }
+        //         return (MemResult::TlbError, paddr);
+        //     }
+        //     return (MemResult::NoExcept, paddr);
+        // }
+
+        let phy_addr:AddrType = vaddr & 0x0fff;
+
+        let sptbr: u32 = self.m_csr.csrrs(CsrAddr::Satp, 0);
+        let pte_base:u64 = ExtractSptbrPpnField(sptbr);
+
+        let pte_val: u32;
+        let pte_addr: AddrType = pte_base * PAGESIZE;
+        let level:i32;
+
+        // DebugPrint ("<Info: SATP=%016lx>\n", sptbr);
+
+        for level in range(0, init_level).rev() {
+            // for (level = init_level-1; level >= 0; level--) {
+            // bool is_leaf_achieve = false;
+            let va_vpn_i: AddrType = (vaddr >> vpn_idx[level]) & ((1 << vpn_len[level]) - 1);
+            pte_addr += (va_vpn_i * PTESIZE);
+
+            // if (m_bit_mode == RiscvBitMode_t::Bit64) {
+            //     LoadMemoryDebug<u32> (pte_addr, &pte_val);
+            // } else {
+            // pte_addr &= 0x0FFFFFFFFULL;
+            let pte_val = self.read_memory_word (pte_addr);
+            // }
+
+            println! ("<Info: VAddr = 0x{:016x} PTEAddr = 0x{:016x} : PPTE = 0x{:016x}>\n", vaddr, pte_addr, pte_val);
+
+            // 3. If pte:v = 0, or if pte:r = 0 and pte:w = 1, stop and raise a page-fault exception.
+            if ((pte_val & 0x01) == 0 ||
+                (((pte_val & 0x02) == 0) && ((pte_val & 0x04) == 0x04))) {
+                {
+                    // let bit_length: u32 = m_bit_mode == RiscvBitMode_t::Bit32 ? 8 : 16;
+                    println!("<Page Table Error : 0x{:016x} = 0x{:08x} is not valid Page Table. Generate Exception>\n",
+                             pte_addr, pte_val);
+                }
+
+                if (acc_type == MemAccType::FetchMemType) {
+                    GenerateException (ExceptCode::Except_InstPageFault, vaddr);
+                }
+                return (MemResult::TlbError, 0);
+            }
+
+            // If pte:r = 1 or pte:x = 1, go to step 5. Otherwise, this PTE is a
+            // pointer to the next level of the page table. Let i = i − 1. If i < 0, stop and raise a page-fault
+            // exception. Otherwise, let a = pte:ppn × PAGESIZE and go to step 2.
+            if (((pte_val & 0x08) == 0x08) || ((pte_val & 0x02) == 0x02)) {
+                break;
+            } else {
+                if (level == 0) {
+                    println!("<Access Fault : Tried to Access to Page {:01x}>\n", ((pte_val >> 1) & 0x0f));
+
+                    if (acc_type == MemAccType::FetchMemType) {
+                        GenerateException (ExceptCode::Except_InstPageFault, vaddr);
+                    }
+                    return (MemResult::TlbError, 0);
+                }
+            }
+            let pte_ppn: AddrType = extract_bit_field (pte_val, pte_len[init_level-1] + pte_idx[init_level-1] - 1, pte_idx[0]);
+            pte_addr  = pte_ppn * PAGESIZE;
+        }
+
+        if (!IsAllowedAccess ((pte_val >> 1) & 0x0f, acc_type, GetPrivMode())) {
+            DebugPrint ("<Page Access Failed. Allowed Access Failed PTE_VAL=%016lx>\n", pte_val);
+            return (MemResult::TlbError, 0);
+        }
+
+        if (level != 0 && extract_bit_field (pte_val, pte_len[level-1]+pte_idx[level-1]-1, pte_idx[0]) != 0) {
+            // 6. If i > 0 and pa:ppn[i−1:0] != 0, this is a misaligned superpage
+            // stop and raise a page-fault exception.
+            // DebugPrint ("<Page Access Failed. Last PTE != 0>\n");
+            return (MemResult::TlbError, 0);
+        }
+
+        if (((pte_val & 0x40) == 0) || // PTE.A
+            ((acc_type == MemAccType::WriteMemType) && (pte_val & 0x80) == 0)) { // PTE.D
+            println!("<Access Fault : Page Permission Fault {:01x}\n", ((pte_val >> 1) & 0x0f));
+            if (acc_type == MemAccType::FetchMemType) {
+                GenerateException (ExceptCode::Except_InstPageFault, vaddr);
+            }
+            return (MemResult::TlbError, 0);
+        }
+
+        phy_addr = extract_bit_field (pte_val, pte_len[init_level-1] + pte_idx[init_level-1] - 1, pte_idx[level]) << ppn_idx[level];
+        for level in range(0, init_level).rev() {
+            let vaddr_vpn: AddrType = extract_bit_field(vaddr, vpn_len[level] + vpn_idx[level] - 1, vpn_idx[level]);
+            phy_addr |= (vaddr_vpn << ppn_idx[level]);
+        }
+
+        // Finally Add Page Offset
+        phy_addr |= extract_bit_field(vaddr, vpn_idx[0] - 1, 0);
+
+        *paddr = phy_addr;
+
+        //==========================
+        // Update Simple TLB Search
+        //==========================
+        // println!("<Info: TLB[{:d}] <= 0x{:016x}(0x{:016x})>\n", vaddr_tag, vaddr_vpn, *paddr & !0x0fff);
+        // m_tlb_en  [vaddr_tag] = true;
+        // m_tlb_tag [vaddr_tag] = vaddr_vpn;
+        // m_tlb_addr[vaddr_tag] = (*paddr & !0x0fff) | (pte_val & 0x0ff);
+
+        println!("Converted Virtual Address is = 0x{:016x}\n", paddr);
+
+        return (MemResult::NoExcept, paddr);
+
+    }
+
+    fn GenerateException (ExceptCode code, Xlen_t tval) ->
+    {
+        FlushTlb();
+
+        if (code != ExceptCode::Except_IllegalInst &&
+            code != ExceptCode::Except_EcallFromSMode) {
+            Addr_t paddr;
+            ConvertVirtualAddress (&paddr, GetPC(), MemAccType::ReadMemType);
+            println! ("<Info: GenerateException Code={:d}, TVAL={:016x} PC={:016x},{:016x}>\n", code, tval, GetPC(), paddr);
+        }
+
+        let epc:Addr_t;
+        if (code == ExceptCode::Except_InstAddrMisalign) {
+            epc = GetPreviousPC ();
+        } else {
+            epc = GetPC ();
+        }
+
+        curr_priv: PrivMode = GetPrivMode ();
+
+        let medeleg: XlenType;
+        let mstatus: XlenType, sstatus: XlenType;
+        let tvec: AddrType;
+        CSRRead (CsrAddr::MEDELEG, &medeleg);
+        PrivMode next_priv = PrivMode::PrivMachine;
+        SetPrivMode (next_priv);
+        if (medeleg & (1 << static_cast<UDWord_t>(code))) {
+            // Delegation
+            CSRWrite (CsrAddr::Sepc,   epc);
+            CSRWrite (CsrAddr::Scause, static_cast<UDWord_t>(code));
+            CSRWrite (CsrAddr::Stval,  tval);
+
+            CSRRead  (CsrAddr::Stvec, &tvec);
+            next_priv = PrivMode::PrivSupervisor;
+        } else {
+            CSRWrite (CsrAddr::Mepc,   epc);
+            CSRWrite (CsrAddr::Mcause, static_cast<UDWord_t>(code));
+            CSRWrite (CsrAddr::Mtval,  tval);
+
+            CSRRead  (CsrAddr::Mtvec, &tvec);
+        }
+
+        // Update status CSR
+        if (medeleg & (1 << static_cast<UDWord_t>(code))) {
+            // Delegation
+            CSRRead  (CsrAddr::SSTATUS, &sstatus);
+            sstatus = SetBitField(sstatus, ExtractBitField(sstatus, SYSREG_SSTATUS_SIE_MSB, SYSREG_SSTATUS_SIE_LSB),
+                                  SYSREG_SSTATUS_SPIE_MSB, SYSREG_SSTATUS_SPIE_LSB);
+            sstatus = SetBitField(sstatus, static_cast<uint64_t>(curr_priv), SYSREG_SSTATUS_SPP_MSB, SYSREG_SSTATUS_SPP_LSB);
+            sstatus = SetBitField(sstatus, 0, SYSREG_SSTATUS_SIE_MSB, SYSREG_SSTATUS_SIE_LSB);
+            CSRWrite (CsrAddr::SSTATUS, sstatus);
+        } else {
+            CSRRead  (CsrAddr::MSTATUS, &mstatus);
+
+            mstatus = SetBitField(mstatus, ExtractBitField(mstatus, SYSREG_MSTATUS_MIE_MSB, SYSREG_MSTATUS_MIE_LSB),
+                                  SYSREG_MSTATUS_MPIE_MSB, SYSREG_MSTATUS_MPIE_LSB);
+            mstatus = SetBitField(mstatus, static_cast<uint64_t>(curr_priv), SYSREG_MSTATUS_MPP_MSB, SYSREG_MSTATUS_MPP_LSB);
+            mstatus = SetBitField(mstatus, 0, SYSREG_MSTATUS_MIE_MSB, SYSREG_MSTATUS_MIE_LSB);
+
+            CSRWrite (CsrAddr::MSTATUS, mstatus);
+        }
+
+        if (m_bit_mode == RiscvBitMode_t::Bit32) {
+            tvec = tvec & 0xffffffffULL;
+        }
+
+        SetPrivMode (next_priv);
+
+        SetPC (tvec);
+        SetJumped (true);
+
+        println! ("<Info: Exception. ChangeMode from %s to %s>\n",
+                  PrintPrivMode(curr_priv).c_str(),
+                  PrintPrivMode(next_priv).c_str());
+        println! ("<Info: Set Program Counter = 0x%08x%08x>\n", tvec >> 32, tvec);
+
+        // Relesae Load Reservation
+        ClearLoadReservation ();
+
+        // // CountUp Timer
+        // m_riscv_clint->Increment(INTERLEAVE / INSNS_PER_RTC_TICK);
+        // m_count_timer = 0;
+
+        return;
     }
 
     fn get_is_finish_cpu (&mut self) -> bool { return self.m_finish_cpu; }
