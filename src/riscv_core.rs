@@ -142,6 +142,8 @@ pub struct EnvBase {
     pub m_memory: [u8; DRAM_SIZE], // memory
     pub m_csr: RiscvCsr,
 
+    m_priv: PrivMode,
+
     m_tohost_addr: AddrType,
     m_fromhost_addr: AddrType,
     m_tohost: XlenType,
@@ -183,6 +185,7 @@ impl EnvBase {
                 m_dscratch: RiscvCsrBase { m_csr: 0 },
                 m_medeleg: RiscvCsrBase { m_csr: 0 },
             },
+            m_priv: PrivMode::PrivMachine,
         }
     }
 
@@ -195,6 +198,11 @@ impl EnvBase {
     fn extract_bit_field(hex: InstType, left: XlenType, right: XlenType) -> XlenType {
         let mask: XlenType = (1 << (left - right + 1)) - 1;
         return ((hex >> right) & (mask as UXlenType)) as XlenType;
+    }
+
+    fn set_bit_field(hex: InstType, val: XlenType, left: XlenType, right: XlenType) -> XlenType {
+        let mask: XlenType = (1 << (left - right + 1)) - 1;
+        return (hex & !(mask << right)) | (val << right);
     }
 
     fn extract_uj_field(hex: InstType) -> XlenType {
@@ -235,14 +243,6 @@ impl EnvBase {
         let u_res: XlenType = (i31_25 << 5) | (i11_07 << 0);
 
         return Self::extend_sign(u_res, 11);
-    }
-
-    fn GetPrivMode() -> PrivMode {
-        return m_priv;
-    }
-    fn SetPrivMode(priv_mode: PrivMode) {
-        m_priv = priv_mode;
-        FlushTlb();
     }
 
     fn sext_xlen(hex: InstType) -> XlenType {
@@ -296,6 +296,14 @@ pub trait Riscv64Core {
 
     fn GenerateException(&mut self, code: ExceptCode, tval: XlenType);
     fn PrintPrivMode(priv_mode: PrivMode) -> String;
+
+    fn GetPrivMode(&mut self) -> PrivMode {
+        return self.m_priv;
+    }
+    fn SetPrivMode(&mut self, priv_mode: PrivMode) {
+        self.m_priv = priv_mode;
+        // FlushTlb();
+    }
 
     fn get_is_finish_cpu(&mut self) -> bool;
 
@@ -920,7 +928,7 @@ impl Riscv64Core for EnvBase {
 
         let phy_addr: AddrType = vaddr & 0x0fff;
 
-        let sptbr: u32 = self.m_csr.csrrs(CsrAddr::Satp, 0);
+        let sptbr = self.m_csr.csrrs(CsrAddr::Satp, 0);
         let pte_base: u64 = ExtractSptbrPpnField(sptbr);
 
         let pte_val: u32;
@@ -1036,8 +1044,6 @@ impl Riscv64Core for EnvBase {
         // Finally Add Page Offset
         phy_addr |= Self::extract_bit_field(vaddr, vpn_idx[0] - 1, 0);
 
-        *paddr = phy_addr;
-
         //==========================
         // Update Simple TLB Search
         //==========================
@@ -1046,93 +1052,93 @@ impl Riscv64Core for EnvBase {
         // m_tlb_tag [vaddr_tag] = vaddr_vpn;
         // m_tlb_addr[vaddr_tag] = (*paddr & !0x0fff) | (pte_val & 0x0ff);
 
-        println!("Converted Virtual Address is = 0x{:016x}\n", paddr);
+        // println!("Converted Virtual Address is = 0x{:016x}\n", paddr);
 
-        return (MemResult::NoExcept, paddr);
+        return (MemResult::NoExcept, phy_addr);
     }
 
     fn GenerateException(&mut self, code: ExceptCode, tval: XlenType) {
-        FlushTlb();
+        // FlushTlb();
 
         if (code != ExceptCode::Except_IllegalInst && code != ExceptCode::Except_EcallFromSMode) {
-            let paddr: AddrType = ConvertVirtualAddress(GetPC(), MemAccType::ReadMemType);
+            let paddr: AddrType = ConvertVirtualAddress(self.m_pc, MemAccType::ReadMemType);
             // println!(
             //     "<Info: GenerateException Code={:d}, TVAL={:016x} PC={:016x},{:016x}>\n",
             //     code,
             //     tval,
-            //     GetPC(),
+            //     self.m_pc,
             //     paddr
             // );
         }
 
-        let epc: Addr_t;
+        let epc: AddrType;
         if (code == ExceptCode::Except_InstAddrMisalign) {
             epc = GetPreviousPC();
         } else {
-            epc = GetPC();
+            epc = self.m_pc;
         }
 
-        curr_priv: PrivMode = GetPrivMode();
+        let curr_priv: PrivMode = GetPrivMode();
 
-        let medeleg: XlenType;
-        let mstatus: XlenType;
-        let sstatus: XlenType;
-        let tvec: AddrType;
-        CSRRead(CsrAddr::MEDELEG, &medeleg);
+        let mut mstatus: XlenType;
+        let mut sstatus: XlenType;
+        let mut tvec: AddrType;
+        let medeleg = self.m_csr.csrrs(CsrAddr::MEDELEG);
         let next_priv: PrivMode = PrivMode::PrivMachine;
         SetPrivMode(next_priv);
         if (medeleg & (1 << code)) {
             // Delegation
-            CSRWrite(CsrAddr::Sepc, epc);
-            CSRWrite(CsrAddr::Scause, code);
-            CSRWrite(CsrAddr::Stval, tval);
+            self.m_csr.csrrw(CsrAddr::Sepc, epc);
+            self.m_csr.csrrw(CsrAddr::Scause, code);
+            self.m_csr.csrrw(CsrAddr::Stval, tval);
 
-            CSRRead(CsrAddr::Stvec, &tvec);
+            tvec = self.m_csr.csrrs(CsrAddr::Stvec);
             next_priv = PrivMode::PrivSupervisor;
         } else {
-            CSRWrite(CsrAddr::Mepc, epc);
-            CSRWrite(CsrAddr::Mcause, code);
-            CSRWrite(CsrAddr::Mtval, tval);
+            self.m_csr.csrrw(CsrAddr::Mepc, epc);
+            self.m_csr.csrrw(CsrAddr::Mcause, code);
+            self.m_csr.csrrw(CsrAddr::Mtval, tval);
 
-            CSRRead(CsrAddr::Mtvec, &tvec);
+            tvec = self.m_csr.csrrs(CsrAddr::Mtvec);
         }
 
         // Update status CSR
         if (medeleg & (1 << code)) {
             // Delegation
-            CSRRead(CsrAddr::SSTATUS, &sstatus);
-            sstatus = SetBitField(
+            sstatus = self.m_csr.csrrs(CsrAddr::SSTATUS);
+            sstatus = Self::set_bit_field(
                 sstatus,
-                ExtractBitField(sstatus, SYSREG_SSTATUS_SIE_MSB, SYSREG_SSTATUS_SIE_LSB),
+                Self::extract_bit_field(sstatus, SYSREG_SSTATUS_SIE_MSB, SYSREG_SSTATUS_SIE_LSB),
                 SYSREG_SSTATUS_SPIE_MSB,
                 SYSREG_SSTATUS_SPIE_LSB,
             );
-            sstatus = SetBitField(
+            sstatus = Self::set_bit_field(
                 sstatus,
                 curr_priv,
                 SYSREG_SSTATUS_SPP_MSB,
                 SYSREG_SSTATUS_SPP_LSB,
             );
-            sstatus = SetBitField(sstatus, 0, SYSREG_SSTATUS_SIE_MSB, SYSREG_SSTATUS_SIE_LSB);
-            CSRWrite(CsrAddr::SSTATUS, sstatus);
+            sstatus =
+                Self::set_bit_field(sstatus, 0, SYSREG_SSTATUS_SIE_MSB, SYSREG_SSTATUS_SIE_LSB);
+            self.m_csr.csrrw(CsrAddr::SSTATUS, sstatus);
         } else {
-            CSRRead(CsrAddr::MSTATUS, &mstatus);
-
-            mstatus = SetBitField(
+            mstatus = self.m_csr.csrrs(CsrAddr::MSTATUS);
+            mstatus = Self::set_bit_field(
                 mstatus,
-                ExtractBitField(mstatus, SYSREG_MSTATUS_MIE_MSB, SYSREG_MSTATUS_MIE_LSB),
+                Self::extract_bit_field(mstatus, SYSREG_MSTATUS_MIE_MSB, SYSREG_MSTATUS_MIE_LSB),
                 SYSREG_MSTATUS_MPIE_MSB,
                 SYSREG_MSTATUS_MPIE_LSB,
             );
-            mstatus = SetBitField(
+            mstatus = Self::set_bit_field(
                 mstatus,
                 curr_priv,
                 SYSREG_MSTATUS_MPP_MSB,
                 SYSREG_MSTATUS_MPP_LSB,
             );
-            mstatus = SetBitField(mstatus, 0, SYSREG_MSTATUS_MIE_MSB, SYSREG_MSTATUS_MIE_LSB);
+            mstatus =
+                Self::set_bit_field(mstatus, 0, SYSREG_MSTATUS_MIE_MSB, SYSREG_MSTATUS_MIE_LSB);
 
-            CSRWrite(CsrAddr::MSTATUS, mstatus);
+            self.m_csr.csrrw(CsrAddr::MSTATUS, mstatus);
         }
 
         if (m_bit_mode == RiscvBitMode::Bit32) {
