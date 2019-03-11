@@ -297,13 +297,14 @@ pub trait Riscv64Core {
     fn GenerateException(&mut self, code: ExceptCode, tval: XlenType);
     fn PrintPrivMode(priv_mode: PrivMode) -> String;
 
-    fn GetPrivMode(&mut self) -> PrivMode {
+    fn get_priv_mode(&mut self) -> PrivMode {
         return self.m_priv;
     }
-    fn SetPrivMode(&mut self, priv_mode: PrivMode) {
+    fn set_priv_mode(&mut self, priv_mode: PrivMode) {
         self.m_priv = priv_mode;
         // FlushTlb();
     }
+    fn is_allowed_access (&mut self, i_type: u8, acc_type: MemAccType, priv_mode: PrivMode) -> bool;
 
     fn get_is_finish_cpu(&mut self) -> bool;
 
@@ -911,7 +912,7 @@ impl Riscv64Core for EnvBase {
         //     let paddr:AddrType = (m_tlb_addr[vaddr_tag] & !0x0fff) + (vaddr & 0x0fff);
         //     let pte_val:u64 = m_tlb_addr[vaddr_tag] & 0x0ff;
         //
-        //     if (!IsAllowedAccess ((pte_val >> 1) & 0x0f, acc_type, GetPrivMode())) {
+        //     if (!is_allowed_access ((pte_val >> 1) & 0x0f, acc_type, self.m_priv)) {
         //         println! ("<Page Access Failed. Allowed Access Failed PTE_VAL=%016lx>\n", pte_val);
         //         return (MemResult::TlbError, paddr);
         //     }
@@ -928,8 +929,8 @@ impl Riscv64Core for EnvBase {
 
         let phy_addr: AddrType = vaddr & 0x0fff;
 
-        let sptbr = self.m_csr.csrrs(CsrAddr::Satp, 0);
-        let pte_base: u64 = ExtractSptbrPpnField(sptbr);
+        let satp = self.m_csr.csrrs(CsrAddr::Satp, 0);
+        let pte_base: u64 = Self::extract_bit_field(satp, SYSREG_SATP_PPN_MSB, SYSREG_SATP_PPN_LSB);
 
         let pte_val: u32;
         let pte_addr: AddrType = pte_base * PAGESIZE;
@@ -939,7 +940,7 @@ impl Riscv64Core for EnvBase {
 
         for level in range(0, init_level).rev() {
             // for (level = init_level-1; level >= 0; level--) {
-            // bool is_leaf_achieve = false;
+            // boole is_leaf_achieve = false;
             let va_vpn_i: AddrType = (vaddr >> vpn_idx[level]) & ((1 << vpn_len[level]) - 1);
             pte_addr += (va_vpn_i * PTESIZE);
 
@@ -995,7 +996,7 @@ impl Riscv64Core for EnvBase {
             pte_addr = pte_ppn * PAGESIZE;
         }
 
-        if (!IsAllowedAccess((pte_val >> 1) & 0x0f, acc_type, GetPrivMode())) {
+        if (!self.is_allowed_access((pte_val >> 1) & 0x0f, acc_type, self.m_priv)) {
             println!(
                 "<Page Access Failed. Allowed Access Failed PTE_VAL={:016x}>\n",
                 pte_val,
@@ -1057,11 +1058,53 @@ impl Riscv64Core for EnvBase {
         return (MemResult::NoExcept, phy_addr);
     }
 
+    fn convert_virtual_address (Addr_t *paddr, Addr_t vaddr, MemAccType acc_type) -> MemResult
+    {
+        let mstatus: XlenType = self.m_csr.csrrs(SYSREG_ADDR_MSTATUS, PrivMode::PrivMachine);
+        let mprv: u8 = self::extract_bit_field (mstatus, SYSREG_MSTATUS_MPRV_MSB, SYSREG_MSTATUS_MPRV_LSB);
+        let mpp: PrivMode  = self::extract_bit_field (mstatus, SYSREG_MSTATUS_MPP_MSB, SYSREG_MSTATUS_MPP_LSB);
+        let priv_mode: PrivMode = (acc_type != MemAccType::FetchMemType && mprv) ? mpp : self.get_priv_mode();
+
+        if GetVmMode() == RiscvVmMode::Vm_Sv39 && (priv_mode == PrivMode::PrivSupervisor ||
+                                                   priv_mode == PrivMode::PrivUser) {
+            uint32_t ppn_idx[3] = {12, 21, 30};
+    Addr_t   pte_len[3] = { 9,  9, 26};
+    Addr_t   pte_idx[3] = {10, 19, 28};
+    Addr_t   vpn_len[3] = { 9,  9,  9};
+    uint32_t vpn_idx[3] = {12, 21, 30};
+    const int PAGESIZE = std::pow(2, 12);
+    const int PTESIZE  = 8;
+    return WalkPageTable (paddr, vaddr, acc_type,
+                          3, ppn_idx,
+                          pte_len, pte_idx,
+                          vpn_len, vpn_idx,
+                          PAGESIZE, PTESIZE);
+  } else if (GetVmMode() == RiscvVmMode::Vm_Sv32 && (priv_mode == PrivMode::PrivSupervisor ||
+                                                     priv_mode == PrivMode::PrivUser)) {
+    uint32_t ppn_idx[2] = {12, 22};
+    Addr_t   pte_len[2] = {10, 12};
+    Addr_t   pte_idx[2] = {10, 20};
+    Addr_t   vpn_len[2] = {10, 10};
+    uint32_t vpn_idx[2] = {12, 22};
+    const int PAGESIZE = std::pow(2, 12);
+    const int PTESIZE  = 4;
+
+    return WalkPageTable (paddr, vaddr, acc_type,
+                          2, ppn_idx,
+                          pte_len, pte_idx,
+                          vpn_len, vpn_idx,
+                          PAGESIZE, PTESIZE);
+  } else {
+    *paddr = vaddr;
+    return MemResult::MemNoExcept;
+  }
+}
+
     fn GenerateException(&mut self, code: ExceptCode, tval: XlenType) {
         // FlushTlb();
 
         if (code != ExceptCode::Except_IllegalInst && code != ExceptCode::Except_EcallFromSMode) {
-            let paddr: AddrType = ConvertVirtualAddress(self.m_pc, MemAccType::ReadMemType);
+            let paddr: AddrType = convert_virtual_address(self.m_pc, MemAccType::ReadMemType);
             // println!(
             //     "<Info: GenerateException Code={:d}, TVAL={:016x} PC={:016x},{:016x}>\n",
             //     code,
@@ -1078,14 +1121,14 @@ impl Riscv64Core for EnvBase {
             epc = self.m_pc;
         }
 
-        let curr_priv: PrivMode = GetPrivMode();
+        let curr_priv: PrivMode = self.m_priv;
 
         let mut mstatus: XlenType;
         let mut sstatus: XlenType;
         let mut tvec: AddrType;
         let medeleg = self.m_csr.csrrs(CsrAddr::MEDELEG);
         let next_priv: PrivMode = PrivMode::PrivMachine;
-        SetPrivMode(next_priv);
+        set_priv_mode(next_priv);
         if (medeleg & (1 << code)) {
             // Delegation
             self.m_csr.csrrw(CsrAddr::Sepc, epc);
@@ -1145,7 +1188,7 @@ impl Riscv64Core for EnvBase {
             tvec = tvec & 0xffffffff;
         }
 
-        SetPrivMode(next_priv);
+        self.set_priv_mode(next_priv);
 
         SetPC(tvec);
         SetJumped(true);
@@ -1175,6 +1218,23 @@ impl Riscv64Core for EnvBase {
             PrivMode::PrivMachine => return "MachineMode",
             _ => return "<Internal Error: PrivMode is illegal>\n",
         }
+    }
+
+    fn is_allowed_access (&mut self, i_type: u8, acc_type: MemAccType, priv_mode: PrivMode) -> bool
+    {
+        if (priv_mode == PrivMode::PrivUser) && !(i_type & 0x08) {
+            return false;
+        }
+        match (acc_type) {
+            MemAccType::Fetch => return ((i_type & 0x04) != 0),
+            MemAccType::Write => return ((i_type & 0x01) != 0) && ((i_type & 0x02) != 0),
+            MemAccType::Read  => {
+                let mstatus: XlenType = self.m_csr.csrrs(SYSREG_ADDR_MSTATUS, PrivMode::PrivMachine);
+                let mxr: u8 = Self::extract_bit_field (mstatus, SYSREG_MSTATUS_MXR_MSB, SYSREG_MSTATUS_MXR_LSB);
+                ((i_type & 0x01) != 0) | ((mxr & (i_type & 0x04)) != 0);
+            },
+        }
+        return false;
     }
 
     fn get_is_finish_cpu(&mut self) -> bool {
