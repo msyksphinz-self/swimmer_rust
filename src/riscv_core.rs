@@ -14,6 +14,12 @@ use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPRV_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPRV_MSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MXR_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MXR_MSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPIE_LSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPIE_MSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_LSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_MSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_LSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_MSB;
 
 use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_MSB;
@@ -36,10 +42,10 @@ pub type RegAddrType = u8;
 pub const DRAM_BASE: AddrType = 0x8000_0000;
 pub const DRAM_SIZE: usize = 0x01_0000;
 
-pub enum RiscvBitMode {
-    Bit32 = 0,
-    Bit64 = 1,
-}
+// pub enum RiscvBitMode {
+//     Bit32 = 0,
+//     Bit64 = 1,
+// }
 
 pub enum RiscvInst {
     CSRRW,
@@ -326,7 +332,7 @@ pub trait Riscv64Core {
     fn get_pc(&mut self) -> AddrType;
     fn get_previous_pc(&mut self) -> AddrType;
 
-    fn fetch_memory(&mut self) -> XlenType;
+    fn fetch_memory(&mut self) -> InstType;
     fn read_memory_word(&mut self, addr: AddrType) -> XlenType;
     fn read_memory_hword(&mut self, addr: AddrType) -> XlenType;
     fn read_memory_byte(&mut self, addr: AddrType) -> XlenType;
@@ -337,7 +343,7 @@ pub trait Riscv64Core {
     fn read_reg(&mut self, reg_addr: RegAddrType) -> i32;
     fn write_reg(&mut self, reg_addr: RegAddrType, data: XlenType);
 
-    fn decode_inst(&mut self, inst: XlenType) -> RiscvInst;
+    fn decode_inst(&mut self, inst: InstType) -> RiscvInst;
     fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstType);
 
     fn mem_access(
@@ -447,31 +453,31 @@ impl Riscv64Core for EnvBase {
         self.m_vmmode = vmmode;
     }
 
-    fn fetch_memory(&mut self) -> XlenType {
+    fn fetch_memory(&mut self) -> InstType {
         // let result: MemResult;
         // let phy_addr: AddrType;
-        let (result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
+        let (_result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
         assert!(phy_addr >= DRAM_BASE);
 
         let base_addr: AddrType = phy_addr - DRAM_BASE;
-        let fetch_data = ((self.m_memory[base_addr as usize + 3] as XlenType) << 24)
-            | ((self.m_memory[base_addr as usize + 2] as XlenType) << 16)
-            | ((self.m_memory[base_addr as usize + 1] as XlenType) << 8)
-            | ((self.m_memory[base_addr as usize + 0] as XlenType) << 0);
+        let fetch_data: InstType = ((self.m_memory[base_addr as usize + 3] as InstType) << 24)
+                                 | ((self.m_memory[base_addr as usize + 2] as InstType) << 16)
+                                 | ((self.m_memory[base_addr as usize + 1] as InstType) << 8)
+            | ((self.m_memory[base_addr as usize + 0] as InstType) << 0);
         return fetch_data;
     }
 
     fn read_memory_word(&mut self, addr: AddrType) -> XlenType {
         // let result: MemResult;
         // let phy_addr: AddrType;
-        let (result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
+        let (_result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
         assert!(phy_addr >= DRAM_BASE);
 
         let base_addr: AddrType = phy_addr - DRAM_BASE;
         return ((self.m_memory[base_addr as usize + 3] as XlenType) << 24)
-            | ((self.m_memory[base_addr as usize + 2] as XlenType) << 16)
-            | ((self.m_memory[base_addr as usize + 1] as XlenType) << 8)
-            | ((self.m_memory[base_addr as usize + 0] as XlenType) << 0);
+             | ((self.m_memory[base_addr as usize + 2] as XlenType) << 16)
+             | ((self.m_memory[base_addr as usize + 1] as XlenType) << 8)
+             | ((self.m_memory[base_addr as usize + 0] as XlenType) << 0);
     }
 
     fn read_memory_hword(&mut self, addr: AddrType) -> XlenType {
@@ -488,7 +494,7 @@ impl Riscv64Core for EnvBase {
     fn write_memory_word(&mut self, addr: AddrType, data: XlenType) -> XlenType {
         // let result: MemResult;
         // let phy_addr: AddrType;
-        let (result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
+        let (_result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
         assert!(phy_addr >= DRAM_BASE);
 
         let base_addr: AddrType = phy_addr - DRAM_BASE;
@@ -514,7 +520,7 @@ impl Riscv64Core for EnvBase {
         return 0;
     }
 
-    fn decode_inst(&mut self, inst: XlenType) -> RiscvInst {
+    fn decode_inst(&mut self, inst: InstType) -> RiscvInst {
         let opcode = inst & 0x7f;
         let funct3 = (inst >> 12) & 0x07;
         let funct5 = (inst >> 25) & 0x7f;
@@ -958,7 +964,25 @@ impl Riscv64Core for EnvBase {
             }
             RiscvInst::EBREAK => {}
             RiscvInst::URET => {}
-            RiscvInst::SRET => {}
+            RiscvInst::SRET => {
+                let mstatus: XlenType = self
+                    .m_csr
+                    .csrrs(CsrAddr::Mstatus, PrivMode::Machine as XlenType);
+                let next_priv_uint: XlenType = Self::extract_bit_field(mstatus, SYSREG_MSTATUS_SPP_MSB, SYSREG_MSTATUS_SPP_LSB);
+                let next_priv: PrivMode = PrivMode::from_u8(next_priv_uint as u8);
+                let mut next_mstatus: XlenType = mstatus;
+                next_mstatus = Self::set_bit_field (next_mstatus, Self::extract_bit_field(mstatus, SYSREG_MSTATUS_SPIE_MSB, SYSREG_MSTATUS_SPIE_LSB),
+							                        SYSREG_MSTATUS_SIE_MSB, SYSREG_MSTATUS_SIE_LSB);
+                next_mstatus = Self::set_bit_field (next_mstatus, 1, SYSREG_MSTATUS_SPIE_MSB, SYSREG_MSTATUS_SPIE_LSB);
+                next_mstatus = Self::set_bit_field (next_mstatus, PrivMode::User as XlenType, SYSREG_MSTATUS_SPP_MSB, SYSREG_MSTATUS_SPP_LSB);
+
+                self.m_csr.csrrw(CsrAddr::Mstatus, next_mstatus);
+                let ret_pc = self.m_csr.csrrs(CsrAddr::Sepc, 0);
+                self.set_priv_mode (next_priv);
+
+                self.set_pc (ret_pc as AddrType);
+                update_pc = true;
+            }
             RiscvInst::MRET => {
                 let mepc: XlenType = self.m_csr.csrrs(CsrAddr::Mepc, 0); // MEPC
                 self.m_pc = mepc as AddrType;
@@ -1066,24 +1090,18 @@ impl Riscv64Core for EnvBase {
         let mut pte_addr: AddrType = (pte_base * PAGESIZE) as AddrType;
         let level: usize = 0;
 
-        // println! ("<Info: SATP=%016lx>\n", sptbr);
+        println! ("<Info: SATP={:08x}>", satp);
 
         for level in range(0, init_level).rev() {
-            // for (level = init_level-1; level >= 0; level--) {
-            // boole is_leaf_achieve = false;
+
+            println!("<level = {:x}>", level);
+
             let va_vpn_i: AddrType =
                 (vaddr >> vpn_idx[level as usize]) & ((1 << vpn_len[level as usize]) - 1);
             pte_addr += (va_vpn_i * PTESIZE) as AddrType;
-
-            // if (m_bit_mode == RiscvBitMode_t::Bit64) {
-            //     LoadMemoryDebug<u32> (pte_addr, &pte_val);
-            // } else {
-            // pte_addr &= 0x0FFFFFFFFULL;
             pte_val = self.read_memory_word(pte_addr);
-            // }
 
-            println!(
-                "<Info: VAddr = 0x{:016x} PTEAddr = 0x{:016x} : PPTE = 0x{:016x}>\n",
+            println!("<Info: VAddr = 0x{:08x} PTEAddr = 0x{:08x} : PPTE = 0x{:08x}>\n",
                 vaddr, pte_addr, pte_val
             );
 
@@ -1210,7 +1228,7 @@ impl Riscv64Core for EnvBase {
         // m_tlb_tag [vaddr_tag] = vaddr_vpn;
         // m_tlb_addr[vaddr_tag] = (*paddr & !0x0fff) | (pte_val & 0x0ff);
 
-        println!("Converted Virtual Address is = 0x{:016x}\n", phy_addr);
+        println!("<Converted Virtual Address is = 0x{:016x}>", phy_addr);
 
         return (MemResult::NoExcept, phy_addr);
     }
@@ -1225,7 +1243,7 @@ impl Riscv64Core for EnvBase {
             _ => false,
         };
 
-        println!("convert virtual address {:08x}\n", vaddr);
+        println!("<convert virtual address {:08x}>", vaddr);
 
         let mstatus: XlenType = self
             .m_csr
@@ -1242,6 +1260,8 @@ impl Riscv64Core for EnvBase {
         } else {
             self.m_priv
         };
+
+        println!("PrivMode = {:}, VmMode = {:}", priv_mode as u8, self.get_vm_mode() as u8);
 
         if self.get_vm_mode() == VMMode::VmSv39
             && (priv_mode == PrivMode::Supervisor || priv_mode == PrivMode::User)
