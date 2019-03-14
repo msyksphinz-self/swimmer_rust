@@ -1,7 +1,7 @@
 use crate::riscv_core::XlenType;
 
 pub enum CsrAddr {
-    None           = 0x000,
+    None = 0x000,
     // Cycle          = 0xc00,
     // Instret        = 0xc02,
     // Hpmcounter3    = 0xc03,
@@ -33,27 +33,27 @@ pub enum CsrAddr {
     // Hpmcounter29   = 0xc1d,
     // Hpmcounter30   = 0xc1e,
     // Hpmcounter31   = 0xc1f,
-    Mstatus        = 0x300,
-    Misa           = 0x301,
-    Medeleg        = 0x302,
-    Mideleg        = 0x303,
-    Mie            = 0x304,
-    Mtvec          = 0x305,
-    Mscratch       = 0x340,
-    Mcounteren     = 0x306,
-    Mepc           = 0x341,
-    Mcause         = 0x342,
-    Mtval          = 0x343,
-    Mip            = 0x344,
+    Mstatus = 0x300,
+    Misa = 0x301,
+    Medeleg = 0x302,
+    Mideleg = 0x303,
+    Mie = 0x304,
+    Mtvec = 0x305,
+    Mscratch = 0x340,
+    Mcounteren = 0x306,
+    Mepc = 0x341,
+    Mcause = 0x342,
+    Mtval = 0x343,
+    Mip = 0x344,
     // Tselect        = 0x7a0,
     // Tdata1         = 0x7a1,
     // Tdata2         = 0x7a2,
     // Tdata3         = 0x7a3,
-    Dcsr           = 0x7b0,
-    Dpc            = 0x7b1,
-    Dscratch       = 0x7b2,
-    Mcycle         = 0xb00,
-    Minstret       = 0xb02,
+    Dcsr = 0x7b0,
+    Dpc = 0x7b1,
+    Dscratch = 0x7b2,
+    Mcycle = 0xb00,
+    Minstret = 0xb02,
     // Mhpmcounter3   = 0xb03,
     // Mhpmcounter4   = 0xb04,
     // Mhpmcounter5   = 0xb05,
@@ -113,10 +113,10 @@ pub enum CsrAddr {
     // Mhpmevent29    = 0x33d,
     // Mhpmevent30    = 0x33e,
     // Mhpmevent31    = 0x33f,
-    Mvendorid      = 0xf11,
-    Marchid        = 0xf12,
-    Mimpid         = 0xf13,
-    Mhartid        = 0xf14,
+    Mvendorid = 0xf11,
+    Marchid = 0xf12,
+    Mimpid = 0xf13,
+    Mhartid = 0xf14,
     // Cycleh         = 0xc80,
     // Instreth       = 0xc82,
     // Hpmcounter3h   = 0xc83,
@@ -179,26 +179,24 @@ pub enum CsrAddr {
     // Mhpmcounter29h = 0xb9d,
     // Mhpmcounter30h = 0xb9e,
     // Mhpmcounter31h = 0xb9f,
-
-    Sstatus    = 0x100,
-    Sedeleg    = 0x102,
-    Sideleg    = 0x103,
-    Sie        = 0x104,
-    Stvec      = 0x105,
+    Sstatus = 0x100,
+    Sedeleg = 0x102,
+    Sideleg = 0x103,
+    Sie = 0x104,
+    Stvec = 0x105,
     Scounteren = 0x106,
-    Sscratch   = 0x140,
-    Sepc       = 0x141,
-    Scause     = 0x142,
-    Stval      = 0x143,
-    Sip        = 0x144,
-    Satp       = 0x180,
+    Sscratch = 0x140,
+    Sepc = 0x141,
+    Scause = 0x142,
+    Stval = 0x143,
+    Sip = 0x144,
+    Satp = 0x180,
 }
-
 
 impl CsrAddr {
     pub fn from_i64(n: i64) -> Option<CsrAddr> {
         match n {
-            _ => None
+            _ => None,
         }
     }
     pub fn from_u64(n: u64) -> CsrAddr {
@@ -234,27 +232,27 @@ impl CsrAddr {
             // 0xc1d => CsrAddr::Hpmcounter29 ,
             // 0xc1e => CsrAddr::Hpmcounter30 ,
             // 0xc1f => CsrAddr::Hpmcounter31 ,
-            0x300 => CsrAddr::Mstatus      ,
-            0x301 => CsrAddr::Misa         ,
-            0x302 => CsrAddr::Medeleg      ,
-            0x303 => CsrAddr::Mideleg      ,
-            0x304 => CsrAddr::Mie          ,
-            0x305 => CsrAddr::Mtvec        ,
-            0x340 => CsrAddr::Mscratch     ,
-            0x306 => CsrAddr::Mcounteren   ,
-            0x341 => CsrAddr::Mepc         ,
-            0x342 => CsrAddr::Mcause       ,
-            0x343 => CsrAddr::Mtval        ,
-            0x344 => CsrAddr::Mip          ,
+            0x300 => CsrAddr::Mstatus,
+            0x301 => CsrAddr::Misa,
+            0x302 => CsrAddr::Medeleg,
+            0x303 => CsrAddr::Mideleg,
+            0x304 => CsrAddr::Mie,
+            0x305 => CsrAddr::Mtvec,
+            0x340 => CsrAddr::Mscratch,
+            0x306 => CsrAddr::Mcounteren,
+            0x341 => CsrAddr::Mepc,
+            0x342 => CsrAddr::Mcause,
+            0x343 => CsrAddr::Mtval,
+            0x344 => CsrAddr::Mip,
             // 0x7a0 => CsrAddr::Tselect      ,
             // 0x7a1 => CsrAddr::Tdata1       ,
             // 0x7a2 => CsrAddr::Tdata2       ,
             // 0x7a3 => CsrAddr::Tdata3       ,
-            0x7b0 => CsrAddr::Dcsr         ,
-            0x7b1 => CsrAddr::Dpc          ,
-            0x7b2 => CsrAddr::Dscratch     ,
-            0xb00 => CsrAddr::Mcycle       ,
-            0xb02 => CsrAddr::Minstret     ,
+            0x7b0 => CsrAddr::Dcsr,
+            0x7b1 => CsrAddr::Dpc,
+            0x7b2 => CsrAddr::Dscratch,
+            0xb00 => CsrAddr::Mcycle,
+            0xb02 => CsrAddr::Minstret,
             // 0xb03 => CsrAddr::Mhpmcounter3 ,
             // 0xb04 => CsrAddr::Mhpmcounter4 ,
             // 0xb05 => CsrAddr::Mhpmcounter5 ,
@@ -314,10 +312,10 @@ impl CsrAddr {
             // 0x33d => CsrAddr::Mhpmevent29  ,
             // 0x33e => CsrAddr::Mhpmevent30  ,
             // 0x33f => CsrAddr::Mhpmevent31  ,
-            0xf11 => CsrAddr::Mvendorid    ,
-            0xf12 => CsrAddr::Marchid      ,
-            0xf13 => CsrAddr::Mimpid       ,
-            0xf14 => CsrAddr::Mhartid      ,
+            0xf11 => CsrAddr::Mvendorid,
+            0xf12 => CsrAddr::Marchid,
+            0xf13 => CsrAddr::Mimpid,
+            0xf14 => CsrAddr::Mhartid,
             // 0xc80 => CsrAddr::Cycleh       ,
             // 0xc82 => CsrAddr::Instreth     ,
             // 0xc83 => CsrAddr::Hpmcounter3h ,
@@ -380,23 +378,22 @@ impl CsrAddr {
             // 0xb9d => CsrAddr::Mhpmcounter29h,
             // 0xb9e => CsrAddr::Mhpmcounter30h,
             // 0xb9f => CsrAddr::Mhpmcounter31h,
-            0x100 => CsrAddr::Sstatus    ,
-            0x102 => CsrAddr::Sedeleg    ,
-            0x103 => CsrAddr::Sideleg    ,
-            0x104 => CsrAddr::Sie        ,
-            0x105 => CsrAddr::Stvec      ,
-            0x106 => CsrAddr::Scounteren ,
-            0x140 => CsrAddr::Sscratch   ,
-            0x141 => CsrAddr::Sepc       ,
-            0x142 => CsrAddr::Scause     ,
-            0x143 => CsrAddr::Stval      ,
-            0x144 => CsrAddr::Sip        ,
-            0x180 => CsrAddr::Satp       ,
-            _     => CsrAddr::None,
+            0x100 => CsrAddr::Sstatus,
+            0x102 => CsrAddr::Sedeleg,
+            0x103 => CsrAddr::Sideleg,
+            0x104 => CsrAddr::Sie,
+            0x105 => CsrAddr::Stvec,
+            0x106 => CsrAddr::Scounteren,
+            0x140 => CsrAddr::Sscratch,
+            0x141 => CsrAddr::Sepc,
+            0x142 => CsrAddr::Scause,
+            0x143 => CsrAddr::Stval,
+            0x144 => CsrAddr::Sip,
+            0x180 => CsrAddr::Satp,
+            _ => CsrAddr::None,
         }
     }
 }
-
 
 pub struct RiscvCsrBase {
     pub m_csr: XlenType,
@@ -404,64 +401,69 @@ pub struct RiscvCsrBase {
 
 impl RiscvCsrBase {
     pub fn new() -> RiscvCsrBase {
-        RiscvCsrBase {
-            m_csr: 0x0
-        }
+        RiscvCsrBase { m_csr: 0x0 }
     }
 }
 
-
 pub trait Riscv64CsrBase {
-    fn csrrw (&mut self, imm: XlenType) -> XlenType;
-    fn csrrs (&mut self, imm: XlenType) -> XlenType;
-    fn csrrc (&mut self, imm: XlenType) -> XlenType;
+    fn csrrw(&mut self, imm: XlenType) -> XlenType;
+    fn csrrs(&mut self, imm: XlenType) -> XlenType;
+    fn csrrc(&mut self, imm: XlenType) -> XlenType;
 }
 
-
 impl Riscv64CsrBase for RiscvCsrBase {
-    fn csrrw (&mut self, imm: XlenType) -> XlenType {
+    fn csrrw(&mut self, imm: XlenType) -> XlenType {
         let ret_val: XlenType = self.m_csr;
         self.m_csr = imm;
         return ret_val;
     }
 
-    fn csrrs (&mut self, imm: XlenType) -> XlenType {
+    fn csrrs(&mut self, imm: XlenType) -> XlenType {
         let ret_val: XlenType = self.m_csr;
         self.m_csr = self.m_csr | imm;
         return ret_val;
     }
 
-    fn csrrc (&mut self, imm: XlenType) -> XlenType {
+    fn csrrc(&mut self, imm: XlenType) -> XlenType {
         let ret_val: XlenType = self.m_csr;
         self.m_csr = self.m_csr & !imm;
         return ret_val;
     }
 }
 
+pub struct RiscvCsr {
+    pub m_mcycle: RiscvCsrBase,
+    pub m_minstret: RiscvCsrBase,
+    pub m_mimpid: RiscvCsrBase,
+    pub m_marchid: RiscvCsrBase,
+    pub m_mvendorid: RiscvCsrBase,
+    pub m_misa: RiscvCsrBase,
+    pub m_mstatus: RiscvCsrBase,
+    pub m_mtvec: RiscvCsrBase,
+    pub m_mip: RiscvCsrBase,
+    pub m_mie: RiscvCsrBase,
+    pub m_mscratch: RiscvCsrBase,
+    pub m_mepc: RiscvCsrBase,
+    pub m_mtval: RiscvCsrBase,
+    pub m_mcause: RiscvCsrBase,
+    pub m_mhartid: RiscvCsrBase,
+    pub m_dcsr: RiscvCsrBase,
+    pub m_dpc: RiscvCsrBase,
+    pub m_dscratch: RiscvCsrBase,
+    pub m_medeleg: RiscvCsrBase,
 
-pub struct RiscvCsr
-{
-    pub m_mcycle    : RiscvCsrBase,
-    pub m_minstret  : RiscvCsrBase,
-    pub m_mimpid    : RiscvCsrBase,
-    pub m_marchid   : RiscvCsrBase,
-    pub m_mvendorid : RiscvCsrBase,
-    pub m_misa      : RiscvCsrBase,
-    pub m_mstatus   : RiscvCsrBase,
-    pub m_mtvec     : RiscvCsrBase,
-    pub m_mip       : RiscvCsrBase,
-    pub m_mie       : RiscvCsrBase,
-    pub m_mscratch  : RiscvCsrBase,
-    pub m_mepc      : RiscvCsrBase,
-    pub m_mtval     : RiscvCsrBase,
-    pub m_mcause    : RiscvCsrBase,
-    pub m_mhartid   : RiscvCsrBase,
-    pub m_dcsr      : RiscvCsrBase,
-    pub m_dpc       : RiscvCsrBase,
-    pub m_dscratch  : RiscvCsrBase,
-    pub m_medeleg   : RiscvCsrBase,
-
-    pub m_satp : RiscvCsrBase,
+    pub m_sstatus: RiscvCsrBase,
+    pub m_sedeleg: RiscvCsrBase,
+    pub m_sideleg: RiscvCsrBase,
+    pub m_sie: RiscvCsrBase,
+    pub m_stvec: RiscvCsrBase,
+    pub m_scounteren: RiscvCsrBase,
+    pub m_sscratch: RiscvCsrBase,
+    pub m_sepc: RiscvCsrBase,
+    pub m_scause: RiscvCsrBase,
+    pub m_stval: RiscvCsrBase,
+    pub m_sip: RiscvCsrBase,
+    pub m_satp: RiscvCsrBase,
 }
 
 pub trait Riscv64Csr {
@@ -470,90 +472,118 @@ pub trait Riscv64Csr {
     fn csrrc(&mut self, addr: CsrAddr, data: XlenType) -> XlenType;
 }
 
-
 impl Riscv64Csr for RiscvCsr {
-    fn csrrw (&mut self, addr: CsrAddr, data: XlenType) -> XlenType
-    {
+    fn csrrw(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
         match addr {
-            CsrAddr::Mcycle    => return self.m_mcycle    .csrrw(data),
-            CsrAddr::Minstret  => return self.m_minstret  .csrrw(data),
-            CsrAddr::Mimpid    => return self.m_mimpid    .csrrw(data),
-            CsrAddr::Marchid   => return self.m_marchid   .csrrw(data),
-            CsrAddr::Mvendorid => return self.m_mvendorid .csrrw(data),
-            CsrAddr::Misa      => return self.m_misa      .csrrw(data),
-            CsrAddr::Mstatus   => return self.m_mstatus   .csrrw(data),
-            CsrAddr::Mtvec     => return self.m_mtvec     .csrrw(data),
-            CsrAddr::Mip       => return self.m_mip       .csrrw(data),
-            CsrAddr::Mie       => return self.m_mie       .csrrw(data),
-            CsrAddr::Mscratch  => return self.m_mscratch  .csrrw(data),
-            CsrAddr::Mepc      => return self.m_mepc      .csrrw(data),
-            CsrAddr::Mtval     => return self.m_mtval     .csrrw(data),
-            CsrAddr::Mcause    => return self.m_mcause    .csrrw(data),
-            CsrAddr::Mhartid   => return self.m_mhartid   .csrrw(data),
-            CsrAddr::Dcsr      => return self.m_dcsr      .csrrw(data),
-            CsrAddr::Dpc       => return self.m_dpc       .csrrw(data),
-            CsrAddr::Dscratch  => return self.m_dscratch  .csrrw(data),
-            CsrAddr::Medeleg   => return self.m_medeleg   .csrrw(data),
+            CsrAddr::Mcycle => return self.m_mcycle.csrrw(data),
+            CsrAddr::Minstret => return self.m_minstret.csrrw(data),
+            CsrAddr::Mimpid => return self.m_mimpid.csrrw(data),
+            CsrAddr::Marchid => return self.m_marchid.csrrw(data),
+            CsrAddr::Mvendorid => return self.m_mvendorid.csrrw(data),
+            CsrAddr::Misa => return self.m_misa.csrrw(data),
+            CsrAddr::Mstatus => return self.m_mstatus.csrrw(data),
+            CsrAddr::Mtvec => return self.m_mtvec.csrrw(data),
+            CsrAddr::Mip => return self.m_mip.csrrw(data),
+            CsrAddr::Mie => return self.m_mie.csrrw(data),
+            CsrAddr::Mscratch => return self.m_mscratch.csrrw(data),
+            CsrAddr::Mepc => return self.m_mepc.csrrw(data),
+            CsrAddr::Mtval => return self.m_mtval.csrrw(data),
+            CsrAddr::Mcause => return self.m_mcause.csrrw(data),
+            CsrAddr::Mhartid => return self.m_mhartid.csrrw(data),
+            CsrAddr::Dcsr => return self.m_dcsr.csrrw(data),
+            CsrAddr::Dpc => return self.m_dpc.csrrw(data),
+            CsrAddr::Dscratch => return self.m_dscratch.csrrw(data),
+            CsrAddr::Medeleg => return self.m_medeleg.csrrw(data),
 
-            CsrAddr::Satp      => return self.m_satp      .csrrw(data),
-            _                  => return 0x0,
+            // CsrAddr::Sstatus,
+            CsrAddr::Sedeleg => return self.m_sedeleg.csrrw(data),
+            CsrAddr::Sideleg => return self.m_sideleg.csrrw(data),
+            CsrAddr::Sie => return self.m_sie.csrrw(data),
+            CsrAddr::Stvec => return self.m_stvec.csrrw(data),
+            CsrAddr::Scounteren => return self.m_scounteren.csrrw(data),
+            CsrAddr::Sscratch => return self.m_sscratch.csrrw(data),
+            CsrAddr::Sepc => return self.m_sepc.csrrw(data),
+            CsrAddr::Scause => return self.m_scause.csrrw(data),
+            CsrAddr::Stval => return self.m_stval.csrrw(data),
+            CsrAddr::Sip => return self.m_sip.csrrw(data),
+            CsrAddr::Satp => return self.m_satp.csrrw(data),
+            _ => return 0x0,
         }
     }
 
-    fn csrrs (&mut self, addr: CsrAddr, data: XlenType) -> XlenType
-    {
+    fn csrrs(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
         match addr {
-            CsrAddr::Mcycle    => return self.m_mcycle    .csrrs(data),
-            CsrAddr::Minstret  => return self.m_minstret  .csrrs(data),
-            CsrAddr::Mimpid    => return self.m_mimpid    .csrrs(data),
-            CsrAddr::Marchid   => return self.m_marchid   .csrrs(data),
-            CsrAddr::Mvendorid => return self.m_mvendorid .csrrs(data),
-            CsrAddr::Misa      => return self.m_misa      .csrrs(data),
-            CsrAddr::Mstatus   => return self.m_mstatus   .csrrs(data),
-            CsrAddr::Mtvec     => return self.m_mtvec     .csrrs(data),
-            CsrAddr::Mip       => return self.m_mip       .csrrs(data),
-            CsrAddr::Mie       => return self.m_mie       .csrrs(data),
-            CsrAddr::Mscratch  => return self.m_mscratch  .csrrs(data),
-            CsrAddr::Mepc      => return self.m_mepc      .csrrs(data),
-            CsrAddr::Mtval     => return self.m_mtval     .csrrs(data),
-            CsrAddr::Mcause    => return self.m_mcause    .csrrs(data),
-            CsrAddr::Mhartid   => return self.m_mhartid   .csrrs(data),
-            CsrAddr::Dcsr      => return self.m_dcsr      .csrrs(data),
-            CsrAddr::Dpc       => return self.m_dpc       .csrrs(data),
-            CsrAddr::Dscratch  => return self.m_dscratch  .csrrs(data),
-            CsrAddr::Medeleg   => return self.m_medeleg   .csrrs(data),
+            CsrAddr::Mcycle => return self.m_mcycle.csrrs(data),
+            CsrAddr::Minstret => return self.m_minstret.csrrs(data),
+            CsrAddr::Mimpid => return self.m_mimpid.csrrs(data),
+            CsrAddr::Marchid => return self.m_marchid.csrrs(data),
+            CsrAddr::Mvendorid => return self.m_mvendorid.csrrs(data),
+            CsrAddr::Misa => return self.m_misa.csrrs(data),
+            CsrAddr::Mstatus => return self.m_mstatus.csrrs(data),
+            CsrAddr::Mtvec => return self.m_mtvec.csrrs(data),
+            CsrAddr::Mip => return self.m_mip.csrrs(data),
+            CsrAddr::Mie => return self.m_mie.csrrs(data),
+            CsrAddr::Mscratch => return self.m_mscratch.csrrs(data),
+            CsrAddr::Mepc => return self.m_mepc.csrrs(data),
+            CsrAddr::Mtval => return self.m_mtval.csrrs(data),
+            CsrAddr::Mcause => return self.m_mcause.csrrs(data),
+            CsrAddr::Mhartid => return self.m_mhartid.csrrs(data),
+            CsrAddr::Dcsr => return self.m_dcsr.csrrs(data),
+            CsrAddr::Dpc => return self.m_dpc.csrrs(data),
+            CsrAddr::Dscratch => return self.m_dscratch.csrrs(data),
+            CsrAddr::Medeleg => return self.m_medeleg.csrrs(data),
 
-            CsrAddr::Medeleg   => return self.m_satp      .csrrs(data),
-            _                  => return 0x0,
+            // CsrAddr::Sstatus,
+            CsrAddr::Sedeleg => return self.m_sedeleg.csrrs(data),
+            CsrAddr::Sideleg => return self.m_sideleg.csrrs(data),
+            CsrAddr::Sie => return self.m_sie.csrrs(data),
+            CsrAddr::Stvec => return self.m_stvec.csrrs(data),
+            CsrAddr::Scounteren => return self.m_scounteren.csrrs(data),
+            CsrAddr::Sscratch => return self.m_sscratch.csrrs(data),
+            CsrAddr::Sepc => return self.m_sepc.csrrs(data),
+            CsrAddr::Scause => return self.m_scause.csrrs(data),
+            CsrAddr::Stval => return self.m_stval.csrrs(data),
+            CsrAddr::Sip => return self.m_sip.csrrs(data),
+            CsrAddr::Satp => return self.m_satp.csrrs(data),
+            _ => return 0x0,
         }
     }
 
-
-    fn csrrc (&mut self, addr: CsrAddr, data: XlenType) -> XlenType
-    {
+    fn csrrc(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
         match addr {
-            CsrAddr::Mcycle    => return self.m_mcycle    .csrrc(data),
-            CsrAddr::Minstret  => return self.m_minstret  .csrrc(data),
-            CsrAddr::Mimpid    => return self.m_mimpid    .csrrc(data),
-            CsrAddr::Marchid   => return self.m_marchid   .csrrc(data),
-            CsrAddr::Mvendorid => return self.m_mvendorid .csrrc(data),
-            CsrAddr::Misa      => return self.m_misa      .csrrc(data),
-            CsrAddr::Mstatus   => return self.m_mstatus   .csrrc(data),
-            CsrAddr::Mtvec     => return self.m_mtvec     .csrrc(data),
-            CsrAddr::Mip       => return self.m_mip       .csrrc(data),
-            CsrAddr::Mie       => return self.m_mie       .csrrc(data),
-            CsrAddr::Mscratch  => return self.m_mscratch  .csrrc(data),
-            CsrAddr::Mepc      => return self.m_mepc      .csrrc(data),
-            CsrAddr::Mtval     => return self.m_mtval     .csrrc(data),
-            CsrAddr::Mcause    => return self.m_mcause    .csrrc(data),
-            CsrAddr::Mhartid   => return self.m_mhartid   .csrrc(data),
-            CsrAddr::Dcsr      => return self.m_dcsr      .csrrc(data),
-            CsrAddr::Dpc       => return self.m_dpc       .csrrc(data),
-            CsrAddr::Dscratch  => return self.m_dscratch  .csrrc(data),
-            CsrAddr::Medeleg   => return self.m_medeleg   .csrrc(data),
+            CsrAddr::Mcycle => return self.m_mcycle.csrrc(data),
+            CsrAddr::Minstret => return self.m_minstret.csrrc(data),
+            CsrAddr::Mimpid => return self.m_mimpid.csrrc(data),
+            CsrAddr::Marchid => return self.m_marchid.csrrc(data),
+            CsrAddr::Mvendorid => return self.m_mvendorid.csrrc(data),
+            CsrAddr::Misa => return self.m_misa.csrrc(data),
+            CsrAddr::Mstatus => return self.m_mstatus.csrrc(data),
+            CsrAddr::Mtvec => return self.m_mtvec.csrrc(data),
+            CsrAddr::Mip => return self.m_mip.csrrc(data),
+            CsrAddr::Mie => return self.m_mie.csrrc(data),
+            CsrAddr::Mscratch => return self.m_mscratch.csrrc(data),
+            CsrAddr::Mepc => return self.m_mepc.csrrc(data),
+            CsrAddr::Mtval => return self.m_mtval.csrrc(data),
+            CsrAddr::Mcause => return self.m_mcause.csrrc(data),
+            CsrAddr::Mhartid => return self.m_mhartid.csrrc(data),
+            CsrAddr::Dcsr => return self.m_dcsr.csrrc(data),
+            CsrAddr::Dpc => return self.m_dpc.csrrc(data),
+            CsrAddr::Dscratch => return self.m_dscratch.csrrc(data),
+            CsrAddr::Medeleg => return self.m_medeleg.csrrc(data),
 
-            CsrAddr::Medeleg   => return self.m_satp      .csrrc(data),
-            _                  => return 0x0,
+            // CsrAddr::Sstatus,
+            CsrAddr::Sedeleg => return self.m_sedeleg.csrrc(data),
+            CsrAddr::Sideleg => return self.m_sideleg.csrrc(data),
+            CsrAddr::Sie => return self.m_sie.csrrc(data),
+            CsrAddr::Stvec => return self.m_stvec.csrrc(data),
+            CsrAddr::Scounteren => return self.m_scounteren.csrrc(data),
+            CsrAddr::Sscratch => return self.m_sscratch.csrrc(data),
+            CsrAddr::Sepc => return self.m_sepc.csrrc(data),
+            CsrAddr::Scause => return self.m_scause.csrrc(data),
+            CsrAddr::Stval => return self.m_stval.csrrc(data),
+            CsrAddr::Sip => return self.m_sip.csrrc(data),
+            CsrAddr::Satp => return self.m_satp.csrrc(data),
+            _ => return 0x0,
         }
     }
 }

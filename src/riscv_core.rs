@@ -4,6 +4,28 @@ use crate::riscv_csr::CsrAddr;
 use crate::riscv_csr::Riscv64Csr;
 use crate::riscv_csr::RiscvCsr;
 use crate::riscv_csr::RiscvCsrBase;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MIE_LSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MIE_MSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPIE_LSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPIE_MSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPP_LSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPP_MSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPRV_LSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPRV_MSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MXR_LSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MXR_MSB;
+
+use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_LSB;
+use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_MSB;
+use crate::riscv_csr_bitdef::SYSREG_SATP_PPN_LSB;
+use crate::riscv_csr_bitdef::SYSREG_SATP_PPN_MSB;
+
+use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SIE_LSB;
+use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SIE_MSB;
+use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SPIE_LSB;
+use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SPIE_MSB;
+use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SPP_LSB;
+use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SPP_MSB;
 
 pub type XlenType = i32;
 pub type UXlenType = u32;
@@ -82,13 +104,27 @@ pub enum RiscvInst {
     WFI,
 }
 
+#[derive(PartialEq, Eq, Copy, Clone)]
 pub enum PrivMode {
-    PrivUser = 0,
-    PrivSupervisor = 1,
-    PrivHypervisor = 2,
-    PrivMachine = 3,
+    User = 0,
+    Supervisor = 1,
+    Hypervisor = 2,
+    Machine = 3,
 }
 
+impl PrivMode {
+    pub fn from_u8(n: u8) -> PrivMode {
+        match n {
+            0 => PrivMode::User,
+            1 => PrivMode::Supervisor,
+            2 => PrivMode::Hypervisor,
+            3 => PrivMode::Machine,
+            _ => PrivMode::Machine,
+        }
+    }
+}
+
+#[derive(Copy, Clone)]
 pub enum MemAccType {
     Fetch = 0,
     Write = 1,
@@ -103,6 +139,7 @@ pub enum MemResult {
     TlbError = 1 << 3,
 }
 
+#[derive(PartialEq, Eq, Copy, Clone)]
 pub enum ExceptCode {
     InstAddrMisalign = 0,
     InstAccessFault = 1,
@@ -121,13 +158,14 @@ pub enum ExceptCode {
     StorePageFault = 15,
 }
 
-enum VMMode {
-    Vm_Mbare = 0,
-    Vm_Sv32 = 1,
-    Vm_Sv39 = 8,
-    Vm_Sv48 = 9,
-    Vm_Sv57 = 10,
-    Vm_Sv64 = 11,
+#[derive(PartialEq, Eq)]
+pub enum VMMode {
+    VmMbare = 0,
+    VmSv32 = 1,
+    VmSv39 = 8,
+    VmSv48 = 9,
+    VmSv57 = 10,
+    VmSv64 = 11,
 }
 
 pub enum MemType {
@@ -143,8 +181,7 @@ pub enum MemSize {
 }
 
 pub struct EnvBase {
-    m_bitmode: RiscvBitMode,
-
+    // m_bitmode: RiscvBitMode,
     pub m_pc: AddrType,
     m_previous_pc: AddrType,
     m_regs: [XlenType; 32],
@@ -166,10 +203,13 @@ pub struct EnvBase {
 impl EnvBase {
     pub fn new() -> EnvBase {
         EnvBase {
-            m_bitmode: RiscvBitMode::Bit32,
+            // m_bitmode: RiscvBitMode::Bit32,
             m_pc: DRAM_BASE as AddrType,
             m_memory: [0; DRAM_SIZE],
             m_regs: [0; 32],
+            m_maxpriv: PrivMode::Machine,
+            m_previous_pc: 0,
+            m_vmmode: VMMode::VmMbare,
             m_finish_cpu: false,
             m_fromhost_addr: (DRAM_BASE + 0x001000) as AddrType,
             m_tohost_addr: (DRAM_BASE + 0x001000) as AddrType,
@@ -195,8 +235,21 @@ impl EnvBase {
                 m_dpc: RiscvCsrBase { m_csr: 0 },
                 m_dscratch: RiscvCsrBase { m_csr: 0 },
                 m_medeleg: RiscvCsrBase { m_csr: 0 },
+
+                m_sstatus: RiscvCsrBase { m_csr: 0 },
+                m_sedeleg: RiscvCsrBase { m_csr: 0 },
+                m_sideleg: RiscvCsrBase { m_csr: 0 },
+                m_sie: RiscvCsrBase { m_csr: 0 },
+                m_stvec: RiscvCsrBase { m_csr: 0 },
+                m_scounteren: RiscvCsrBase { m_csr: 0 },
+                m_sscratch: RiscvCsrBase { m_csr: 0 },
+                m_sepc: RiscvCsrBase { m_csr: 0 },
+                m_scause: RiscvCsrBase { m_csr: 0 },
+                m_stval: RiscvCsrBase { m_csr: 0 },
+                m_sip: RiscvCsrBase { m_csr: 0 },
+                m_satp: RiscvCsrBase { m_csr: 0 },
             },
-            m_priv: PrivMode::PrivMachine,
+            m_priv: PrivMode::Machine,
         }
     }
 
@@ -206,22 +259,22 @@ impl EnvBase {
         return (res_data ^ mask) - mask;
     }
 
-    fn extract_bit_field(hex: InstType, left: XlenType, right: XlenType) -> XlenType {
+    fn extract_bit_field(hex: XlenType, left: u8, right: u8) -> XlenType {
         let mask: XlenType = (1 << (left - right + 1)) - 1;
-        return ((hex >> right) & (mask as UXlenType)) as XlenType;
+        return (hex >> right) & mask;
     }
 
-    fn set_bit_field(hex: InstType, val: XlenType, left: XlenType, right: XlenType) -> XlenType {
+    fn set_bit_field(hex: XlenType, val: XlenType, left: u8, right: u8) -> XlenType {
         let mask: XlenType = (1 << (left - right + 1)) - 1;
         return (hex & !(mask << right)) | (val << right);
     }
 
     fn extract_uj_field(hex: InstType) -> XlenType {
-        let i24_21 = Self::extract_bit_field(hex, 24, 21) & 0x0f;
-        let i30_25 = Self::extract_bit_field(hex, 30, 25) & 0x03f;
-        let i20_20 = Self::extract_bit_field(hex, 20, 20) & 0x01;
-        let i19_12 = Self::extract_bit_field(hex, 19, 12) & 0x0ff;
-        let i31_31 = Self::extract_bit_field(hex, 31, 31) & 0x01;
+        let i24_21 = Self::extract_bit_field(hex as XlenType, 24, 21) & 0x0f;
+        let i30_25 = Self::extract_bit_field(hex as XlenType, 30, 25) & 0x03f;
+        let i20_20 = Self::extract_bit_field(hex as XlenType, 20, 20) & 0x01;
+        let i19_12 = Self::extract_bit_field(hex as XlenType, 19, 12) & 0x0ff;
+        let i31_31 = Self::extract_bit_field(hex as XlenType, 31, 31) & 0x01;
 
         let u_res: XlenType =
             (i31_31 << 20) | (i19_12 << 12) | (i20_20 << 11) | (i30_25 << 5) | (i24_21 << 1);
@@ -229,27 +282,27 @@ impl EnvBase {
     }
 
     fn extract_ifield(hex: InstType) -> XlenType {
-        let uimm32: XlenType = Self::extract_bit_field(hex, 31, 20);
+        let uimm32: XlenType = Self::extract_bit_field(hex as XlenType, 31, 20);
         return Self::extend_sign(uimm32, 11);
     }
 
     fn extract_shamt_field(hex: InstType) -> XlenType {
-        return Self::extract_bit_field(hex, 24, 20);
+        return Self::extract_bit_field(hex as XlenType, 24, 20);
     }
 
     fn extract_sb_field(hex: InstType) -> XlenType {
-        let i07_07: XlenType = Self::extract_bit_field(hex, 7, 7) & 0x01;
-        let i11_08: XlenType = Self::extract_bit_field(hex, 11, 8) & 0x0f;
-        let i30_25: XlenType = Self::extract_bit_field(hex, 30, 25) & 0x03f;
-        let i31_31: XlenType = Self::extract_bit_field(hex, 31, 31) & 0x01;
+        let i07_07: XlenType = Self::extract_bit_field(hex as XlenType, 7, 7) & 0x01;
+        let i11_08: XlenType = Self::extract_bit_field(hex as XlenType, 11, 8) & 0x0f;
+        let i30_25: XlenType = Self::extract_bit_field(hex as XlenType, 30, 25) & 0x03f;
+        let i31_31: XlenType = Self::extract_bit_field(hex as XlenType, 31, 31) & 0x01;
 
         let u_res: XlenType = (i31_31 << 12) | (i07_07 << 11) | (i30_25 << 5) | (i11_08 << 1);
         return Self::extend_sign(u_res, 12);
     }
 
     fn extract_sfield(hex: InstType) -> XlenType {
-        let i11_07: XlenType = Self::extract_bit_field(hex, 11, 7) & 0x01f;
-        let i31_25: XlenType = Self::extract_bit_field(hex, 31, 25) & 0x07f;
+        let i11_07: XlenType = Self::extract_bit_field(hex as XlenType, 11, 7) & 0x01f;
+        let i31_25: XlenType = Self::extract_bit_field(hex as XlenType, 31, 25) & 0x07f;
 
         let u_res: XlenType = (i31_25 << 5) | (i11_07 << 0);
 
@@ -270,7 +323,8 @@ pub trait Riscv64Core {
     fn get_rd_addr(inst: InstType) -> RegAddrType;
 
     fn set_pc(&mut self, addr: AddrType);
-    fn get_pc(&mut self);
+    fn get_pc(&mut self) -> AddrType;
+    fn get_previous_pc(&mut self) -> AddrType;
 
     fn fetch_memory(&mut self) -> XlenType;
     fn read_memory_word(&mut self, addr: AddrType) -> XlenType;
@@ -299,13 +353,13 @@ pub trait Riscv64Core {
         vaddr: AddrType,
         acc_type: MemAccType,
         init_level: u32,
-        ppn_idx: Vec<u32>,
-        pte_len: Vec<AddrType>,
-        pte_idx: Vec<AddrType>,
-        vpn_len: Vec<AddrType>,
-        vpn_idx: Vec<u32>,
-        PAGESIZE: i32,
-        PTESIZE: i32,
+        ppn_idx: Vec<u8>,
+        pte_len: Vec<u8>,
+        pte_idx: Vec<u8>,
+        vpn_len: Vec<u8>,
+        vpn_idx: Vec<u8>,
+        PAGESIZE: u32,
+        PTESIZE: u32,
     ) -> (MemResult, AddrType);
 
     fn convert_virtual_address(
@@ -315,27 +369,16 @@ pub trait Riscv64Core {
     ) -> (MemResult, AddrType);
 
     fn generate_exception(&mut self, code: ExceptCode, tval: XlenType);
-    fn print_priv_mode(priv_mode: PrivMode) -> String;
+    // fn print_priv_mode(priv_mode: PrivMode) -> &str;
 
-    fn get_priv_mode(&mut self) -> PrivMode {
-        return self.m_priv;
-    }
-    fn set_priv_mode(&mut self, priv_mode: PrivMode) {
-        self.m_priv = priv_mode;
-        // FlushTlb();
-    }
+    // fn get_priv_mode(&mut self) -> PrivMode;
+    fn set_priv_mode(&mut self, priv_mode: PrivMode);
 
-    fn get_max_priv(&mut self) -> PrivMode {
-        return self.m_maxpriv;
-    }
-    fn set_max_priv(&mut self, maxpriv: PrivMode) {
-        self.m_maxpriv = maxpriv;
-    }
+    // fn get_max_priv(&mut self) -> PrivMode;
+    fn set_max_priv(&mut self, maxpriv: PrivMode);
 
     fn get_vm_mode(&mut self) -> VMMode;
-    fn set_vm_mode(&mut self, vmmode: VMMode) {
-        self.m_vmmode = vmmode;
-    }
+    fn set_vm_mode(&mut self, vmmode: VMMode);
 
     fn is_allowed_access(&mut self, i_type: u8, acc_type: MemAccType, priv_mode: PrivMode) -> bool;
 
@@ -376,12 +419,41 @@ impl Riscv64Core for EnvBase {
         self.m_pc = addr;
     }
 
-    fn get_pc(&mut self) {
+    fn get_pc(&mut self) -> AddrType {
         return self.m_pc;
     }
 
+    fn get_previous_pc(&mut self) -> AddrType {
+        return self.m_previous_pc;
+    }
+
+    // fn get_priv_mode(&mut self) -> PrivMode {
+    //     return self.m_priv;
+    // }
+    fn set_priv_mode(&mut self, priv_mode: PrivMode) {
+        self.m_priv = priv_mode;
+        // FlushTlb();
+    }
+
+    // fn get_max_priv(&mut self) -> PrivMode {
+    //     return self.m_maxpriv;
+    // }
+
+    fn set_max_priv(&mut self, maxpriv: PrivMode) {
+        self.m_maxpriv = maxpriv;
+    }
+
+    fn set_vm_mode(&mut self, vmmode: VMMode) {
+        self.m_vmmode = vmmode;
+    }
+
     fn fetch_memory(&mut self) -> XlenType {
-        let base_addr: AddrType = self.m_pc - DRAM_BASE;
+        // let result: MemResult;
+        // let phy_addr: AddrType;
+        let (result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
+        assert!(phy_addr >= DRAM_BASE);
+
+        let base_addr: AddrType = phy_addr - DRAM_BASE;
         let fetch_data = ((self.m_memory[base_addr as usize + 3] as XlenType) << 24)
             | ((self.m_memory[base_addr as usize + 2] as XlenType) << 16)
             | ((self.m_memory[base_addr as usize + 1] as XlenType) << 8)
@@ -390,7 +462,12 @@ impl Riscv64Core for EnvBase {
     }
 
     fn read_memory_word(&mut self, addr: AddrType) -> XlenType {
-        let base_addr: AddrType = addr - DRAM_BASE;
+        // let result: MemResult;
+        // let phy_addr: AddrType;
+        let (result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
+        assert!(phy_addr >= DRAM_BASE);
+
+        let base_addr: AddrType = phy_addr - DRAM_BASE;
         return ((self.m_memory[base_addr as usize + 3] as XlenType) << 24)
             | ((self.m_memory[base_addr as usize + 2] as XlenType) << 16)
             | ((self.m_memory[base_addr as usize + 1] as XlenType) << 8)
@@ -409,7 +486,12 @@ impl Riscv64Core for EnvBase {
     }
 
     fn write_memory_word(&mut self, addr: AddrType, data: XlenType) -> XlenType {
-        let base_addr: AddrType = addr - DRAM_BASE;
+        // let result: MemResult;
+        // let phy_addr: AddrType;
+        let (result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
+        assert!(phy_addr >= DRAM_BASE);
+
+        let base_addr: AddrType = phy_addr - DRAM_BASE;
         self.m_memory[base_addr as usize + 0] = ((data >> 0) & 0x0ff) as u8;
         self.m_memory[base_addr as usize + 1] = ((data >> 8) & 0x0ff) as u8;
         self.m_memory[base_addr as usize + 2] = ((data >> 16) & 0x0ff) as u8;
@@ -588,13 +670,13 @@ impl Riscv64Core for EnvBase {
             }
             RiscvInst::LUI => {
                 let mut imm: XlenType =
-                    Self::extend_sign(Self::extract_bit_field(inst, 31, 12), 19);
+                    Self::extend_sign(Self::extract_bit_field(inst as XlenType, 31, 12), 19);
                 imm = imm << 12;
                 self.write_reg(rd, imm);
             }
             RiscvInst::AUIPC => {
                 let mut imm: XlenType =
-                    Self::extend_sign(Self::extract_bit_field(inst, 31, 12), 19);
+                    Self::extend_sign(Self::extract_bit_field(inst as XlenType, 31, 12), 19);
                 imm = (imm << 12).wrapping_add(self.m_pc as XlenType);
                 self.write_reg(rd, imm);
             }
@@ -937,14 +1019,21 @@ impl Riscv64Core for EnvBase {
         vaddr: AddrType,
         acc_type: MemAccType,
         init_level: u32,
-        ppn_idx: Vec<u32>,
-        pte_len: Vec<AddrType>,
-        pte_idx: Vec<AddrType>,
-        vpn_len: Vec<AddrType>,
-        vpn_idx: Vec<u32>,
-        PAGESIZE: i32,
-        PTESIZE: i32,
+        ppn_idx: Vec<u8>,
+        pte_len: Vec<u8>,
+        pte_idx: Vec<u8>,
+        vpn_len: Vec<u8>,
+        vpn_idx: Vec<u8>,
+        PAGESIZE: u32,
+        PTESIZE: u32,
     ) -> (MemResult, AddrType) {
+        let is_write_access = match acc_type {
+            MemAccType::Write => true,
+            _ => false,
+        };
+
+        println!("walk_page_table {:08x}\n", vaddr);
+
         //===================
         // Simple TLB Search
         //===================
@@ -959,38 +1048,38 @@ impl Riscv64Core for EnvBase {
         //         return (MemResult::TlbError, paddr);
         //     }
         //     if (((pte_val & 0x40) == 0) || // PTE.A
-        //         ((acc_type == MemAccType::WriteMemType) && (pte_val & 0x80) == 0)) { // PTE.D
+        //         ((acc_type == MemAccType::Write) && (pte_val & 0x80) == 0)) { // PTE.D
         //         println!("<Access Fault : Page Permission Fault {:01x}>\n", (pte_val >> 1) & 0x0f);
-        //         if (acc_type == MemAccType::FetchMemType) {
-        //             generate_exception (self, ExceptCode::InstPageFault, vaddr);
+        //         if (acc_type == MemAccType::Fetch) {
+        //             generate_exception (self, ExceptCode::InstPageFault, vaddr as XlenType);
         //         }
         //         return (MemResult::TlbError, paddr);
         //     }
         //     return (MemResult::NoExcept, paddr);
         // }
 
-        let phy_addr: AddrType = vaddr & 0x0fff;
-
         let satp = self.m_csr.csrrs(CsrAddr::Satp, 0);
-        let pte_base: u64 = Self::extract_bit_field(satp, SYSREG_SATP_PPN_MSB, SYSREG_SATP_PPN_LSB);
+        let pte_base: AddrType =
+            Self::extract_bit_field(satp, SYSREG_SATP_PPN_MSB, SYSREG_SATP_PPN_LSB) as AddrType;
 
-        let pte_val: u32;
-        let pte_addr: AddrType = pte_base * PAGESIZE;
-        let level: i32;
+        let mut pte_val: XlenType = 0;
+        let mut pte_addr: AddrType = (pte_base * PAGESIZE) as AddrType;
+        let level: usize = 0;
 
         // println! ("<Info: SATP=%016lx>\n", sptbr);
 
         for level in range(0, init_level).rev() {
             // for (level = init_level-1; level >= 0; level--) {
             // boole is_leaf_achieve = false;
-            let va_vpn_i: AddrType = (vaddr >> vpn_idx[level]) & ((1 << vpn_len[level]) - 1);
-            pte_addr += va_vpn_i * PTESIZE;
+            let va_vpn_i: AddrType =
+                (vaddr >> vpn_idx[level as usize]) & ((1 << vpn_len[level as usize]) - 1);
+            pte_addr += (va_vpn_i * PTESIZE) as AddrType;
 
             // if (m_bit_mode == RiscvBitMode_t::Bit64) {
             //     LoadMemoryDebug<u32> (pte_addr, &pte_val);
             // } else {
             // pte_addr &= 0x0FFFFFFFFULL;
-            let pte_val = self.read_memory_word(pte_addr);
+            pte_val = self.read_memory_word(pte_addr);
             // }
 
             println!(
@@ -1006,9 +1095,13 @@ impl Riscv64Core for EnvBase {
                              pte_addr, pte_val);
                 }
 
-                if acc_type == MemAccType::FetchMemType {
-                    self.generate_exception(ExceptCode::Except_InstPageFault, vaddr);
-                }
+                match acc_type {
+                    MemAccType::Fetch => {
+                        self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenType);
+                        true
+                    }
+                    _ => false,
+                };
                 return (MemResult::TlbError, 0);
             }
 
@@ -1024,21 +1117,30 @@ impl Riscv64Core for EnvBase {
                         ((pte_val >> 1) & 0x0f)
                     );
 
-                    if acc_type == MemAccType::FetchMemType {
-                        self.generate_exception(ExceptCode::Except_InstPageFault, vaddr);
-                    }
+                    match acc_type {
+                        MemAccType::Fetch => {
+                            self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenType);
+                            true
+                        }
+                        _ => false,
+                    };
                     return (MemResult::TlbError, 0);
                 }
             }
             let pte_ppn: AddrType = Self::extract_bit_field(
-                pte_val,
-                pte_len[init_level - 1] + pte_idx[init_level - 1] - 1,
+                pte_val as XlenType,
+                pte_len[(init_level - 1) as usize] + pte_idx[(init_level - 1) as usize] - 1,
                 pte_idx[0],
-            );
+            ) as AddrType;
             pte_addr = pte_ppn * PAGESIZE;
         }
 
-        if !self.is_allowed_access((pte_val >> 1) & 0x0f, acc_type, self.m_priv) {
+        let current_priv: PrivMode = self.m_priv.clone();
+        if !self.is_allowed_access(
+            ((pte_val >> 1) & 0x0f) as u8,
+            acc_type.clone(),
+            current_priv,
+        ) {
             println!(
                 "<Page Access Failed. Allowed Access Failed PTE_VAL={:016x}>\n",
                 pte_val,
@@ -1048,7 +1150,7 @@ impl Riscv64Core for EnvBase {
 
         if level != 0
             && Self::extract_bit_field(
-                pte_val,
+                pte_val as XlenType,
                 pte_len[level - 1] + pte_idx[level - 1] - 1,
                 pte_idx[0],
             ) != 0
@@ -1060,42 +1162,55 @@ impl Riscv64Core for EnvBase {
         }
 
         if ((pte_val & 0x40) == 0) || // PTE.A
-            ((acc_type == MemAccType::WriteMemType) && (pte_val & 0x80) == 0)
+            (is_write_access && (pte_val & 0x80) == 0)
         {
             // PTE.D
             println!(
                 "<Access Fault : Page Permission Fault {:01x}\n",
                 ((pte_val >> 1) & 0x0f)
             );
-            if acc_type == MemAccType::FetchMemType {
-                self.generate_exception(ExceptCode::Except_InstPageFault, vaddr);
-            }
+
+            match acc_type {
+                MemAccType::Fetch => {
+                    self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenType);
+                    true
+                }
+                _ => false,
+            };
             return (MemResult::TlbError, 0);
         }
 
-        phy_addr = Self::extract_bit_field(
-            pte_val,
-            pte_len[init_level - 1] + pte_idx[init_level - 1] - 1,
+        let mut phy_addr: AddrType = (Self::extract_bit_field(
+            pte_val as XlenType,
+            pte_len[(init_level - 1) as usize] + pte_idx[(init_level - 1) as usize] - 1,
             pte_idx[level],
-        ) << ppn_idx[level];
+        ) << ppn_idx[level]) as AddrType;
         for level in range(0, init_level).rev() {
-            let vaddr_vpn: AddrType =
-                Self::extract_bit_field(vaddr, vpn_len[level] + vpn_idx[level] - 1, vpn_idx[level]);
-            phy_addr |= vaddr_vpn << ppn_idx[level];
+            let vaddr_vpn: AddrType = Self::extract_bit_field(
+                vaddr as XlenType,
+                vpn_len[level as usize] + vpn_idx[level as usize] - 1,
+                vpn_idx[level as usize],
+            ) as AddrType;
+            phy_addr |= vaddr_vpn << ppn_idx[level as usize];
         }
 
         // Finally Add Page Offset
-        phy_addr |= Self::extract_bit_field(vaddr, vpn_idx[0] - 1, 0);
+        phy_addr |= Self::extract_bit_field(vaddr as XlenType, vpn_idx[0] - 1, 0) as AddrType;
 
         //==========================
         // Update Simple TLB Search
         //==========================
-        // println!("<Info: TLB[{:d}] <= 0x{:016x}(0x{:016x})>\n", vaddr_tag, vaddr_vpn, *paddr & !0x0fff);
+        // println!(
+        //     "<Info: TLB[{:d}] <= 0x{:016x}(0x{:016x})>\n",
+        //     vaddr as XlenType_tag,
+        //     vaddr as XlenType_vpn,
+        //     *paddr & !0x0fff
+        // );
         // m_tlb_en  [vaddr_tag] = true;
         // m_tlb_tag [vaddr_tag] = vaddr_vpn;
         // m_tlb_addr[vaddr_tag] = (*paddr & !0x0fff) | (pte_val & 0x0ff);
 
-        // println!("Converted Virtual Address is = 0x{:016x}\n", paddr);
+        println!("Converted Virtual Address is = 0x{:016x}\n", phy_addr);
 
         return (MemResult::NoExcept, phy_addr);
     }
@@ -1105,100 +1220,118 @@ impl Riscv64Core for EnvBase {
         vaddr: AddrType,
         acc_type: MemAccType,
     ) -> (MemResult, AddrType) {
-        let mstatus: XlenType = self.m_csr.csrrs(SYSREG_ADDR_MSTATUS, PrivMode::PrivMachine);
-        let mprv: u8 =
-            Self::extract_bit_field(mstatus, SYSREG_MSTATUS_MPRV_MSB, SYSREG_MSTATUS_MPRV_LSB);
-        let mpp: PrivMode =
-            Self::extract_bit_field(mstatus, SYSREG_MSTATUS_MPP_MSB, SYSREG_MSTATUS_MPP_LSB);
-        let priv_mode: PrivMode = if acc_type != MemAccType::FetchMemType && mprv {
-            mpp
-        } else {
-            self.get_priv_mode()
+        let is_fetch_access = match acc_type {
+            MemAccType::Fetch => true,
+            _ => false,
         };
 
-        if self.get_vm_mode() == VMMode::Vm_Sv39
-            && (priv_mode == PrivMode::PrivSupervisor || priv_mode == PrivMode::PrivUser)
+        println!("convert virtual address {:08x}\n", vaddr);
+
+        let mstatus: XlenType = self
+            .m_csr
+            .csrrs(CsrAddr::Mstatus, PrivMode::Machine as XlenType);
+        let mprv: u8 =
+            Self::extract_bit_field(mstatus, SYSREG_MSTATUS_MPRV_MSB, SYSREG_MSTATUS_MPRV_LSB)
+                as u8;
+        let mpp_u8: u8 =
+            Self::extract_bit_field(mstatus, SYSREG_MSTATUS_MPP_MSB, SYSREG_MSTATUS_MPP_LSB) as u8;
+        let mpp: PrivMode = PrivMode::from_u8(mpp_u8);
+
+        let priv_mode: PrivMode = if !is_fetch_access && (mprv != 0) {
+            mpp
+        } else {
+            self.m_priv
+        };
+
+        if self.get_vm_mode() == VMMode::VmSv39
+            && (priv_mode == PrivMode::Supervisor || priv_mode == PrivMode::User)
         {
-            let ppn_idx: Vec<u32> = vec![12, 21, 30];
-            let pte_len: Vec<AddrType> = vec![9, 9, 26];
-            let pte_idx: Vec<AddrType> = vec![10, 19, 28];
-            let vpn_len: Vec<AddrType> = vec![9, 9, 9];
-            let vpn_idx: Vec<u32> = vec![12, 21, 30];
-            let PAGESIZE: i32 = num::pow(2, 12);
-            let PTESIZE: i32 = 8;
+            let ppn_idx: Vec<u8> = vec![12, 21, 30];
+            let pte_len: Vec<u8> = vec![9, 9, 26];
+            let pte_idx: Vec<u8> = vec![10, 19, 28];
+            let vpn_len: Vec<u8> = vec![9, 9, 9];
+            let vpn_idx: Vec<u8> = vec![12, 21, 30];
+            let PAGESIZE: u32 = num::pow(2, 12);
+            let PTESIZE: u32 = 8;
+
             return self.walk_page_table(
                 vaddr, acc_type, 3, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, PAGESIZE, PTESIZE,
             );
-        } else if self.get_vm_mode() == VMMode::Vm_Sv32
-            && (priv_mode == PrivMode::PrivSupervisor || priv_mode == PrivMode::PrivUser)
+        } else if self.get_vm_mode() == VMMode::VmSv32
+            && (priv_mode == PrivMode::Supervisor || priv_mode == PrivMode::User)
         {
-            let ppn_idx: Vec<u32> = vec![12, 22];
-            let pte_len: Vec<AddrType> = vec![10, 12];
-            let pte_idx: Vec<AddrType> = vec![10, 20];
-            let vpn_len: Vec<AddrType> = vec![10, 10];
-            let vpn_idx: Vec<u32> = vec![12, 22];
-            let PAGESIZE: i32 = num::pow(2, 12);
-            let PTESIZE: i32 = 4;
+            let ppn_idx: Vec<u8> = vec![12, 22];
+            let pte_len: Vec<u8> = vec![10, 12];
+            let pte_idx: Vec<u8> = vec![10, 20];
+            let vpn_len: Vec<u8> = vec![10, 10];
+            let vpn_idx: Vec<u8> = vec![12, 22];
+            let PAGESIZE: u32 = num::pow(2, 12);
+            let PTESIZE: u32 = 4;
 
             return self.walk_page_table(
                 vaddr, acc_type, 2, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, PAGESIZE, PTESIZE,
             );
         } else {
-            return (MemResult::MemNoExcept, vaddr);
+            return (MemResult::NoExcept, vaddr);
         }
     }
 
     fn generate_exception(&mut self, code: ExceptCode, tval: XlenType) {
         // FlushTlb();
 
-        if code != ExceptCode::Except_IllegalInst && code != ExceptCode::Except_EcallFromSMode {
-            let paddr: AddrType = convert_virtual_address(self.m_pc, MemAccType::ReadMemType);
-            // println!(
-            //     "<Info: generate_exception Code={:d}, TVAL={:016x} PC={:016x},{:016x}>\n",
-            //     code,
-            //     tval,
-            //     self.m_pc,
-            //     paddr
-            // );
-        }
+        // if code != ExceptCode::IllegalInst && code != ExceptCode::EcallFromSMode {
+        //     let paddr: AddrType = self.convert_virtual_address(self.m_pc, MemAccType::Read);
+        //     // println!(
+        //     //     "<Info: generate_exception Code={:d}, TVAL={:016x} PC={:016x},{:016x}>\n",
+        //     //     code,
+        //     //     tval,
+        //     //     self.m_pc,
+        //     //     paddr
+        //     // );
+        // }
+
+        println!(
+            "<Info: generate_exception Code={}, TVAL={:016x} PC={:016x}>\n",
+            code as u32, tval, self.m_pc
+        );
 
         let epc: AddrType;
-        if code == ExceptCode::Except_InstAddrMisalign {
-            epc = GetPreviousPC();
+        if code == ExceptCode::InstAddrMisalign {
+            epc = self.get_previous_pc();
         } else {
-            epc = self.m_pc;
+            epc = self.get_pc();
         }
 
         let curr_priv: PrivMode = self.m_priv;
 
         let mut mstatus: XlenType;
         let mut sstatus: XlenType;
-        let mut tvec: AddrType;
-        let medeleg = self.m_csr.csrrs(CsrAddr::MEDELEG);
-        let next_priv: PrivMode = PrivMode::PrivMachine;
+        let tvec: XlenType;
+        let medeleg = self.m_csr.csrrs(CsrAddr::Medeleg, 0);
+        let mut next_priv: PrivMode = PrivMode::Machine;
 
         self.set_priv_mode(next_priv);
 
-        if medeleg & (1 << code) {
+        if (medeleg & (1 << (code as u32))) != 0 {
             // Delegation
-            self.m_csr.csrrw(CsrAddr::Sepc, epc);
-            self.m_csr.csrrw(CsrAddr::Scause, code);
+            self.m_csr.csrrw(CsrAddr::Sepc, epc as XlenType);
+            self.m_csr.csrrw(CsrAddr::Scause, code as XlenType);
             self.m_csr.csrrw(CsrAddr::Stval, tval);
 
-            tvec = self.m_csr.csrrs(CsrAddr::Stvec);
-            next_priv = PrivMode::PrivSupervisor;
+            tvec = self.m_csr.csrrs(CsrAddr::Stvec, 0);
+            next_priv = PrivMode::Supervisor;
         } else {
-            self.m_csr.csrrw(CsrAddr::Mepc, epc);
-            self.m_csr.csrrw(CsrAddr::Mcause, code);
+            self.m_csr.csrrw(CsrAddr::Mepc, epc as XlenType);
+            self.m_csr.csrrw(CsrAddr::Mcause, code as XlenType);
             self.m_csr.csrrw(CsrAddr::Mtval, tval);
 
-            tvec = self.m_csr.csrrs(CsrAddr::Mtvec);
+            tvec = self.m_csr.csrrs(CsrAddr::Mtvec, 0);
         }
 
         // Update status CSR
-        if medeleg & (1 << code) {
+        if (medeleg & (1 << (code as u32))) != 0 {
             // Delegation
-            sstatus = self.m_csr.csrrs(CsrAddr::SSTATUS);
+            sstatus = self.m_csr.csrrs(CsrAddr::Sstatus, 0);
             sstatus = Self::set_bit_field(
                 sstatus,
                 Self::extract_bit_field(sstatus, SYSREG_SSTATUS_SIE_MSB, SYSREG_SSTATUS_SIE_LSB),
@@ -1207,15 +1340,15 @@ impl Riscv64Core for EnvBase {
             );
             sstatus = Self::set_bit_field(
                 sstatus,
-                curr_priv,
+                curr_priv as XlenType,
                 SYSREG_SSTATUS_SPP_MSB,
                 SYSREG_SSTATUS_SPP_LSB,
             );
             sstatus =
                 Self::set_bit_field(sstatus, 0, SYSREG_SSTATUS_SIE_MSB, SYSREG_SSTATUS_SIE_LSB);
-            self.m_csr.csrrw(CsrAddr::SSTATUS, sstatus);
+            self.m_csr.csrrw(CsrAddr::Sstatus, sstatus);
         } else {
-            mstatus = self.m_csr.csrrs(CsrAddr::MSTATUS);
+            mstatus = self.m_csr.csrrs(CsrAddr::Mstatus, 0);
             mstatus = Self::set_bit_field(
                 mstatus,
                 Self::extract_bit_field(mstatus, SYSREG_MSTATUS_MIE_MSB, SYSREG_MSTATUS_MIE_LSB),
@@ -1224,7 +1357,7 @@ impl Riscv64Core for EnvBase {
             );
             mstatus = Self::set_bit_field(
                 mstatus,
-                curr_priv,
+                curr_priv as XlenType,
                 SYSREG_MSTATUS_MPP_MSB,
                 SYSREG_MSTATUS_MPP_LSB,
             );
@@ -1234,24 +1367,25 @@ impl Riscv64Core for EnvBase {
             self.m_csr.csrrw(CsrAddr::Mstatus, mstatus);
         }
 
-        if m_bit_mode == RiscvBitMode::Bit32 {
-            tvec = tvec & 0xffffffff;
-        }
+        // if m_bit_mode == RiscvBitMode::Bit32 {
+        // tvec = tvec & 0xffffffff;
+        // }
 
         self.set_priv_mode(next_priv);
 
-        self.set_pc(tvec);
+        self.set_pc(tvec as AddrType);
         // SetJumped(true);
 
-        println!(
-            "<Info: Exception. ChangeMode from {} to {}>\n",
-            Self::print_priv_mode(curr_priv),
-            Self::print_priv_mode(next_priv)
-        );
+        println!("<Info: Exception>\n");
+        // println!(
+        //     "<Info: Exception. ChangeMode from {} to {}>\n",
+        //     Self::print_priv_mode(curr_priv),
+        //     Self::print_priv_mode(next_priv)
+        // );
         println!("<Info: Set Program Counter = 0x{:16x}>\n", tvec);
 
         // Relesae Load Reservation
-        ClearLoadReservation();
+        // ClearLoadReservation();
 
         // // CountUp Timer
         // m_riscv_clint->Increment(INTERLEAVE / INSNS_PER_RTC_TICK);
@@ -1262,39 +1396,42 @@ impl Riscv64Core for EnvBase {
 
     fn get_vm_mode(&mut self) -> VMMode {
         let satp_val = self.m_csr.csrrs(CsrAddr::Satp, 0); // SATP;
-        let mode = extract_bit_field(satp_val, SYSREG_SATP_MODE_MSB, SYSREG_SATP_MODE_LSB);
+        let mode = Self::extract_bit_field(satp_val, SYSREG_SATP_MODE_MSB, SYSREG_SATP_MODE_LSB);
         return if mode == 1 {
-            VMMode::Vm_Sv32
+            VMMode::VmSv32
         } else {
-            VMMode::Vm_Mbare
+            VMMode::VmMbare
         };
     }
 
-    fn print_priv_mode(priv_mode: PrivMode) -> String {
-        match (priv_mode) {
-            PrivMode::PrivUser => return "UserMode",
-            PrivMode::PrivSupervisor => return "SuprevisorMode",
-            PrivMode::PrivHypervisor => return "HypervisorMode",
-            PrivMode::PrivMachine => return "MachineMode",
-            _ => return "<Internal Error: PrivMode is illegal>\n",
-        }
-    }
+    // fn print_priv_mode(priv_mode: PrivMode) -> &str {
+    //     return match priv_mode {
+    //         PrivMode::User => "UserMode",
+    //         PrivMode::Supervisor => "SuprevisorMode",
+    //         PrivMode::Hypervisor => "HypervisorMode",
+    //         PrivMode::Machine => "MachineMode",
+    //         _ => "<Internal Error: PrivMode is illegal>\n",
+    //     };
+    // }
 
     fn is_allowed_access(&mut self, i_type: u8, acc_type: MemAccType, priv_mode: PrivMode) -> bool {
-        if (priv_mode == PrivMode::PrivUser) && !(i_type & 0x08) {
+        let is_user_mode = match priv_mode {
+            PrivMode::User => true,
+            _ => false,
+        };
+        if is_user_mode && !((i_type & 0x08) != 0) {
             return false;
         }
         match acc_type {
             MemAccType::Fetch => return (i_type & 0x04) != 0,
             MemAccType::Write => return ((i_type & 0x01) != 0) && ((i_type & 0x02) != 0),
             MemAccType::Read => {
-                let mstatus: XlenType =
-                    self.m_csr.csrrs(SYSREG_ADDR_MSTATUS, PrivMode::PrivMachine);
+                let mstatus: XlenType = self.m_csr.csrrs(CsrAddr::Mstatus, 0);
                 let mxr: u8 = Self::extract_bit_field(
                     mstatus,
                     SYSREG_MSTATUS_MXR_MSB,
                     SYSREG_MSTATUS_MXR_LSB,
-                );
+                ) as u8;
                 ((i_type & 0x01) != 0) | ((mxr & (i_type & 0x04)) != 0);
             }
         }
