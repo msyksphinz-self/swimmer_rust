@@ -37,7 +37,7 @@ fn main() -> Result<(), Box<std::error::Error>> {
     let mut count = 0;
     while count < 65535 && !riscv64_core.get_is_finish_cpu() {
         println!("InstNo: {:10}", count);
-        let inst_data = riscv64_core.fetch_memory();
+        let inst_data = riscv64_core.fetch_bus();
         let inst_decode = riscv64_core.decode_inst(inst_data);
         riscv64_core.execute_inst(inst_decode, inst_data as InstType);
 
