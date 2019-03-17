@@ -112,10 +112,10 @@ pub enum RiscvInst {
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum PrivMode {
-    User = 0,
-    Supervisor = 1,
-    Hypervisor = 2,
-    Machine = 3,
+    User,
+    Supervisor,
+    Hypervisor,
+    Machine,
 }
 
 impl PrivMode {
@@ -132,9 +132,9 @@ impl PrivMode {
 
 #[derive(Copy, Clone)]
 pub enum MemAccType {
-    Fetch = 0,
-    Write = 1,
-    Read = 2,
+    Fetch,
+    Write,
+    Read,
 }
 
 pub enum MemResult {
@@ -175,15 +175,15 @@ pub enum VMMode {
 }
 
 pub enum MemType {
-    LOAD = 0,
-    STORE = 1,
+    LOAD,
+    STORE,
 }
 
 pub enum MemSize {
-    BYTE = 0,
-    HWORD = 1,
-    WORD = 2,
-    DWORD = 3,
+    BYTE,
+    HWORD,
+    WORD,
+    DWORD,
 }
 
 pub struct EnvBase {
