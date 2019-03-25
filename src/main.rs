@@ -15,6 +15,8 @@ use crate::riscv_core::InstType;
 use crate::riscv_core::XlenType;
 use crate::riscv_core::DRAM_BASE;
 
+use crate::riscv_core::MemResult;
+
 fn main() -> Result<(), Box<std::error::Error>> {
     let args: Vec<String> = env::args().collect::<Vec<String>>();
 
@@ -38,7 +40,10 @@ fn main() -> Result<(), Box<std::error::Error>> {
     let mut count = 0;
     while count < 65535 && !riscv64_core.get_is_finish_cpu() {
         // println!("InstNo: {:10}", count);
-        let inst_data = riscv64_core.fetch_bus();
+        let (result, inst_data) = riscv64_core.fetch_bus();
+        if result != MemResult::NoExcept {
+            continue;
+        }
         let inst_decode = riscv64_core.decode_inst(inst_data);
         riscv64_core.execute_inst(inst_decode, inst_data as InstType, count);
 

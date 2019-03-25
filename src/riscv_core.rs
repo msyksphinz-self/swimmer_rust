@@ -45,7 +45,7 @@ pub type AddrType = u32;
 pub type RegAddrType = u8;
 
 pub const DRAM_BASE: AddrType = 0x8000_0000;
-pub const DRAM_SIZE: usize = 0x01_0000;
+pub const DRAM_SIZE: usize = 0x10_0000;
 
 pub enum RiscvInst {
     CSRRW,
@@ -137,6 +137,7 @@ pub enum MemAccType {
     Read,
 }
 
+#[derive(PartialEq, Eq)]
 pub enum MemResult {
     NoExcept = 0,
     MisAlign = 1 << 0,
@@ -342,7 +343,7 @@ pub trait Riscv64Core {
     fn write_memory_hword(&mut self, phy_addr: AddrType, data: XlenType) -> XlenType;
     fn write_memory_byte(&mut self, phy_addr: AddrType, data: XlenType) -> XlenType;
 
-    fn fetch_bus(&mut self) -> InstType;
+    fn fetch_bus(&mut self) -> (MemResult, InstType);
     fn read_bus_word(&mut self, addr: AddrType) -> XlenType;
     fn read_bus_hword(&mut self, addr: AddrType) -> XlenType;
     fn read_bus_byte(&mut self, addr: AddrType) -> XlenType;
@@ -527,12 +528,15 @@ impl Riscv64Core for EnvBase {
         return 0;
     }
 
-    fn fetch_bus(&mut self) -> InstType {
+    fn fetch_bus(&mut self) -> (MemResult, InstType) {
         // let result: MemResult;
         // let phy_addr: AddrType;
-        let (_result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
+        let (result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
 
-        return self.read_memory_word(phy_addr) as InstType;
+        if result != MemResult::NoExcept {
+            return (result, phy_addr);
+        }
+        return (result, self.read_memory_word(phy_addr) as InstType);
     }
 
     fn read_bus_word(&mut self, addr: AddrType) -> XlenType {
@@ -1168,8 +1172,6 @@ impl Riscv64Core for EnvBase {
             _ => false,
         };
 
-        println!("walk_page_table {:08x}", vaddr);
-
         //===================
         // Simple TLB Search
         //===================
@@ -1205,8 +1207,6 @@ impl Riscv64Core for EnvBase {
         println!("<Info: SATP={:08x}>", satp);
 
         for level in range(0, init_level).rev() {
-            println!("<level = {:x}>", level);
-
             let va_vpn_i: AddrType =
                 (vaddr >> vpn_idx[level as usize]) & ((1 << vpn_len[level as usize]) - 1);
             pte_addr += (va_vpn_i * PTESIZE) as AddrType;
@@ -1219,11 +1219,9 @@ impl Riscv64Core for EnvBase {
 
             // 3. If pte:v = 0, or if pte:r = 0 and pte:w = 1, stop and raise a page-fault exception.
             if (pte_val & 0x01) == 0 || (((pte_val & 0x02) == 0) && ((pte_val & 0x04) == 0x04)) {
-                {
-                    // let bit_length: u32 = m_bit_mode == RiscvBitMode_t::Bit32 ? 8 : 16;
-                    println!("<Page Table Error : 0x{:016x} = 0x{:08x} is not valid Page Table. Generate Exception>",
-                             pte_addr, pte_val);
-                }
+                // let bit_length: u32 = m_bit_mode == RiscvBitMode_t::Bit32 ? 8 : 16;
+                println!("<Page Table Error : 0x{:016x} = 0x{:08x} is not valid Page Table. Generate Exception>",
+                         pte_addr, pte_val);
 
                 match acc_type {
                     MemAccType::Fetch => {
@@ -1315,11 +1313,14 @@ impl Riscv64Core for EnvBase {
             pte_len[(init_level - 1) as usize] + pte_idx[(init_level - 1) as usize] - 1,
             pte_idx[level],
         ) << ppn_idx[level]) as AddrType;
-        for level in range(0, init_level).rev() {
+
+        println!("Level = {}", level);
+
+        for l in 0..(level+1) {
             let vaddr_vpn: AddrType = Self::extract_bit_field(
                 vaddr as XlenType,
-                vpn_len[level as usize] + vpn_idx[level as usize] - 1,
-                vpn_idx[level as usize],
+                vpn_len[level-l as usize] + vpn_idx[level-l as usize] - 1,
+                vpn_idx[level-l as usize],
             ) as AddrType;
             phy_addr |= vaddr_vpn << ppn_idx[level as usize];
         }
@@ -1340,8 +1341,7 @@ impl Riscv64Core for EnvBase {
         // m_tlb_tag [vaddr_tag] = vaddr_vpn;
         // m_tlb_addr[vaddr_tag] = (*paddr & !0x0fff) | (pte_val & 0x0ff);
 
-        println!("<Converted Virtual Address is = 0x{:016x}>", phy_addr);
-
+        println!("<Converted Virtual Address = {:08x}>", phy_addr);
         return (MemResult::NoExcept, phy_addr);
     }
 
@@ -1354,8 +1354,6 @@ impl Riscv64Core for EnvBase {
             MemAccType::Fetch => true,
             _ => false,
         };
-
-        // println!("<convert virtual address {:08x}>", vaddr);
 
         let mstatus: XlenType = self
             .m_csr
@@ -1372,6 +1370,9 @@ impl Riscv64Core for EnvBase {
         } else {
             self.m_priv
         };
+
+        // println!("<Convert Virtual Addres : vm_mode = {}, priv_mode = {}>",
+        //          self.get_vm_mode() as u32, priv_mode as u32);
 
         if self.get_vm_mode() == VMMode::Sv39
             && (priv_mode == PrivMode::Supervisor || priv_mode == PrivMode::User)
@@ -1507,11 +1508,11 @@ impl Riscv64Core for EnvBase {
         // SetJumped(true);
 
         println!("<Info: Exception>");
-        // println!(
-        //     "<Info: Exception. ChangeMode from {} to {}>",
-        //     Self::print_priv_mode(curr_priv),
-        //     Self::print_priv_mode(next_priv)
-        // );
+        println!(
+            "<Info: Exception. ChangeMode from {} to {}>",
+            curr_priv as u32,
+            next_priv as u32
+        );
         println!("<Info: Set Program Counter = 0x{:16x}>", tvec);
 
         // Relesae Load Reservation
