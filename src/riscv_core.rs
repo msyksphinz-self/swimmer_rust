@@ -34,6 +34,7 @@ use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SPP_LSB;
 use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SPP_MSB;
 
 use crate::riscv_tracer::RiscvTracer;
+use crate::riscv_tracer::TraceInfo;
 use crate::riscv_tracer::TraceType;
 use crate::riscv_tracer::Tracer;
 
@@ -415,22 +416,37 @@ impl Riscv64Core for EnvBase {
     }
 
     fn read_reg(&mut self, reg_addr: RegAddrType) -> XlenType {
+        let ret_val: XlenType;
+
         if reg_addr == 0 {
-            return 0;
+            ret_val = 0;
         } else {
-            return self.m_regs[reg_addr as usize];
+            ret_val = self.m_regs[reg_addr as usize];
         }
+
+        let mut read_reg_trace = TraceInfo::new();
+        read_reg_trace.m_trace_type = TraceType::XRegRead;
+        read_reg_trace.m_trace_addr = reg_addr as AddrType;
+        read_reg_trace.m_trace_value = ret_val;
+        read_reg_trace.m_trace_memresult = MemResult::NoExcept;
+
+        self.m_trace.m_trace_info.push(read_reg_trace);
+
+        return ret_val;
     }
 
     fn write_reg(&mut self, reg_addr: RegAddrType, data: XlenType) {
         if reg_addr != 0 {
+            let mut write_reg_trace = TraceInfo::new();
+
+            write_reg_trace.m_trace_type = TraceType::XRegWrite;
+            write_reg_trace.m_trace_addr = reg_addr as AddrType;
+            write_reg_trace.m_trace_value = data;
+            write_reg_trace.m_trace_memresult = MemResult::NoExcept;
+
+            self.m_trace.m_trace_info.push(write_reg_trace);
+
             self.m_regs[reg_addr as usize] = data;
-
-            self.m_trace.m_trace_type[0] = TraceType::XRegWrite;
-            self.m_trace.m_trace_addr[0] = reg_addr as AddrType;
-            self.m_trace.m_trace_value[0] = data;
-            self.m_trace.m_trace_memresult[0] = MemResult::NoExcept;
-
             // println!("     x{:02} <= {:08x}", reg_addr, data);
         }
     }
@@ -524,7 +540,18 @@ impl Riscv64Core for EnvBase {
         // let phy_addr: AddrType;
         let (_result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
 
-        return self.read_memory_word(phy_addr);
+        let ret_val = self.read_memory_word(phy_addr);
+
+        let mut read_mem_trace = TraceInfo::new();
+
+        read_mem_trace.m_trace_type = TraceType::MemRead;
+        read_mem_trace.m_trace_addr = addr;
+        read_mem_trace.m_trace_value = ret_val;
+        read_mem_trace.m_trace_memresult = MemResult::NoExcept;
+
+        self.m_trace.m_trace_info.push(read_mem_trace);
+
+        return ret_val;
     }
 
     fn read_bus_hword(&mut self, addr: AddrType) -> XlenType {
@@ -547,6 +574,15 @@ impl Riscv64Core for EnvBase {
         // let result: MemResult;
         // let phy_addr: AddrType;
         let (_result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+
+        let mut write_mem_trace = TraceInfo::new();
+
+        write_mem_trace.m_trace_type = TraceType::MemWrite;
+        write_mem_trace.m_trace_addr = addr;
+        write_mem_trace.m_trace_value = data;
+        write_mem_trace.m_trace_memresult = MemResult::NoExcept;
+
+        self.m_trace.m_trace_info.push(write_mem_trace);
 
         self.write_memory_word(phy_addr, data);
 
@@ -1319,7 +1355,7 @@ impl Riscv64Core for EnvBase {
             _ => false,
         };
 
-        println!("<convert virtual address {:08x}>", vaddr);
+        // println!("<convert virtual address {:08x}>", vaddr);
 
         let mstatus: XlenType = self
             .m_csr

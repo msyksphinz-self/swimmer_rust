@@ -22,6 +22,26 @@ pub enum TraceType {
     None,
 }
 
+pub struct TraceInfo {
+    pub m_trace_type: TraceType,
+    pub m_trace_size: u32,
+    pub m_trace_addr: AddrType,
+    pub m_trace_value: XlenType,
+    pub m_trace_memresult: MemResult, /* Memory Access Result */
+}
+
+impl TraceInfo {
+    pub fn new() -> TraceInfo {
+        TraceInfo {
+            m_trace_type: TraceType::None,
+            m_trace_size: 0,
+            m_trace_addr: 0,
+            m_trace_value: 0,
+            m_trace_memresult: MemResult::NoExcept, /* Memory Access Result */
+        }
+    }
+}
+
 pub struct Tracer {
     pub m_priv: PrivMode,
     pub m_vmmode: VMMode,
@@ -30,12 +50,7 @@ pub struct Tracer {
     pub m_inst_hex: InstType,
     pub m_step: u32,
 
-    pub m_trace_type: Vec<TraceType>,
-    /* for Register Read/Write */
-    pub m_trace_size: Vec<u8>,
-    pub m_trace_addr: Vec<AddrType>,
-    pub m_trace_value: Vec<XlenType>,
-    pub m_trace_memresult: Vec<MemResult>, /* Memory Access Result */
+    pub m_trace_info: Vec<TraceInfo>,
 }
 
 impl Tracer {
@@ -48,11 +63,7 @@ impl Tracer {
             m_inst_hex: 0,
             m_step: 0,
 
-            m_trace_type: vec![TraceType::None],
-            m_trace_size: vec![0],
-            m_trace_addr: vec![0],
-            m_trace_value: vec![0],
-            m_trace_memresult: vec![MemResult::NoExcept], /* Memory Access Result */
+            m_trace_info: vec![TraceInfo::new()],
         }
     }
 }
@@ -71,13 +82,7 @@ impl RiscvTracer for Tracer {
         self.m_inst_hex = 0;
         self.m_step = 0;
 
-        self.m_trace_type = vec![TraceType::None];
-
-        // /* for Register Read/Write */
-        self.m_trace_size = vec![0];
-        self.m_trace_addr = vec![0];
-        self.m_trace_value = vec![0];
-        self.m_trace_memresult = vec![MemResult::NoExcept]; /* Memory Access Result */
+        self.m_trace_info = vec![TraceInfo::new()];
     }
 
     fn print_trace(&mut self) {
@@ -104,11 +109,39 @@ impl RiscvTracer for Tracer {
         );
         print!("{:08x}:{:08x}:", self.m_executed_pc, self.m_inst_hex);
 
-        if (self.m_trace_type[0] != TraceType::None) {
-            print!(
-                "x{:02} <= {:08x}",
-                self.m_trace_addr[0], self.m_trace_value[0]
-            );
+        for trace_idx in 0..self.m_trace_info.len() {
+            match self.m_trace_info[trace_idx].m_trace_type {
+                TraceType::XRegWrite => {
+                    print!(
+                        "x{:02}<={:08x} ",
+                        self.m_trace_info[trace_idx].m_trace_addr,
+                        self.m_trace_info[trace_idx].m_trace_value
+                    );
+                }
+                TraceType::XRegRead => {
+                    print!(
+                        "x{:02}=>{:08x} ",
+                        self.m_trace_info[trace_idx].m_trace_addr,
+                        self.m_trace_info[trace_idx].m_trace_value
+                    );
+                }
+                TraceType::MemWrite => {
+                    print!(
+                        "({:08x})<={:08x} ",
+                        self.m_trace_info[trace_idx].m_trace_addr,
+                        self.m_trace_info[trace_idx].m_trace_value
+                    );
+                }
+                TraceType::MemRead => {
+                    print!(
+                        "({:08x})=>{:08x} ",
+                        self.m_trace_info[trace_idx].m_trace_addr,
+                        self.m_trace_info[trace_idx].m_trace_value
+                    );
+                }
+
+                _ => {}
+            }
         }
         println!("  // DASM({:08x})", self.m_inst_hex);
     }
