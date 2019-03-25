@@ -33,6 +33,10 @@ use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SPIE_MSB;
 use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SPP_LSB;
 use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SPP_MSB;
 
+use crate::riscv_tracer::RiscvTracer;
+use crate::riscv_tracer::TraceType;
+use crate::riscv_tracer::Tracer;
+
 pub type XlenType = i32;
 pub type UXlenType = u32;
 pub type InstType = u32;
@@ -41,11 +45,6 @@ pub type RegAddrType = u8;
 
 pub const DRAM_BASE: AddrType = 0x8000_0000;
 pub const DRAM_SIZE: usize = 0x01_0000;
-
-// pub enum RiscvBitMode {
-//     Bit32 = 0,
-//     Bit64 = 1,
-// }
 
 pub enum RiscvInst {
     CSRRW,
@@ -166,12 +165,12 @@ pub enum ExceptCode {
 
 #[derive(PartialEq, Eq)]
 pub enum VMMode {
-    VmMbare = 0,
-    VmSv32 = 1,
-    VmSv39 = 8,
-    VmSv48 = 9,
-    VmSv57 = 10,
-    VmSv64 = 11,
+    Mbare = 0,
+    Sv32 = 1,
+    Sv39 = 8,
+    Sv48 = 9,
+    Sv57 = 10,
+    Sv64 = 11,
 }
 
 pub enum MemType {
@@ -198,6 +197,8 @@ pub struct EnvBase {
     m_maxpriv: PrivMode,
     m_vmmode: VMMode,
 
+    m_trace: Tracer,
+
     m_tohost_addr: AddrType,
     m_fromhost_addr: AddrType,
     m_tohost: XlenType,
@@ -215,7 +216,7 @@ impl EnvBase {
             m_regs: [0; 32],
             m_maxpriv: PrivMode::Machine,
             m_previous_pc: 0,
-            m_vmmode: VMMode::VmMbare,
+            m_vmmode: VMMode::Mbare,
             m_finish_cpu: false,
             m_fromhost_addr: (DRAM_BASE + 0x001000) as AddrType,
             m_tohost_addr: (DRAM_BASE + 0x001000) as AddrType,
@@ -256,6 +257,7 @@ impl EnvBase {
                 m_satp: RiscvCsrBase { m_csr: 0 },
             },
             m_priv: PrivMode::Machine,
+            m_trace: Tracer::new(),
         }
     }
 
@@ -351,7 +353,7 @@ pub trait Riscv64Core {
     fn write_reg(&mut self, reg_addr: RegAddrType, data: XlenType);
 
     fn decode_inst(&mut self, inst: InstType) -> RiscvInst;
-    fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstType);
+    fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstType, step: u32);
 
     fn mem_access(
         &mut self,
@@ -423,7 +425,13 @@ impl Riscv64Core for EnvBase {
     fn write_reg(&mut self, reg_addr: RegAddrType, data: XlenType) {
         if reg_addr != 0 {
             self.m_regs[reg_addr as usize] = data;
-            println!("     x{:02} <= {:08x}", reg_addr, data);
+
+            self.m_trace.m_trace_type[0] = TraceType::XRegWrite;
+            self.m_trace.m_trace_addr[0] = reg_addr as AddrType;
+            self.m_trace.m_trace_value[0] = data;
+            self.m_trace.m_trace_memresult[0] = MemResult::NoExcept;
+
+            // println!("     x{:02} <= {:08x}", reg_addr, data);
         }
     }
 
@@ -670,11 +678,13 @@ impl Riscv64Core for EnvBase {
         return dec_inst;
     }
 
-    fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstType) {
-        println!(
-            "{:08x} : {:08x} // DASM({:08x})",
-            self.m_pc as u32, inst as u32, inst as u32
-        );
+    fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstType, step: u32) {
+        self.m_trace.m_executed_pc = self.m_pc;
+        self.m_trace.m_inst_hex = inst;
+        self.m_trace.m_step = step;
+
+        self.m_trace.m_priv = self.m_priv;
+        self.m_trace.m_vmmode = self.get_vm_mode();
 
         let rs1 = Self::get_rs1_addr(inst);
         let rs2 = Self::get_rs2_addr(inst);
@@ -1057,6 +1067,9 @@ impl Riscv64Core for EnvBase {
         if update_pc == false {
             self.m_pc += 4;
         }
+
+        self.m_trace.print_trace();
+        self.m_trace.clear();
     }
 
     fn mem_access(
@@ -1324,13 +1337,7 @@ impl Riscv64Core for EnvBase {
             self.m_priv
         };
 
-        println!(
-            "PrivMode = {:}, VmMode = {:}",
-            priv_mode as u8,
-            self.get_vm_mode() as u8
-        );
-
-        if self.get_vm_mode() == VMMode::VmSv39
+        if self.get_vm_mode() == VMMode::Sv39
             && (priv_mode == PrivMode::Supervisor || priv_mode == PrivMode::User)
         {
             let ppn_idx: Vec<u8> = vec![12, 21, 30];
@@ -1344,7 +1351,7 @@ impl Riscv64Core for EnvBase {
             return self.walk_page_table(
                 vaddr, acc_type, 3, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, PAGESIZE, PTESIZE,
             );
-        } else if self.get_vm_mode() == VMMode::VmSv32
+        } else if self.get_vm_mode() == VMMode::Sv32
             && (priv_mode == PrivMode::Supervisor || priv_mode == PrivMode::User)
         {
             let ppn_idx: Vec<u8> = vec![12, 22];
@@ -1485,9 +1492,9 @@ impl Riscv64Core for EnvBase {
         let satp_val = self.m_csr.csrrs(CsrAddr::Satp, 0); // SATP;
         let mode = Self::extract_bit_field(satp_val, SYSREG_SATP_MODE_MSB, SYSREG_SATP_MODE_LSB);
         return if mode == 1 {
-            VMMode::VmSv32
+            VMMode::Sv32
         } else {
-            VMMode::VmMbare
+            VMMode::Mbare
         };
     }
 

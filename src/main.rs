@@ -6,6 +6,7 @@ mod core_base;
 mod riscv_core;
 mod riscv_csr;
 mod riscv_csr_bitdef;
+mod riscv_tracer;
 
 use crate::riscv_core::EnvBase;
 use crate::riscv_core::Riscv64Core;
@@ -36,10 +37,10 @@ fn main() -> Result<(), Box<std::error::Error>> {
 
     let mut count = 0;
     while count < 65535 && !riscv64_core.get_is_finish_cpu() {
-        println!("InstNo: {:10}", count);
+        // println!("InstNo: {:10}", count);
         let inst_data = riscv64_core.fetch_bus();
         let inst_decode = riscv64_core.decode_inst(inst_data);
-        riscv64_core.execute_inst(inst_decode, inst_data as InstType);
+        riscv64_core.execute_inst(inst_decode, inst_data as InstType, count);
 
         count += 1;
     }
