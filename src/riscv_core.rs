@@ -563,7 +563,7 @@ impl Riscv64Core for EnvBase {
     }
 
     fn read_bus_word(&mut self, addr: AddrType) -> (MemResult, XlenType) {
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
 
         if result != MemResult::NoExcept {
             return (result, 0);
@@ -584,7 +584,7 @@ impl Riscv64Core for EnvBase {
     }
 
     fn read_bus_hword(&mut self, addr: AddrType) -> (MemResult, XlenType) {
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
 
         if result != MemResult::NoExcept {
             return (result, 0);
@@ -594,7 +594,7 @@ impl Riscv64Core for EnvBase {
     }
 
     fn read_bus_byte(&mut self, addr: AddrType) -> (MemResult, XlenType) {
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
 
         if result != MemResult::NoExcept {
             return (result, 0);
@@ -605,7 +605,7 @@ impl Riscv64Core for EnvBase {
     fn write_bus_word(&mut self, addr: AddrType, data: XlenType) -> MemResult {
         // let result: MemResult;
         // let phy_addr: AddrType;
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Write);
 
         if result != MemResult::NoExcept {
             return result;
@@ -626,7 +626,7 @@ impl Riscv64Core for EnvBase {
     }
 
     fn write_bus_hword(&mut self, addr: AddrType, data: XlenType) -> MemResult {
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Write);
 
         if result != MemResult::NoExcept {
             return result;
@@ -638,7 +638,7 @@ impl Riscv64Core for EnvBase {
     }
 
     fn write_bus_byte(&mut self, addr: AddrType, data: XlenType) -> MemResult {
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Write);
 
         if result != MemResult::NoExcept {
             return result;
@@ -1575,9 +1575,9 @@ impl Riscv64Core for EnvBase {
         if is_user_mode && !((i_type & 0x08) != 0) {
             return false;
         }
-        match acc_type {
-            MemAccType::Fetch => return (i_type & 0x04) != 0,
-            MemAccType::Write => return ((i_type & 0x01) != 0) && ((i_type & 0x02) != 0),
+        let allowed_access = match acc_type {
+            MemAccType::Fetch => (i_type & 0x04) != 0,
+            MemAccType::Write => ((i_type & 0x01) != 0) && ((i_type & 0x02) != 0),
             MemAccType::Read => {
                 let mstatus: XlenType = self.m_csr.csrrs(CsrAddr::Mstatus, 0);
                 let mxr: u8 = Self::extract_bit_field(
@@ -1585,10 +1585,10 @@ impl Riscv64Core for EnvBase {
                     SYSREG_MSTATUS_MXR_MSB,
                     SYSREG_MSTATUS_MXR_LSB,
                 ) as u8;
-                ((i_type & 0x01) != 0) | ((mxr & (i_type & 0x04)) != 0);
-            }
-        }
-        return false;
+                ((i_type & 0x01) != 0) | ((mxr & (i_type & 0x04)) != 0)
+            },
+        };
+        return allowed_access;
     }
 
     fn get_is_finish_cpu(&mut self) -> bool {
