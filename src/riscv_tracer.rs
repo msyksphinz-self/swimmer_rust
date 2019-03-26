@@ -7,7 +7,7 @@ use crate::riscv_core::AddrType;
 use crate::riscv_core::InstType;
 use crate::riscv_core::XlenType;
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Copy, Clone)]
 pub enum TraceType {
     XRegWrite,
     XRegRead, // Integer
@@ -107,7 +107,12 @@ impl RiscvTracer for Tracer {
                 VMMode::Sv64 => "Sv64",
             }
         );
-        print!("{:08x}:{:08x}:", self.m_executed_pc, self.m_inst_hex);
+        print!(
+            "{:08x}:{:08x}:{:}:",
+            self.m_executed_pc,
+            self.m_inst_hex,
+            self.m_trace_info.len()
+        );
 
         for trace_idx in 0..self.m_trace_info.len() {
             match self.m_trace_info[trace_idx].m_trace_type {
@@ -139,8 +144,12 @@ impl RiscvTracer for Tracer {
                         self.m_trace_info[trace_idx].m_trace_value
                     );
                 }
-
-                _ => {}
+                _ => {
+                    print!(
+                        "[{:} is not supported] ",
+                        self.m_trace_info[trace_idx].m_trace_type as u32
+                    );
+                }
             }
         }
         println!("  // DASM({:08x})", self.m_inst_hex);

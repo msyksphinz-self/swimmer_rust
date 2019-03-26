@@ -207,6 +207,8 @@ pub struct EnvBase {
     m_fromhost: XlenType,
 
     m_finish_cpu: bool,
+
+    m_is_update_pc: bool,
 }
 
 impl EnvBase {
@@ -224,6 +226,7 @@ impl EnvBase {
             m_tohost_addr: (DRAM_BASE + 0x001000) as AddrType,
             m_fromhost: 0,
             m_tohost: 0,
+            m_is_update_pc: false,
             m_csr: RiscvCsr {
                 m_mcycle: RiscvCsrBase { m_csr: 0 },
                 m_minstret: RiscvCsrBase { m_csr: 0 },
@@ -325,6 +328,13 @@ impl EnvBase {
     fn uext_xlen(hex: InstType) -> UXlenType {
         return hex as UXlenType;
     }
+
+    fn is_update_pc(&mut self) -> bool {
+        return self.m_is_update_pc;
+    }
+    fn set_update_pc(&mut self, update_pc: bool) {
+        self.m_is_update_pc = update_pc;
+    }
 }
 
 pub trait Riscv64Core {
@@ -344,12 +354,12 @@ pub trait Riscv64Core {
     fn write_memory_byte(&mut self, phy_addr: AddrType, data: XlenType) -> XlenType;
 
     fn fetch_bus(&mut self) -> (MemResult, InstType);
-    fn read_bus_word(&mut self, addr: AddrType) -> XlenType;
-    fn read_bus_hword(&mut self, addr: AddrType) -> XlenType;
-    fn read_bus_byte(&mut self, addr: AddrType) -> XlenType;
-    fn write_bus_word(&mut self, addr: AddrType, data: XlenType) -> XlenType;
-    fn write_bus_hword(&mut self, addr: AddrType, data: XlenType) -> XlenType;
-    fn write_bus_byte(&mut self, addr: AddrType, data: XlenType) -> XlenType;
+    fn read_bus_word(&mut self, addr: AddrType) -> (MemResult, XlenType);
+    fn read_bus_hword(&mut self, addr: AddrType) -> (MemResult, XlenType);
+    fn read_bus_byte(&mut self, addr: AddrType) -> (MemResult, XlenType);
+    fn write_bus_word(&mut self, addr: AddrType, data: XlenType) -> MemResult;
+    fn write_bus_hword(&mut self, addr: AddrType, data: XlenType) -> MemResult;
+    fn write_bus_byte(&mut self, addr: AddrType, data: XlenType) -> MemResult;
 
     fn read_reg(&mut self, reg_addr: RegAddrType) -> i32;
     fn write_reg(&mut self, reg_addr: RegAddrType, data: XlenType);
@@ -357,13 +367,13 @@ pub trait Riscv64Core {
     fn decode_inst(&mut self, inst: InstType) -> RiscvInst;
     fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstType, step: u32);
 
-    fn mem_access(
-        &mut self,
-        op: MemType,
-        size: MemSize,
-        data: XlenType,
-        addr: AddrType,
-    ) -> XlenType;
+    // fn mem_access(
+    //     &mut self,
+    //     op: MemType,
+    //     size: MemSize,
+    //     data: XlenType,
+    //     addr: AddrType,
+    // ) -> XlenType;
 
     fn walk_page_table(
         &mut self,
@@ -486,10 +496,16 @@ impl Riscv64Core for EnvBase {
     }
 
     fn read_memory_word(&mut self, phy_addr: AddrType) -> XlenType {
-        return (self.read_memory_byte(phy_addr + 3) << 24)
-            | (self.read_memory_byte(phy_addr + 2) << 16)
-            | (self.read_memory_byte(phy_addr + 1) << 8)
-            | (self.read_memory_byte(phy_addr + 0) << 0);
+        if phy_addr == self.m_tohost_addr {
+            return self.m_tohost;
+        } else if phy_addr == self.m_fromhost_addr {
+            return self.m_fromhost;
+        } else {
+            return (self.read_memory_byte(phy_addr + 3) << 24)
+                | (self.read_memory_byte(phy_addr + 2) << 16)
+                | (self.read_memory_byte(phy_addr + 1) << 8)
+                | (self.read_memory_byte(phy_addr + 0) << 0);
+        }
     }
 
     fn read_memory_hword(&mut self, phy_addr: AddrType) -> XlenType {
@@ -505,11 +521,18 @@ impl Riscv64Core for EnvBase {
     }
 
     fn write_memory_word(&mut self, phy_addr: AddrType, data: XlenType) -> XlenType {
-        self.write_memory_byte(phy_addr + 0, (data >> 0) & 0xff);
-        self.write_memory_byte(phy_addr + 1, (data >> 8) & 0xff);
-        self.write_memory_byte(phy_addr + 2, (data >> 16) & 0xff);
-        self.write_memory_byte(phy_addr + 3, (data >> 24) & 0xff);
-
+        if phy_addr == self.m_tohost_addr {
+            self.m_finish_cpu = true;
+            self.m_tohost = data;
+        } else if phy_addr == self.m_fromhost_addr {
+            self.m_finish_cpu = true;
+            self.m_fromhost = data;
+        } else {
+            self.write_memory_byte(phy_addr + 0, (data >> 0) & 0xff);
+            self.write_memory_byte(phy_addr + 1, (data >> 8) & 0xff);
+            self.write_memory_byte(phy_addr + 2, (data >> 16) & 0xff);
+            self.write_memory_byte(phy_addr + 3, (data >> 24) & 0xff);
+        }
         return 0;
     }
 
@@ -534,15 +557,17 @@ impl Riscv64Core for EnvBase {
         let (result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
 
         if result != MemResult::NoExcept {
-            return (result, phy_addr);
+            return (result, 0);
         }
         return (result, self.read_memory_word(phy_addr) as InstType);
     }
 
-    fn read_bus_word(&mut self, addr: AddrType) -> XlenType {
-        // let result: MemResult;
-        // let phy_addr: AddrType;
-        let (_result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+    fn read_bus_word(&mut self, addr: AddrType) -> (MemResult, XlenType) {
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+
+        if result != MemResult::NoExcept {
+            return (result, 0);
+        }
 
         let ret_val = self.read_memory_word(phy_addr);
 
@@ -555,29 +580,36 @@ impl Riscv64Core for EnvBase {
 
         self.m_trace.m_trace_info.push(read_mem_trace);
 
-        return ret_val;
+        return (result, ret_val);
     }
 
-    fn read_bus_hword(&mut self, addr: AddrType) -> XlenType {
-        // let result: MemResult;
-        // let phy_addr: AddrType;
-        let (_result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+    fn read_bus_hword(&mut self, addr: AddrType) -> (MemResult, XlenType) {
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
 
-        return self.read_memory_hword(phy_addr);
+        if result != MemResult::NoExcept {
+            return (result, 0);
+        }
+
+        return (result, self.read_memory_hword(phy_addr));
     }
 
-    fn read_bus_byte(&mut self, addr: AddrType) -> XlenType {
-        // let result: MemResult;
-        // let phy_addr: AddrType;
-        let (_result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+    fn read_bus_byte(&mut self, addr: AddrType) -> (MemResult, XlenType) {
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
 
-        return self.read_memory_byte(phy_addr);
+        if result != MemResult::NoExcept {
+            return (result, 0);
+        }
+        return (result, self.read_memory_byte(phy_addr));
     }
 
-    fn write_bus_word(&mut self, addr: AddrType, data: XlenType) -> XlenType {
+    fn write_bus_word(&mut self, addr: AddrType, data: XlenType) -> MemResult {
         // let result: MemResult;
         // let phy_addr: AddrType;
-        let (_result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+
+        if result != MemResult::NoExcept {
+            return result;
+        }
 
         let mut write_mem_trace = TraceInfo::new();
 
@@ -590,23 +622,31 @@ impl Riscv64Core for EnvBase {
 
         self.write_memory_word(phy_addr, data);
 
-        return 0;
+        return result;
     }
 
-    fn write_bus_hword(&mut self, addr: AddrType, data: XlenType) -> XlenType {
-        let (_result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+    fn write_bus_hword(&mut self, addr: AddrType, data: XlenType) -> MemResult {
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+
+        if result != MemResult::NoExcept {
+            return result;
+        }
 
         self.write_memory_hword(phy_addr, data);
 
-        return 0;
+        return result;
     }
 
-    fn write_bus_byte(&mut self, addr: AddrType, data: XlenType) -> XlenType {
-        let (_result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+    fn write_bus_byte(&mut self, addr: AddrType, data: XlenType) -> MemResult {
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Fetch);
+
+        if result != MemResult::NoExcept {
+            return result;
+        }
 
         self.write_memory_byte(phy_addr, data);
 
-        return 0;
+        return result;
     }
 
     fn decode_inst(&mut self, inst: InstType) -> RiscvInst {
@@ -732,7 +772,7 @@ impl Riscv64Core for EnvBase {
 
         let csr_addr = CsrAddr::from_u64(((inst >> 20) & 0x0fff) as u64);
 
-        let mut update_pc = false;
+        self.set_update_pc(false);
 
         match dec_inst {
             RiscvInst::CSRRW => {
@@ -778,43 +818,41 @@ impl Riscv64Core for EnvBase {
                 self.write_reg(rd, imm);
             }
             RiscvInst::LB => {
-                let rs1_data = self.read_reg(rs1);
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let mut reg_data: XlenType =
-                    self.mem_access(MemType::LOAD, MemSize::BYTE, rs1_data, addr as AddrType);
-                reg_data = Self::extend_sign(reg_data, 7);
-                self.write_reg(rd, reg_data);
+                let (result, reg_data) = self.read_bus_byte(addr as AddrType);
+                if result == MemResult::NoExcept {
+                    let extended_reg_data = Self::extend_sign(reg_data, 7);
+                    self.write_reg(rd, extended_reg_data);
+                }
             }
             RiscvInst::LH => {
-                let rs1_data = self.read_reg(rs1);
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let mut reg_data: XlenType =
-                    self.mem_access(MemType::LOAD, MemSize::HWORD, rs1_data, addr as AddrType);
-                reg_data = Self::extend_sign(reg_data, 15);
-                self.write_reg(rd, reg_data);
+                let (result, reg_data) = self.read_bus_hword(addr as AddrType);
+                if result == MemResult::NoExcept {
+                    let extended_reg_data = Self::extend_sign(reg_data, 15);
+                    self.write_reg(rd, extended_reg_data);
+                }
             }
             RiscvInst::LW => {
-                let rs1_data = self.read_reg(rs1);
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let reg_data: XlenType =
-                    self.mem_access(MemType::LOAD, MemSize::WORD, rs1_data, addr as AddrType);
-                self.write_reg(rd, reg_data);
+                let (result, reg_data) = self.read_bus_word(addr as AddrType);
+                if result == MemResult::NoExcept {
+                    self.write_reg(rd, reg_data);
+                }
             }
             RiscvInst::LBU => {
-                let rs1_data = self.read_reg(rs1);
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let reg_data: UXlenType =
-                    self.mem_access(MemType::LOAD, MemSize::BYTE, rs1_data, addr as AddrType)
-                        as UXlenType;
-                self.write_reg(rd, reg_data as XlenType);
+                let (result, reg_data) = self.read_bus_byte(addr as AddrType);
+                if result == MemResult::NoExcept {
+                    self.write_reg(rd, reg_data as XlenType);
+                }
             }
             RiscvInst::LHU => {
-                let rs1_data = self.read_reg(rs1);
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let reg_data: UXlenType =
-                    self.mem_access(MemType::LOAD, MemSize::HWORD, rs1_data, addr as AddrType)
-                        as UXlenType;
-                self.write_reg(rd, reg_data as XlenType);
+                let (result, reg_data) = self.read_bus_hword(addr as AddrType);
+                if result == MemResult::NoExcept {
+                    self.write_reg(rd, reg_data as XlenType);
+                }
             }
             RiscvInst::ADDI => {
                 let rs1_data = self.read_reg(rs1);
@@ -988,23 +1026,23 @@ impl Riscv64Core for EnvBase {
             RiscvInst::SB => {
                 let rs2_data = self.read_reg(rs2);
                 let addr: AddrType = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrType;
-                self.mem_access(MemType::STORE, MemSize::BYTE, rs2_data, addr);
+                self.write_bus_byte(addr, rs2_data);
             }
             RiscvInst::SH => {
                 let rs2_data = self.read_reg(rs2);
                 let addr: AddrType = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrType;
-                self.mem_access(MemType::STORE, MemSize::HWORD, rs2_data, addr);
+                self.write_bus_hword(addr, rs2_data);
             }
             RiscvInst::SW => {
                 let rs2_data = self.read_reg(rs2);
                 let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
-                self.mem_access(MemType::STORE, MemSize::WORD, rs2_data, addr as AddrType);
+                self.write_bus_word(addr as AddrType, rs2_data);
             }
             RiscvInst::JAL => {
                 let addr: AddrType = Self::extract_uj_field(inst) as AddrType;
                 self.write_reg(rd, (self.m_pc + 4) as XlenType);
                 self.m_pc = self.m_pc.wrapping_add(addr);
-                update_pc = true;
+                self.set_update_pc(true);
             }
             RiscvInst::BEQ
             | RiscvInst::BNE
@@ -1027,7 +1065,7 @@ impl Riscv64Core for EnvBase {
                 }
                 if jump_en {
                     self.m_pc = self.m_pc.wrapping_add(addr);
-                    update_pc = true;
+                    self.set_update_pc(true);
                 }
             }
             RiscvInst::JALR => {
@@ -1038,20 +1076,22 @@ impl Riscv64Core for EnvBase {
 
                 self.write_reg(rd, (self.m_pc + 4) as XlenType);
                 self.m_pc = addr;
-                update_pc = true;
+                self.set_update_pc(true);
             }
             RiscvInst::FENCE => {}
             RiscvInst::FENCEI => {}
             RiscvInst::ECALL => {
-                let mtvec: XlenType = self.m_csr.csrrs(CsrAddr::Mtvec, 0); // MTVEC
-
                 self.m_csr.csrrw(CsrAddr::Mepc, self.m_pc as XlenType); // MEPC
-                self.m_csr
-                    .csrrw(CsrAddr::Mcause, ExceptCode::EcallFromMMode as XlenType); // MCAUSE
-                self.m_csr.csrrw(CsrAddr::Mtval, 0); // MTVAL
 
-                self.m_pc = mtvec as AddrType;
-                update_pc = true;
+                let current_priv: PrivMode = self.m_priv;
+
+                match current_priv {
+                    PrivMode::User => self.generate_exception(ExceptCode::EcallFromUMode, 0),
+                    PrivMode::Supervisor => self.generate_exception(ExceptCode::EcallFromSMode, 0),
+                    PrivMode::Hypervisor => self.generate_exception(ExceptCode::EcallFromHMode, 0),
+                    PrivMode::Machine => self.generate_exception(ExceptCode::EcallFromMMode, 0),
+                }
+                self.set_update_pc(true);
             }
             RiscvInst::EBREAK => {}
             RiscvInst::URET => {}
@@ -1094,17 +1134,17 @@ impl Riscv64Core for EnvBase {
                 self.set_priv_mode(next_priv);
 
                 self.set_pc(ret_pc as AddrType);
-                update_pc = true;
+                self.set_update_pc(true);
             }
             RiscvInst::MRET => {
                 let mepc: XlenType = self.m_csr.csrrs(CsrAddr::Mepc, 0); // MEPC
                 self.m_pc = mepc as AddrType;
-                update_pc = true;
+                self.set_update_pc(true);
             }
             _ => {}
         }
 
-        if update_pc == false {
+        if self.is_update_pc() == false {
             self.m_pc += 4;
         }
 
@@ -1112,47 +1152,33 @@ impl Riscv64Core for EnvBase {
         self.m_trace.clear();
     }
 
-    fn mem_access(
-        &mut self,
-        op: MemType,
-        size: MemSize,
-        data: XlenType,
-        addr: AddrType,
-    ) -> XlenType {
-        match op {
-            MemType::STORE => {
-                if addr == self.m_tohost_addr {
-                    self.m_finish_cpu = true;
-                    self.m_tohost = data;
-                } else if addr == self.m_fromhost_addr {
-                    self.m_finish_cpu = true;
-                    self.m_fromhost = data;
-                } else {
-                    match size {
-                        MemSize::BYTE => self.write_bus_byte(addr, data),
-                        MemSize::HWORD => self.write_bus_hword(addr, data),
-                        MemSize::WORD => self.write_bus_word(addr, data),
-                        _ => 1,
-                    };
-                }
-            }
-            MemType::LOAD => {
-                if addr == self.m_tohost_addr {
-                    return self.m_tohost;
-                } else if addr == self.m_fromhost_addr {
-                    return self.m_fromhost;
-                } else {
-                    match size {
-                        MemSize::BYTE => return self.read_bus_byte(addr),
-                        MemSize::HWORD => return self.read_bus_hword(addr),
-                        MemSize::WORD => return self.read_bus_word(addr),
-                        _ => 1,
-                    };
-                }
-            }
-        }
-        return 0;
-    }
+    // fn mem_access(
+    //     &mut self,
+    //     op: MemType,
+    //     size: MemSize,
+    //     data: XlenType,
+    //     addr: AddrType,
+    // ) -> XlenType {
+    //     match op {
+    //         MemType::STORE => {
+    //             match size {
+    //                 MemSize::BYTE => self.write_bus_byte(addr, data),
+    //                 MemSize::HWORD => self.write_bus_hword(addr, data),
+    //                 MemSize::WORD => self.write_bus_word(addr, data),
+    //                 _ => MemResult::NoExcept,
+    //             };
+    //         }
+    //         MemType::LOAD => {
+    //             match size {
+    //                 MemSize::BYTE => return self.read_bus_byte(addr),
+    //                 MemSize::HWORD => return self.read_bus_hword(addr),
+    //                 MemSize::WORD => return self.read_bus_word(addr),
+    //                 _ => MemResult::NoExcept,
+    //             };
+    //         }
+    //     }
+    //     return 0;
+    // }
 
     fn walk_page_table(
         &mut self,
@@ -1204,18 +1230,16 @@ impl Riscv64Core for EnvBase {
         let mut pte_addr: AddrType = (pte_base * PAGESIZE) as AddrType;
         let level: usize = 0;
 
-        println!("<Info: SATP={:08x}>", satp);
-
         for level in range(0, init_level).rev() {
             let va_vpn_i: AddrType =
                 (vaddr >> vpn_idx[level as usize]) & ((1 << vpn_len[level as usize]) - 1);
             pte_addr += (va_vpn_i * PTESIZE) as AddrType;
             pte_val = self.read_memory_word(pte_addr);
 
-            println!(
-                "<Info: VAddr = 0x{:08x} PTEAddr = 0x{:08x} : PPTE = 0x{:08x}>",
-                vaddr, pte_addr, pte_val
-            );
+            // println!(
+            //     "<Info: VAddr = 0x{:08x} PTEAddr = 0x{:08x} : PPTE = 0x{:08x}>",
+            //     vaddr, pte_addr, pte_val
+            // );
 
             // 3. If pte:v = 0, or if pte:r = 0 and pte:w = 1, stop and raise a page-fault exception.
             if (pte_val & 0x01) == 0 || (((pte_val & 0x02) == 0) && ((pte_val & 0x04) == 0x04)) {
@@ -1314,13 +1338,13 @@ impl Riscv64Core for EnvBase {
             pte_idx[level],
         ) << ppn_idx[level]) as AddrType;
 
-        println!("Level = {}", level);
+        // println!("Level = {}", level);
 
-        for l in 0..(level+1) {
+        for l in 0..(level + 1) {
             let vaddr_vpn: AddrType = Self::extract_bit_field(
                 vaddr as XlenType,
-                vpn_len[level-l as usize] + vpn_idx[level-l as usize] - 1,
-                vpn_idx[level-l as usize],
+                vpn_len[level - l as usize] + vpn_idx[level - l as usize] - 1,
+                vpn_idx[level - l as usize],
             ) as AddrType;
             phy_addr |= vaddr_vpn << ppn_idx[level as usize];
         }
@@ -1341,7 +1365,7 @@ impl Riscv64Core for EnvBase {
         // m_tlb_tag [vaddr_tag] = vaddr_vpn;
         // m_tlb_addr[vaddr_tag] = (*paddr & !0x0fff) | (pte_val & 0x0ff);
 
-        println!("<Converted Virtual Address = {:08x}>", phy_addr);
+        // println!("<Converted Virtual Address = {:08x}>", phy_addr);
         return (MemResult::NoExcept, phy_addr);
     }
 
@@ -1505,13 +1529,11 @@ impl Riscv64Core for EnvBase {
         self.set_priv_mode(next_priv);
 
         self.set_pc(tvec as AddrType);
-        // SetJumped(true);
+        self.set_update_pc(true);
 
-        println!("<Info: Exception>");
         println!(
             "<Info: Exception. ChangeMode from {} to {}>",
-            curr_priv as u32,
-            next_priv as u32
+            curr_priv as u32, next_priv as u32
         );
         println!("<Info: Set Program Counter = 0x{:16x}>", tvec);
 
