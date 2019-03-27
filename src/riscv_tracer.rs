@@ -63,7 +63,7 @@ impl Tracer {
             m_inst_hex: 0,
             m_step: 0,
 
-            m_trace_info: vec![TraceInfo::new()],
+            m_trace_info: vec![],
         }
     }
 }
@@ -82,7 +82,7 @@ impl RiscvTracer for Tracer {
         self.m_inst_hex = 0;
         self.m_step = 0;
 
-        self.m_trace_info = vec![TraceInfo::new()];
+        self.m_trace_info = vec![];
     }
 
     fn print_trace(&mut self) {
@@ -107,12 +107,7 @@ impl RiscvTracer for Tracer {
                 VMMode::Sv64 => "Sv64",
             }
         );
-        print!(
-            "{:08x}:{:08x}:{:}:",
-            self.m_executed_pc,
-            self.m_inst_hex,
-            self.m_trace_info.len()
-        );
+        print!("{:08x}:{:08x}:", self.m_executed_pc, self.m_inst_hex,);
 
         for trace_idx in 0..self.m_trace_info.len() {
             match self.m_trace_info[trace_idx].m_trace_type {
