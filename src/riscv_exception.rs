@@ -1,9 +1,6 @@
 use crate::riscv_core::EnvBase;
 use crate::riscv_core::Riscv64Core;
 
-use crate::riscv_core::MemAccType;
-use crate::riscv_core::MemResult;
-
 use crate::riscv_core::PrivMode;
 
 use crate::riscv_csr::CsrAddr;

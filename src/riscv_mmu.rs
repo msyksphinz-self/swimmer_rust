@@ -291,8 +291,8 @@ impl RiscvMmu for EnvBase {
             let pte_idx: Vec<u8> = vec![10, 19, 28];
             let vpn_len: Vec<u8> = vec![9, 9, 9];
             let vpn_idx: Vec<u8> = vec![12, 21, 30];
-            let PAGESIZE: u32 = num::pow(2, 12);
-            let PTESIZE: u32 = 8;
+            const PAGESIZE: u32 = 4096; // num::pow(2, 12);
+            const PTESIZE: u32 = 8;
 
             return self.walk_page_table(
                 vaddr, acc_type, 3, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, PAGESIZE, PTESIZE,
@@ -305,8 +305,8 @@ impl RiscvMmu for EnvBase {
             let pte_idx: Vec<u8> = vec![10, 20];
             let vpn_len: Vec<u8> = vec![10, 10];
             let vpn_idx: Vec<u8> = vec![12, 22];
-            let PAGESIZE: u32 = num::pow(2, 12);
-            let PTESIZE: u32 = 4;
+            const PAGESIZE: u32 = 4096; // num::pow(2, 12);
+            const PTESIZE: u32 = 4;
 
             return self.walk_page_table(
                 vaddr, acc_type, 2, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, PAGESIZE, PTESIZE,
