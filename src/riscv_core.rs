@@ -1250,9 +1250,13 @@ impl Riscv64Core for EnvBase {
                 match acc_type {
                     MemAccType::Fetch => {
                         self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenType);
-                        true
                     }
-                    _ => false,
+                    MemAccType::Read => {
+                        self.generate_exception(ExceptCode::LoadPageFault, vaddr as XlenType);
+                    }
+                    MemAccType::Write => {
+                        self.generate_exception(ExceptCode::StorePageFault, vaddr as XlenType);
+                    }
                 };
                 return (MemResult::TlbError, 0);
             }
@@ -1272,9 +1276,13 @@ impl Riscv64Core for EnvBase {
                     match acc_type {
                         MemAccType::Fetch => {
                             self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenType);
-                            true
                         }
-                        _ => false,
+                        MemAccType::Read => {
+                            self.generate_exception(ExceptCode::LoadPageFault, vaddr as XlenType);
+                        }
+                        MemAccType::Write => {
+                            self.generate_exception(ExceptCode::StorePageFault, vaddr as XlenType);
+                        }
                     };
                     return (MemResult::TlbError, 0);
                 }
@@ -1325,9 +1333,13 @@ impl Riscv64Core for EnvBase {
             match acc_type {
                 MemAccType::Fetch => {
                     self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenType);
-                    true
                 }
-                _ => false,
+                MemAccType::Read => {
+                    self.generate_exception(ExceptCode::LoadPageFault, vaddr as XlenType);
+                }
+                MemAccType::Write => {
+                    self.generate_exception(ExceptCode::StorePageFault, vaddr as XlenType);
+                }
             };
             return (MemResult::TlbError, 0);
         }
@@ -1586,7 +1598,7 @@ impl Riscv64Core for EnvBase {
                     SYSREG_MSTATUS_MXR_LSB,
                 ) as u8;
                 ((i_type & 0x01) != 0) | ((mxr & (i_type & 0x04)) != 0)
-            },
+            }
         };
         return allowed_access;
     }
