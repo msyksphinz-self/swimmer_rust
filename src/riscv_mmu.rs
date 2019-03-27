@@ -6,9 +6,9 @@ use crate::riscv_core::Riscv64Core;
 use crate::riscv_core::AddrType;
 use crate::riscv_core::XlenType;
 
-use crate::riscv_core::ExceptCode;
 use crate::riscv_core::MemAccType;
 use crate::riscv_core::MemResult;
+use crate::riscv_exception::ExceptCode;
 
 use crate::riscv_core::PrivMode;
 use crate::riscv_core::VMMode;
@@ -16,10 +16,14 @@ use crate::riscv_core::VMMode;
 use crate::riscv_csr::CsrAddr;
 use crate::riscv_csr::Riscv64Csr;
 
+use crate::riscv_exception::RiscvException;
+
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPP_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPP_MSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPRV_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPRV_MSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MXR_LSB;
+use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MXR_MSB;
 
 use crate::riscv_csr_bitdef::SYSREG_SATP_PPN_LSB;
 use crate::riscv_csr_bitdef::SYSREG_SATP_PPN_MSB;
@@ -44,6 +48,8 @@ pub trait RiscvMmu {
         PAGESIZE: u32,
         PTESIZE: u32,
     ) -> (MemResult, AddrType);
+
+    fn is_allowed_access(&mut self, i_type: u8, acc_type: MemAccType, priv_mode: PrivMode) -> bool;
 }
 
 impl RiscvMmu for EnvBase {
@@ -308,5 +314,29 @@ impl RiscvMmu for EnvBase {
         } else {
             return (MemResult::NoExcept, vaddr);
         }
+    }
+
+    fn is_allowed_access(&mut self, i_type: u8, acc_type: MemAccType, priv_mode: PrivMode) -> bool {
+        let is_user_mode = match priv_mode {
+            PrivMode::User => true,
+            _ => false,
+        };
+        if is_user_mode && !((i_type & 0x08) != 0) {
+            return false;
+        }
+        let allowed_access = match acc_type {
+            MemAccType::Fetch => (i_type & 0x04) != 0,
+            MemAccType::Write => ((i_type & 0x01) != 0) && ((i_type & 0x02) != 0),
+            MemAccType::Read => {
+                let mstatus: XlenType = self.m_csr.csrrs(CsrAddr::Mstatus, 0);
+                let mxr: u8 = Self::extract_bit_field(
+                    mstatus,
+                    SYSREG_MSTATUS_MXR_MSB,
+                    SYSREG_MSTATUS_MXR_LSB,
+                ) as u8;
+                ((i_type & 0x01) != 0) | ((mxr & (i_type & 0x04)) != 0)
+            }
+        };
+        return allowed_access;
     }
 }
