@@ -1,5 +1,4 @@
 use crate::riscv_csr::CsrAddr;
-use crate::riscv_csr::Riscv64Csr;
 use crate::riscv_csr::RiscvCsr;
 use crate::riscv_csr::RiscvCsrBase;
 
@@ -193,40 +192,7 @@ impl EnvBase {
             m_fromhost: 0,
             m_tohost: 0,
             m_is_update_pc: false,
-            m_csr: RiscvCsr {
-                m_mcycle: RiscvCsrBase { m_csr: 0 },
-                m_minstret: RiscvCsrBase { m_csr: 0 },
-                m_mimpid: RiscvCsrBase { m_csr: 0 },
-                m_marchid: RiscvCsrBase { m_csr: 0 },
-                m_mvendorid: RiscvCsrBase { m_csr: 0 },
-                m_misa: RiscvCsrBase { m_csr: 0 },
-                m_mstatus: RiscvCsrBase { m_csr: 0 },
-                m_mtvec: RiscvCsrBase { m_csr: 0 },
-                m_mip: RiscvCsrBase { m_csr: 0 },
-                m_mie: RiscvCsrBase { m_csr: 0 },
-                m_mscratch: RiscvCsrBase { m_csr: 0 },
-                m_mepc: RiscvCsrBase { m_csr: 0 },
-                m_mtval: RiscvCsrBase { m_csr: 0 },
-                m_mcause: RiscvCsrBase { m_csr: 0 },
-                m_mhartid: RiscvCsrBase { m_csr: 0 },
-                m_dcsr: RiscvCsrBase { m_csr: 0 },
-                m_dpc: RiscvCsrBase { m_csr: 0 },
-                m_dscratch: RiscvCsrBase { m_csr: 0 },
-                m_medeleg: RiscvCsrBase { m_csr: 0 },
-
-                m_sstatus: RiscvCsrBase { m_csr: 0 },
-                m_sedeleg: RiscvCsrBase { m_csr: 0 },
-                m_sideleg: RiscvCsrBase { m_csr: 0 },
-                m_sie: RiscvCsrBase { m_csr: 0 },
-                m_stvec: RiscvCsrBase { m_csr: 0 },
-                m_scounteren: RiscvCsrBase { m_csr: 0 },
-                m_sscratch: RiscvCsrBase { m_csr: 0 },
-                m_sepc: RiscvCsrBase { m_csr: 0 },
-                m_scause: RiscvCsrBase { m_csr: 0 },
-                m_stval: RiscvCsrBase { m_csr: 0 },
-                m_sip: RiscvCsrBase { m_csr: 0 },
-                m_satp: RiscvCsrBase { m_csr: 0 },
-            },
+            m_csr: RiscvCsr::new(),
             m_priv: PrivMode::Machine,
             m_trace: Tracer::new(),
         }

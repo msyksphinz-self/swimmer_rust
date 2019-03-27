@@ -14,7 +14,6 @@ use crate::riscv_core::PrivMode;
 use crate::riscv_core::VMMode;
 
 use crate::riscv_csr::CsrAddr;
-use crate::riscv_csr::Riscv64Csr;
 
 use crate::riscv_exception::RiscvException;
 

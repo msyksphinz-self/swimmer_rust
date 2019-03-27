@@ -403,15 +403,7 @@ impl RiscvCsrBase {
     pub fn new() -> RiscvCsrBase {
         RiscvCsrBase { m_csr: 0x0 }
     }
-}
 
-pub trait Riscv64CsrBase {
-    fn csrrw(&mut self, imm: XlenType) -> XlenType;
-    fn csrrs(&mut self, imm: XlenType) -> XlenType;
-    fn csrrc(&mut self, imm: XlenType) -> XlenType;
-}
-
-impl Riscv64CsrBase for RiscvCsrBase {
     fn csrrw(&mut self, imm: XlenType) -> XlenType {
         let ret_val: XlenType = self.m_csr;
         self.m_csr = imm;
@@ -466,14 +458,45 @@ pub struct RiscvCsr {
     pub m_satp: RiscvCsrBase,
 }
 
-pub trait Riscv64Csr {
-    fn csrrw(&mut self, addr: CsrAddr, data: XlenType) -> XlenType;
-    fn csrrs(&mut self, addr: CsrAddr, data: XlenType) -> XlenType;
-    fn csrrc(&mut self, addr: CsrAddr, data: XlenType) -> XlenType;
-}
+impl RiscvCsr {
+    pub fn new() -> RiscvCsr {
+        RiscvCsr {
+            m_mcycle: RiscvCsrBase::new(),
+            m_minstret: RiscvCsrBase::new(),
+            m_mimpid: RiscvCsrBase::new(),
+            m_marchid: RiscvCsrBase::new(),
+            m_mvendorid: RiscvCsrBase::new(),
+            m_misa: RiscvCsrBase::new(),
+            m_mstatus: RiscvCsrBase::new(),
+            m_mtvec: RiscvCsrBase::new(),
+            m_mip: RiscvCsrBase::new(),
+            m_mie: RiscvCsrBase::new(),
+            m_mscratch: RiscvCsrBase::new(),
+            m_mepc: RiscvCsrBase::new(),
+            m_mtval: RiscvCsrBase::new(),
+            m_mcause: RiscvCsrBase::new(),
+            m_mhartid: RiscvCsrBase::new(),
+            m_dcsr: RiscvCsrBase::new(),
+            m_dpc: RiscvCsrBase::new(),
+            m_dscratch: RiscvCsrBase::new(),
+            m_medeleg: RiscvCsrBase::new(),
 
-impl Riscv64Csr for RiscvCsr {
-    fn csrrw(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
+            m_sstatus: RiscvCsrBase::new(),
+            m_sedeleg: RiscvCsrBase::new(),
+            m_sideleg: RiscvCsrBase::new(),
+            m_sie: RiscvCsrBase::new(),
+            m_stvec: RiscvCsrBase::new(),
+            m_scounteren: RiscvCsrBase::new(),
+            m_sscratch: RiscvCsrBase::new(),
+            m_sepc: RiscvCsrBase::new(),
+            m_scause: RiscvCsrBase::new(),
+            m_stval: RiscvCsrBase::new(),
+            m_sip: RiscvCsrBase::new(),
+            m_satp: RiscvCsrBase::new(),
+        }
+    }
+
+    pub fn csrrw(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
         match addr {
             CsrAddr::Mcycle => return self.m_mcycle.csrrw(data),
             CsrAddr::Minstret => return self.m_minstret.csrrw(data),
@@ -511,7 +534,7 @@ impl Riscv64Csr for RiscvCsr {
         }
     }
 
-    fn csrrs(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
+    pub fn csrrs(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
         match addr {
             CsrAddr::Mcycle => return self.m_mcycle.csrrs(data),
             CsrAddr::Minstret => return self.m_minstret.csrrs(data),
@@ -549,7 +572,7 @@ impl Riscv64Csr for RiscvCsr {
         }
     }
 
-    fn csrrc(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
+    pub fn csrrc(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
         match addr {
             CsrAddr::Mcycle => return self.m_mcycle.csrrc(data),
             CsrAddr::Minstret => return self.m_minstret.csrrc(data),
