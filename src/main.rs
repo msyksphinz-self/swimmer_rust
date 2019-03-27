@@ -6,6 +6,7 @@ mod core_base;
 mod riscv_core;
 mod riscv_csr;
 mod riscv_csr_bitdef;
+mod riscv_mmu;
 mod riscv_tracer;
 
 use crate::riscv_core::EnvBase;
