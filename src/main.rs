@@ -14,7 +14,7 @@ use crate::riscv_core::EnvBase;
 use crate::riscv_core::Riscv64Core;
 
 use crate::riscv_core::InstType;
-use crate::riscv_core::XlenType;
+use crate::riscv_core::XlenT;
 use crate::riscv_core::DRAM_BASE;
 
 use crate::riscv_core::MemResult;
@@ -31,11 +31,11 @@ fn main() -> Result<(), Box<std::error::Error>> {
     let filebuf = BufReader::new(file);
     let mut hex_addr = 0;
 
-    let mut riscv64_core = EnvBase::new();
+    let mut riscv64_core = EnvBase::<i32, u32>::new();
 
     for result in filebuf.bytes() {
         let l = result?;
-        riscv64_core.write_memory_byte(hex_addr + DRAM_BASE, l as XlenType);
+        riscv64_core.write_memory_byte(hex_addr + DRAM_BASE, l as XlenT);
         hex_addr = hex_addr + 1;
     }
 

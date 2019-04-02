@@ -5,7 +5,6 @@ use crate::riscv_core::MemResult;
 
 use crate::riscv_core::AddrType;
 use crate::riscv_core::InstType;
-use crate::riscv_core::XlenType;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum TraceType {
@@ -22,16 +21,16 @@ pub enum TraceType {
     None,
 }
 
-pub struct TraceInfo {
+pub struct TraceInfo<XlenT> {
     pub m_trace_type: TraceType,
     pub m_trace_size: u32,
     pub m_trace_addr: AddrType,
-    pub m_trace_value: XlenType,
+    pub m_trace_value: XlenT,
     pub m_trace_memresult: MemResult, /* Memory Access Result */
 }
 
-impl TraceInfo {
-    pub fn new() -> TraceInfo {
+impl<XlenT> TraceInfo<XlenT> {
+    pub fn new() -> TraceInfo<XlenT> {
         TraceInfo {
             m_trace_type: TraceType::None,
             m_trace_size: 0,
@@ -42,7 +41,7 @@ impl TraceInfo {
     }
 }
 
-pub struct Tracer {
+pub struct Tracer<XlenT> {
     pub m_priv: PrivMode,
     pub m_vmmode: VMMode,
     pub m_executed_pc: AddrType,
@@ -50,11 +49,11 @@ pub struct Tracer {
     pub m_inst_hex: InstType,
     pub m_step: u32,
 
-    pub m_trace_info: Vec<TraceInfo>,
+    pub m_trace_info: Vec<TraceInfo<XlenT>>,
 }
 
-impl Tracer {
-    pub fn new() -> Tracer {
+impl<XlenT> Tracer<XlenT> {
+    pub fn new() -> Tracer<XlenT> {
         Tracer {
             m_priv: PrivMode::Machine,
             m_vmmode: VMMode::Mbare,
@@ -73,7 +72,7 @@ pub trait RiscvTracer {
     fn print_trace(&mut self);
 }
 
-impl RiscvTracer for Tracer {
+impl<XlenT> RiscvTracer for Tracer<XlenT> {
     fn clear(&mut self) {
         self.m_priv = PrivMode::Machine;
         self.m_vmmode = VMMode::Mbare;

@@ -6,7 +6,6 @@ use crate::riscv_core::PrivMode;
 use crate::riscv_csr::CsrAddr;
 
 use crate::riscv_core::AddrType;
-use crate::riscv_core::XlenType;
 
 use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SIE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SIE_MSB;
@@ -41,12 +40,12 @@ pub enum ExceptCode {
     StorePageFault = 15,
 }
 
-pub trait RiscvException {
-    fn generate_exception(&mut self, code: ExceptCode, tval: XlenType);
+pub trait RiscvException<XlenT, UXlenT> {
+    fn generate_exception(&mut self, code: ExceptCode, tval: XlenT);
 }
 
-impl RiscvException for EnvBase {
-    fn generate_exception(&mut self, code: ExceptCode, tval: XlenType) {
+impl<XlenT, UXlenT> RiscvException<XlenT, UXlenT> for EnvBase<XlenT> {
+    fn generate_exception(&mut self, code: ExceptCode, tval: XlenT) {
         // FlushTlb();
 
         // if code != ExceptCode::IllegalInst && code != ExceptCode::EcallFromSMode {
@@ -74,9 +73,9 @@ impl RiscvException for EnvBase {
 
         let curr_priv: PrivMode = self.m_priv;
 
-        let mut mstatus: XlenType;
-        let mut sstatus: XlenType;
-        let tvec: XlenType;
+        let mut mstatus: XlenT;
+        let mut sstatus: XlenT;
+        let tvec: XlenT;
         let medeleg = self.m_csr.csrrs(CsrAddr::Medeleg, 0);
         let mut next_priv: PrivMode = PrivMode::Machine;
 
@@ -84,15 +83,15 @@ impl RiscvException for EnvBase {
 
         if (medeleg & (1 << (code as u32))) != 0 {
             // Delegation
-            self.m_csr.csrrw(CsrAddr::Sepc, epc as XlenType);
-            self.m_csr.csrrw(CsrAddr::Scause, code as XlenType);
+            self.m_csr.csrrw(CsrAddr::Sepc, epc as XlenT);
+            self.m_csr.csrrw(CsrAddr::Scause, code as XlenT);
             self.m_csr.csrrw(CsrAddr::Stval, tval);
 
             tvec = self.m_csr.csrrs(CsrAddr::Stvec, 0);
             next_priv = PrivMode::Supervisor;
         } else {
-            self.m_csr.csrrw(CsrAddr::Mepc, epc as XlenType);
-            self.m_csr.csrrw(CsrAddr::Mcause, code as XlenType);
+            self.m_csr.csrrw(CsrAddr::Mepc, epc as XlenT);
+            self.m_csr.csrrw(CsrAddr::Mcause, code as XlenT);
             self.m_csr.csrrw(CsrAddr::Mtval, tval);
 
             tvec = self.m_csr.csrrs(CsrAddr::Mtvec, 0);
@@ -110,7 +109,7 @@ impl RiscvException for EnvBase {
             );
             sstatus = Self::set_bit_field(
                 sstatus,
-                curr_priv as XlenType,
+                curr_priv as XlenT,
                 SYSREG_SSTATUS_SPP_MSB,
                 SYSREG_SSTATUS_SPP_LSB,
             );
@@ -127,7 +126,7 @@ impl RiscvException for EnvBase {
             );
             mstatus = Self::set_bit_field(
                 mstatus,
-                curr_priv as XlenType,
+                curr_priv as XlenT,
                 SYSREG_MSTATUS_MPP_MSB,
                 SYSREG_MSTATUS_MPP_LSB,
             );
