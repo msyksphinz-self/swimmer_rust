@@ -1,16 +1,16 @@
-use crate::riscv_core::Riscv32Core;
-use crate::riscv_core::Riscv32Env;
+use crate::riscv32_core::Riscv32Core;
+use crate::riscv32_core::Riscv32Env;
 
-use crate::riscv_core64::Riscv64Core;
-use crate::riscv_core64::Riscv64Env;
+use crate::riscv64_core::Riscv64Core;
+use crate::riscv64_core::Riscv64Env;
 
 use crate::riscv_csr::CsrAddr;
 use crate::riscv_csr::RiscvCsr;
 use crate::riscv_csr::RiscvCsrBase;
 
-use crate::riscv_core::PrivMode;
+use crate::riscv32_core::PrivMode;
 
-use crate::riscv_core::MemResult;
+use crate::riscv32_core::MemResult;
 
 use crate::riscv_exception::ExceptCode;
 use crate::riscv_exception::RiscvException;
@@ -20,13 +20,13 @@ use crate::riscv_tracer::TraceInfo;
 use crate::riscv_tracer::TraceType;
 use crate::riscv_tracer::Tracer;
 
-use crate::riscv_core::AddrT;
-use crate::riscv_core::InstT;
-use crate::riscv_core::RegAddrT;
-use crate::riscv_core::UXlenT;
-use crate::riscv_core::XlenT;
-use crate::riscv_core64::UXlen64T;
-use crate::riscv_core64::Xlen64T;
+use crate::riscv32_core::AddrT;
+use crate::riscv32_core::InstT;
+use crate::riscv32_core::RegAddrT;
+use crate::riscv32_core::UXlenT;
+use crate::riscv32_core::XlenT;
+use crate::riscv64_core::UXlen64T;
+use crate::riscv64_core::Xlen64T;
 
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_MSB;

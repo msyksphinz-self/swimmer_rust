@@ -1,12 +1,12 @@
-use crate::riscv_core::PrivMode;
-use crate::riscv_core::VMMode;
+use crate::riscv32_core::PrivMode;
+use crate::riscv32_core::VMMode;
 
-use crate::riscv_core::MemResult;
+use crate::riscv32_core::MemResult;
 
-use crate::riscv_core::AddrT;
-use crate::riscv_core::InstT;
-use crate::riscv_core::XlenT;
-use crate::riscv_core64::Xlen64T;
+use crate::riscv32_core::AddrT;
+use crate::riscv32_core::InstT;
+use crate::riscv32_core::XlenT;
+use crate::riscv64_core::Xlen64T;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum TraceType {

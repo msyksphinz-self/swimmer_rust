@@ -3,8 +3,8 @@ use std::fs::File;
 use std::io::{BufReader, Read, Write};
 
 mod core_base;
-mod riscv_core;
-mod riscv_core64;
+mod riscv32_core;
+mod riscv64_core;
 mod riscv_csr;
 mod riscv_csr_bitdef;
 mod riscv_exception;
@@ -12,21 +12,21 @@ mod riscv_insts;
 mod riscv_mmu;
 mod riscv_tracer;
 
-use crate::riscv_core::Riscv32Core;
-use crate::riscv_core::Riscv32Env;
+use crate::riscv32_core::Riscv32Core;
+use crate::riscv32_core::Riscv32Env;
 
-use crate::riscv_core64::Riscv64Core;
-use crate::riscv_core64::Riscv64Env;
+use crate::riscv64_core::Riscv64Core;
+use crate::riscv64_core::Riscv64Env;
 
 use crate::riscv_insts::RiscvInst;
 use crate::riscv_insts::RiscvInsts;
 
-use crate::riscv_core::InstT;
-use crate::riscv_core::XlenT;
-use crate::riscv_core::DRAM_BASE;
-use crate::riscv_core64::Xlen64T;
+use crate::riscv32_core::InstT;
+use crate::riscv32_core::XlenT;
+use crate::riscv32_core::DRAM_BASE;
+use crate::riscv64_core::Xlen64T;
 
-use crate::riscv_core::MemResult;
+use crate::riscv32_core::MemResult;
 
 fn main() -> Result<(), Box<std::error::Error>> {
     let args: Vec<String> = env::args().collect::<Vec<String>>();
