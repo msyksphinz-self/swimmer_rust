@@ -269,7 +269,7 @@ impl EnvBase {
     }
 }
 
-pub trait Riscv64Core {
+pub trait Riscv32Core {
     fn get_rs1_addr(inst: InstType) -> RegAddrType;
     fn get_rs2_addr(inst: InstType) -> RegAddrType;
     fn get_rd_addr(inst: InstType) -> RegAddrType;
@@ -316,7 +316,7 @@ pub trait Riscv64Core {
     fn get_fromhost(&mut self) -> XlenType;
 }
 
-impl Riscv64Core for EnvBase {
+impl Riscv32Core for EnvBase {
     fn get_rs1_addr(inst: InstType) -> RegAddrType {
         return ((inst >> 15) & 0x1f) as RegAddrType;
     }

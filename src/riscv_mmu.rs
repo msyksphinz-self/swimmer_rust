@@ -1,7 +1,7 @@
 use num::iter::range;
 
 use crate::riscv_core::EnvBase;
-use crate::riscv_core::Riscv64Core;
+use crate::riscv_core::Riscv32Core;
 
 use crate::riscv_core::AddrType;
 use crate::riscv_core::XlenType;

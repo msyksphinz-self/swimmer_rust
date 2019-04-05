@@ -1,5 +1,5 @@
 use crate::riscv_core::EnvBase;
-use crate::riscv_core::Riscv64Core;
+use crate::riscv_core::Riscv32Core;
 
 use crate::riscv_core::PrivMode;
 
