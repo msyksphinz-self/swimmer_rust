@@ -4,6 +4,7 @@ use std::io::{BufReader, Read, Write};
 
 mod core_base;
 mod riscv_core;
+mod riscv_core64;
 mod riscv_csr;
 mod riscv_csr_bitdef;
 mod riscv_exception;
@@ -14,12 +15,16 @@ mod riscv_tracer;
 use crate::riscv_core::Riscv32Core;
 use crate::riscv_core::Riscv32Env;
 
-use crate::riscv_insts::Riscv32Insts;
+use crate::riscv_core64::Riscv64Core;
+use crate::riscv_core64::Riscv64Env;
+
 use crate::riscv_insts::RiscvInst;
+use crate::riscv_insts::RiscvInsts;
 
 use crate::riscv_core::InstT;
 use crate::riscv_core::XlenT;
 use crate::riscv_core::DRAM_BASE;
+use crate::riscv_core64::Xlen64T;
 
 use crate::riscv_core::MemResult;
 
@@ -35,28 +40,28 @@ fn main() -> Result<(), Box<std::error::Error>> {
     let filebuf = BufReader::new(file);
     let mut hex_addr = 0;
 
-    let mut riscv32_core = Riscv32Env::new();
+    let mut riscv64_core = Riscv64Env::new();
 
     for result in filebuf.bytes() {
         let l = result?;
-        riscv32_core.write_memory_byte(hex_addr + DRAM_BASE, l as XlenT);
+        riscv64_core.write_memory_byte(hex_addr + DRAM_BASE, l as Xlen64T);
         hex_addr = hex_addr + 1;
     }
 
     let mut count = 0;
-    while count < 65535 && !riscv32_core.get_is_finish_cpu() {
+    while count < 65535 && !riscv64_core.get_is_finish_cpu() {
         // println!("InstNo: {:10}", count);
-        let (result, inst_data) = riscv32_core.fetch_bus();
+        let (result, inst_data) = riscv64_core.fetch_bus();
         if result != MemResult::NoExcept {
             continue;
         }
-        let inst_decode = riscv32_core.decode_inst(inst_data);
-        riscv32_core.execute_inst(inst_decode, inst_data as InstT, count);
+        let inst_decode = riscv64_core.decode_inst(inst_data);
+        riscv64_core.execute_inst(inst_decode, inst_data as InstT, count);
 
         count += 1;
     }
 
-    if riscv32_core.get_tohost() == 1 {
+    if riscv64_core.get_tohost() == 1 {
         eprintln!("PASS : {}", args[1]);
     } else {
         eprintln!("FAIL : {}", args[1]);

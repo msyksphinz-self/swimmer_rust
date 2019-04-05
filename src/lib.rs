@@ -1,6 +1,7 @@
 /* lib.rs */
 
 pub mod riscv_core;
+pub mod riscv_core64;
 pub mod riscv_csr;
 pub mod riscv_csr_bitdef;
 pub mod riscv_exception;

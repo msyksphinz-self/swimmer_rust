@@ -1,4 +1,7 @@
+use num::Integer;
+
 use crate::riscv_core::XlenT;
+use crate::riscv_core64::Xlen64T;
 
 pub enum CsrAddr {
     None = 0x000,
@@ -395,104 +398,128 @@ impl CsrAddr {
     }
 }
 
-pub struct RiscvCsrBase {
-    pub m_csr: XlenT,
+pub struct RiscvCsrBase<W> {
+    pub m_csr: W,
 }
 
-impl RiscvCsrBase {
-    pub fn new() -> RiscvCsrBase {
+impl RiscvCsrBase<i32> {
+    pub fn new() -> RiscvCsrBase<i32> {
         RiscvCsrBase { m_csr: 0x0 }
     }
 
-    fn csrrw(&mut self, imm: XlenT) -> XlenT {
-        let ret_val: XlenT = self.m_csr;
+    fn csrrw(&mut self, imm: i32) -> i32 {
+        let ret_val: i32 = self.m_csr;
         self.m_csr = imm;
         return ret_val;
     }
 
-    fn csrrs(&mut self, imm: XlenT) -> XlenT {
-        let ret_val: XlenT = self.m_csr;
+    fn csrrs(&mut self, imm: i32) -> i32 {
+        let ret_val: i32 = self.m_csr;
         self.m_csr = self.m_csr | imm;
         return ret_val;
     }
 
-    fn csrrc(&mut self, imm: XlenT) -> XlenT {
-        let ret_val: XlenT = self.m_csr;
+    fn csrrc(&mut self, imm: i32) -> i32 {
+        let ret_val: i32 = self.m_csr;
         self.m_csr = self.m_csr & !imm;
         return ret_val;
     }
 }
 
-pub struct RiscvCsr {
-    pub m_mcycle: RiscvCsrBase,
-    pub m_minstret: RiscvCsrBase,
-    pub m_mimpid: RiscvCsrBase,
-    pub m_marchid: RiscvCsrBase,
-    pub m_mvendorid: RiscvCsrBase,
-    pub m_misa: RiscvCsrBase,
-    pub m_mstatus: RiscvCsrBase,
-    pub m_mtvec: RiscvCsrBase,
-    pub m_mip: RiscvCsrBase,
-    pub m_mie: RiscvCsrBase,
-    pub m_mscratch: RiscvCsrBase,
-    pub m_mepc: RiscvCsrBase,
-    pub m_mtval: RiscvCsrBase,
-    pub m_mcause: RiscvCsrBase,
-    pub m_mhartid: RiscvCsrBase,
-    pub m_dcsr: RiscvCsrBase,
-    pub m_dpc: RiscvCsrBase,
-    pub m_dscratch: RiscvCsrBase,
-    pub m_medeleg: RiscvCsrBase,
+impl RiscvCsrBase<i64> {
+    pub fn new() -> RiscvCsrBase<i64> {
+        RiscvCsrBase { m_csr: 0x0 }
+    }
 
-    pub m_sstatus: RiscvCsrBase,
-    pub m_sedeleg: RiscvCsrBase,
-    pub m_sideleg: RiscvCsrBase,
-    pub m_sie: RiscvCsrBase,
-    pub m_stvec: RiscvCsrBase,
-    pub m_scounteren: RiscvCsrBase,
-    pub m_sscratch: RiscvCsrBase,
-    pub m_sepc: RiscvCsrBase,
-    pub m_scause: RiscvCsrBase,
-    pub m_stval: RiscvCsrBase,
-    pub m_sip: RiscvCsrBase,
-    pub m_satp: RiscvCsrBase,
+    fn csrrw(&mut self, imm: i64) -> i64 {
+        let ret_val: i64 = self.m_csr;
+        self.m_csr = imm;
+        return ret_val;
+    }
+
+    fn csrrs(&mut self, imm: i64) -> i64 {
+        let ret_val: i64 = self.m_csr;
+        self.m_csr = self.m_csr | imm;
+        return ret_val;
+    }
+
+    fn csrrc(&mut self, imm: i64) -> i64 {
+        let ret_val: i64 = self.m_csr;
+        self.m_csr = self.m_csr & !imm;
+        return ret_val;
+    }
 }
 
-impl RiscvCsr {
-    pub fn new() -> RiscvCsr {
-        RiscvCsr {
-            m_mcycle: RiscvCsrBase::new(),
-            m_minstret: RiscvCsrBase::new(),
-            m_mimpid: RiscvCsrBase::new(),
-            m_marchid: RiscvCsrBase::new(),
-            m_mvendorid: RiscvCsrBase::new(),
-            m_misa: RiscvCsrBase::new(),
-            m_mstatus: RiscvCsrBase::new(),
-            m_mtvec: RiscvCsrBase::new(),
-            m_mip: RiscvCsrBase::new(),
-            m_mie: RiscvCsrBase::new(),
-            m_mscratch: RiscvCsrBase::new(),
-            m_mepc: RiscvCsrBase::new(),
-            m_mtval: RiscvCsrBase::new(),
-            m_mcause: RiscvCsrBase::new(),
-            m_mhartid: RiscvCsrBase::new(),
-            m_dcsr: RiscvCsrBase::new(),
-            m_dpc: RiscvCsrBase::new(),
-            m_dscratch: RiscvCsrBase::new(),
-            m_medeleg: RiscvCsrBase::new(),
+pub struct RiscvCsr<W> {
+    pub m_mcycle: RiscvCsrBase<W>,
+    pub m_minstret: RiscvCsrBase<W>,
+    pub m_mimpid: RiscvCsrBase<W>,
+    pub m_marchid: RiscvCsrBase<W>,
+    pub m_mvendorid: RiscvCsrBase<W>,
+    pub m_misa: RiscvCsrBase<W>,
+    pub m_mstatus: RiscvCsrBase<W>,
+    pub m_mtvec: RiscvCsrBase<W>,
+    pub m_mip: RiscvCsrBase<W>,
+    pub m_mie: RiscvCsrBase<W>,
+    pub m_mscratch: RiscvCsrBase<W>,
+    pub m_mepc: RiscvCsrBase<W>,
+    pub m_mtval: RiscvCsrBase<W>,
+    pub m_mcause: RiscvCsrBase<W>,
+    pub m_mhartid: RiscvCsrBase<W>,
+    pub m_dcsr: RiscvCsrBase<W>,
+    pub m_dpc: RiscvCsrBase<W>,
+    pub m_dscratch: RiscvCsrBase<W>,
+    pub m_medeleg: RiscvCsrBase<W>,
 
-            m_sstatus: RiscvCsrBase::new(),
-            m_sedeleg: RiscvCsrBase::new(),
-            m_sideleg: RiscvCsrBase::new(),
-            m_sie: RiscvCsrBase::new(),
-            m_stvec: RiscvCsrBase::new(),
-            m_scounteren: RiscvCsrBase::new(),
-            m_sscratch: RiscvCsrBase::new(),
-            m_sepc: RiscvCsrBase::new(),
-            m_scause: RiscvCsrBase::new(),
-            m_stval: RiscvCsrBase::new(),
-            m_sip: RiscvCsrBase::new(),
-            m_satp: RiscvCsrBase::new(),
+    pub m_sstatus: RiscvCsrBase<W>,
+    pub m_sedeleg: RiscvCsrBase<W>,
+    pub m_sideleg: RiscvCsrBase<W>,
+    pub m_sie: RiscvCsrBase<W>,
+    pub m_stvec: RiscvCsrBase<W>,
+    pub m_scounteren: RiscvCsrBase<W>,
+    pub m_sscratch: RiscvCsrBase<W>,
+    pub m_sepc: RiscvCsrBase<W>,
+    pub m_scause: RiscvCsrBase<W>,
+    pub m_stval: RiscvCsrBase<W>,
+    pub m_sip: RiscvCsrBase<W>,
+    pub m_satp: RiscvCsrBase<W>,
+}
+
+impl RiscvCsr<i32> {
+    pub fn new() -> RiscvCsr<i32> {
+        RiscvCsr {
+            m_mcycle: RiscvCsrBase::<i32>::new(),
+            m_minstret: RiscvCsrBase::<i32>::new(),
+            m_mimpid: RiscvCsrBase::<i32>::new(),
+            m_marchid: RiscvCsrBase::<i32>::new(),
+            m_mvendorid: RiscvCsrBase::<i32>::new(),
+            m_misa: RiscvCsrBase::<i32>::new(),
+            m_mstatus: RiscvCsrBase::<i32>::new(),
+            m_mtvec: RiscvCsrBase::<i32>::new(),
+            m_mip: RiscvCsrBase::<i32>::new(),
+            m_mie: RiscvCsrBase::<i32>::new(),
+            m_mscratch: RiscvCsrBase::<i32>::new(),
+            m_mepc: RiscvCsrBase::<i32>::new(),
+            m_mtval: RiscvCsrBase::<i32>::new(),
+            m_mcause: RiscvCsrBase::<i32>::new(),
+            m_mhartid: RiscvCsrBase::<i32>::new(),
+            m_dcsr: RiscvCsrBase::<i32>::new(),
+            m_dpc: RiscvCsrBase::<i32>::new(),
+            m_dscratch: RiscvCsrBase::<i32>::new(),
+            m_medeleg: RiscvCsrBase::<i32>::new(),
+
+            m_sstatus: RiscvCsrBase::<i32>::new(),
+            m_sedeleg: RiscvCsrBase::<i32>::new(),
+            m_sideleg: RiscvCsrBase::<i32>::new(),
+            m_sie: RiscvCsrBase::<i32>::new(),
+            m_stvec: RiscvCsrBase::<i32>::new(),
+            m_scounteren: RiscvCsrBase::<i32>::new(),
+            m_sscratch: RiscvCsrBase::<i32>::new(),
+            m_sepc: RiscvCsrBase::<i32>::new(),
+            m_scause: RiscvCsrBase::<i32>::new(),
+            m_stval: RiscvCsrBase::<i32>::new(),
+            m_sip: RiscvCsrBase::<i32>::new(),
+            m_satp: RiscvCsrBase::<i32>::new(),
         }
     }
 
@@ -573,6 +600,159 @@ impl RiscvCsr {
     }
 
     pub fn csrrc(&mut self, addr: CsrAddr, data: XlenT) -> XlenT {
+        match addr {
+            CsrAddr::Mcycle => return self.m_mcycle.csrrc(data),
+            CsrAddr::Minstret => return self.m_minstret.csrrc(data),
+            CsrAddr::Mimpid => return self.m_mimpid.csrrc(data),
+            CsrAddr::Marchid => return self.m_marchid.csrrc(data),
+            CsrAddr::Mvendorid => return self.m_mvendorid.csrrc(data),
+            CsrAddr::Misa => return self.m_misa.csrrc(data),
+            CsrAddr::Mstatus => return self.m_mstatus.csrrc(data),
+            CsrAddr::Mtvec => return self.m_mtvec.csrrc(data),
+            CsrAddr::Mip => return self.m_mip.csrrc(data),
+            CsrAddr::Mie => return self.m_mie.csrrc(data),
+            CsrAddr::Mscratch => return self.m_mscratch.csrrc(data),
+            CsrAddr::Mepc => return self.m_mepc.csrrc(data),
+            CsrAddr::Mtval => return self.m_mtval.csrrc(data),
+            CsrAddr::Mcause => return self.m_mcause.csrrc(data),
+            CsrAddr::Mhartid => return self.m_mhartid.csrrc(data),
+            CsrAddr::Dcsr => return self.m_dcsr.csrrc(data),
+            CsrAddr::Dpc => return self.m_dpc.csrrc(data),
+            CsrAddr::Dscratch => return self.m_dscratch.csrrc(data),
+            CsrAddr::Medeleg => return self.m_medeleg.csrrc(data),
+
+            // CsrAddr::Sstatus,
+            CsrAddr::Sedeleg => return self.m_sedeleg.csrrc(data),
+            CsrAddr::Sideleg => return self.m_sideleg.csrrc(data),
+            CsrAddr::Sie => return self.m_sie.csrrc(data),
+            CsrAddr::Stvec => return self.m_stvec.csrrc(data),
+            CsrAddr::Scounteren => return self.m_scounteren.csrrc(data),
+            CsrAddr::Sscratch => return self.m_sscratch.csrrc(data),
+            CsrAddr::Sepc => return self.m_sepc.csrrc(data),
+            CsrAddr::Scause => return self.m_scause.csrrc(data),
+            CsrAddr::Stval => return self.m_stval.csrrc(data),
+            CsrAddr::Sip => return self.m_sip.csrrc(data),
+            CsrAddr::Satp => return self.m_satp.csrrc(data),
+            _ => return 0x0,
+        }
+    }
+}
+
+impl RiscvCsr<i64> {
+    pub fn new() -> RiscvCsr<i64> {
+        RiscvCsr {
+            m_mcycle: RiscvCsrBase::<i64>::new(),
+            m_minstret: RiscvCsrBase::<i64>::new(),
+            m_mimpid: RiscvCsrBase::<i64>::new(),
+            m_marchid: RiscvCsrBase::<i64>::new(),
+            m_mvendorid: RiscvCsrBase::<i64>::new(),
+            m_misa: RiscvCsrBase::<i64>::new(),
+            m_mstatus: RiscvCsrBase::<i64>::new(),
+            m_mtvec: RiscvCsrBase::<i64>::new(),
+            m_mip: RiscvCsrBase::<i64>::new(),
+            m_mie: RiscvCsrBase::<i64>::new(),
+            m_mscratch: RiscvCsrBase::<i64>::new(),
+            m_mepc: RiscvCsrBase::<i64>::new(),
+            m_mtval: RiscvCsrBase::<i64>::new(),
+            m_mcause: RiscvCsrBase::<i64>::new(),
+            m_mhartid: RiscvCsrBase::<i64>::new(),
+            m_dcsr: RiscvCsrBase::<i64>::new(),
+            m_dpc: RiscvCsrBase::<i64>::new(),
+            m_dscratch: RiscvCsrBase::<i64>::new(),
+            m_medeleg: RiscvCsrBase::<i64>::new(),
+
+            m_sstatus: RiscvCsrBase::<i64>::new(),
+            m_sedeleg: RiscvCsrBase::<i64>::new(),
+            m_sideleg: RiscvCsrBase::<i64>::new(),
+            m_sie: RiscvCsrBase::<i64>::new(),
+            m_stvec: RiscvCsrBase::<i64>::new(),
+            m_scounteren: RiscvCsrBase::<i64>::new(),
+            m_sscratch: RiscvCsrBase::<i64>::new(),
+            m_sepc: RiscvCsrBase::<i64>::new(),
+            m_scause: RiscvCsrBase::<i64>::new(),
+            m_stval: RiscvCsrBase::<i64>::new(),
+            m_sip: RiscvCsrBase::<i64>::new(),
+            m_satp: RiscvCsrBase::<i64>::new(),
+        }
+    }
+
+    pub fn csrrw(&mut self, addr: CsrAddr, data: Xlen64T) -> Xlen64T {
+        match addr {
+            CsrAddr::Mcycle => return self.m_mcycle.csrrw(data),
+            CsrAddr::Minstret => return self.m_minstret.csrrw(data),
+            CsrAddr::Mimpid => return self.m_mimpid.csrrw(data),
+            CsrAddr::Marchid => return self.m_marchid.csrrw(data),
+            CsrAddr::Mvendorid => return self.m_mvendorid.csrrw(data),
+            CsrAddr::Misa => return self.m_misa.csrrw(data),
+            CsrAddr::Mstatus => return self.m_mstatus.csrrw(data),
+            CsrAddr::Mtvec => return self.m_mtvec.csrrw(data),
+            CsrAddr::Mip => return self.m_mip.csrrw(data),
+            CsrAddr::Mie => return self.m_mie.csrrw(data),
+            CsrAddr::Mscratch => return self.m_mscratch.csrrw(data),
+            CsrAddr::Mepc => return self.m_mepc.csrrw(data),
+            CsrAddr::Mtval => return self.m_mtval.csrrw(data),
+            CsrAddr::Mcause => return self.m_mcause.csrrw(data),
+            CsrAddr::Mhartid => return self.m_mhartid.csrrw(data),
+            CsrAddr::Dcsr => return self.m_dcsr.csrrw(data),
+            CsrAddr::Dpc => return self.m_dpc.csrrw(data),
+            CsrAddr::Dscratch => return self.m_dscratch.csrrw(data),
+            CsrAddr::Medeleg => return self.m_medeleg.csrrw(data),
+
+            // CsrAddr::Sstatus,
+            CsrAddr::Sedeleg => return self.m_sedeleg.csrrw(data),
+            CsrAddr::Sideleg => return self.m_sideleg.csrrw(data),
+            CsrAddr::Sie => return self.m_sie.csrrw(data),
+            CsrAddr::Stvec => return self.m_stvec.csrrw(data),
+            CsrAddr::Scounteren => return self.m_scounteren.csrrw(data),
+            CsrAddr::Sscratch => return self.m_sscratch.csrrw(data),
+            CsrAddr::Sepc => return self.m_sepc.csrrw(data),
+            CsrAddr::Scause => return self.m_scause.csrrw(data),
+            CsrAddr::Stval => return self.m_stval.csrrw(data),
+            CsrAddr::Sip => return self.m_sip.csrrw(data),
+            CsrAddr::Satp => return self.m_satp.csrrw(data),
+            _ => return 0x0,
+        }
+    }
+
+    pub fn csrrs(&mut self, addr: CsrAddr, data: Xlen64T) -> Xlen64T {
+        match addr {
+            CsrAddr::Mcycle => return self.m_mcycle.csrrs(data),
+            CsrAddr::Minstret => return self.m_minstret.csrrs(data),
+            CsrAddr::Mimpid => return self.m_mimpid.csrrs(data),
+            CsrAddr::Marchid => return self.m_marchid.csrrs(data),
+            CsrAddr::Mvendorid => return self.m_mvendorid.csrrs(data),
+            CsrAddr::Misa => return self.m_misa.csrrs(data),
+            CsrAddr::Mstatus => return self.m_mstatus.csrrs(data),
+            CsrAddr::Mtvec => return self.m_mtvec.csrrs(data),
+            CsrAddr::Mip => return self.m_mip.csrrs(data),
+            CsrAddr::Mie => return self.m_mie.csrrs(data),
+            CsrAddr::Mscratch => return self.m_mscratch.csrrs(data),
+            CsrAddr::Mepc => return self.m_mepc.csrrs(data),
+            CsrAddr::Mtval => return self.m_mtval.csrrs(data),
+            CsrAddr::Mcause => return self.m_mcause.csrrs(data),
+            CsrAddr::Mhartid => return self.m_mhartid.csrrs(data),
+            CsrAddr::Dcsr => return self.m_dcsr.csrrs(data),
+            CsrAddr::Dpc => return self.m_dpc.csrrs(data),
+            CsrAddr::Dscratch => return self.m_dscratch.csrrs(data),
+            CsrAddr::Medeleg => return self.m_medeleg.csrrs(data),
+
+            // CsrAddr::Sstatus,
+            CsrAddr::Sedeleg => return self.m_sedeleg.csrrs(data),
+            CsrAddr::Sideleg => return self.m_sideleg.csrrs(data),
+            CsrAddr::Sie => return self.m_sie.csrrs(data),
+            CsrAddr::Stvec => return self.m_stvec.csrrs(data),
+            CsrAddr::Scounteren => return self.m_scounteren.csrrs(data),
+            CsrAddr::Sscratch => return self.m_sscratch.csrrs(data),
+            CsrAddr::Sepc => return self.m_sepc.csrrs(data),
+            CsrAddr::Scause => return self.m_scause.csrrs(data),
+            CsrAddr::Stval => return self.m_stval.csrrs(data),
+            CsrAddr::Sip => return self.m_sip.csrrs(data),
+            CsrAddr::Satp => return self.m_satp.csrrs(data),
+            _ => return 0x0,
+        }
+    }
+
+    pub fn csrrc(&mut self, addr: CsrAddr, data: Xlen64T) -> Xlen64T {
         match addr {
             CsrAddr::Mcycle => return self.m_mcycle.csrrc(data),
             CsrAddr::Minstret => return self.m_minstret.csrrc(data),
