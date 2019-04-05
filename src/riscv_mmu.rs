@@ -3,8 +3,8 @@ use num::iter::range;
 use crate::riscv_core::EnvBase;
 use crate::riscv_core::Riscv32Core;
 
-use crate::riscv_core::AddrType;
-use crate::riscv_core::XlenType;
+use crate::riscv_core::AddrT;
+use crate::riscv_core::XlenT;
 
 use crate::riscv_core::MemAccType;
 use crate::riscv_core::MemResult;
@@ -30,13 +30,13 @@ use crate::riscv_csr_bitdef::SYSREG_SATP_PPN_MSB;
 pub trait RiscvMmu {
     fn convert_virtual_address(
         &mut self,
-        vaddr: AddrType,
+        vaddr: AddrT,
         acc_type: MemAccType,
-    ) -> (MemResult, AddrType);
+    ) -> (MemResult, AddrT);
 
     fn walk_page_table(
         &mut self,
-        vaddr: AddrType,
+        vaddr: AddrT,
         acc_type: MemAccType,
         init_level: u32,
         ppn_idx: Vec<u8>,
@@ -46,7 +46,7 @@ pub trait RiscvMmu {
         vpn_idx: Vec<u8>,
         PAGESIZE: u32,
         PTESIZE: u32,
-    ) -> (MemResult, AddrType);
+    ) -> (MemResult, AddrT);
 
     fn is_allowed_access(&mut self, i_type: u8, acc_type: MemAccType, priv_mode: PrivMode) -> bool;
 }
@@ -54,7 +54,7 @@ pub trait RiscvMmu {
 impl RiscvMmu for EnvBase {
     fn walk_page_table(
         &mut self,
-        vaddr: AddrType,
+        vaddr: AddrT,
         acc_type: MemAccType,
         init_level: u32,
         ppn_idx: Vec<u8>,
@@ -64,7 +64,7 @@ impl RiscvMmu for EnvBase {
         vpn_idx: Vec<u8>,
         PAGESIZE: u32,
         PTESIZE: u32,
-    ) -> (MemResult, AddrType) {
+    ) -> (MemResult, AddrT) {
         let is_write_access = match acc_type {
             MemAccType::Write => true,
             _ => false,
@@ -73,10 +73,10 @@ impl RiscvMmu for EnvBase {
         //===================
         // Simple TLB Search
         //===================
-        // let vaddr_vpn: AddrType = (vaddr >> 12);
+        // let vaddr_vpn: AddrT = (vaddr >> 12);
         // let vaddr_tag: u8 = vaddr_vpn & (tlb_width-1);
         // if (m_tlb_en[vaddr_tag] && m_tlb_tag[vaddr_tag] == vaddr_vpn) {
-        //     let paddr:AddrType = (m_tlb_addr[vaddr_tag] & !0x0fff) + (vaddr & 0x0fff);
+        //     let paddr:AddrT = (m_tlb_addr[vaddr_tag] & !0x0fff) + (vaddr & 0x0fff);
         //     let pte_val:u64 = m_tlb_addr[vaddr_tag] & 0x0ff;
         //
         //     if (!is_allowed_access ((pte_val >> 1) & 0x0f, acc_type, self.m_priv)) {
@@ -87,7 +87,7 @@ impl RiscvMmu for EnvBase {
         //         ((acc_type == MemAccType::Write) && (pte_val & 0x80) == 0)) { // PTE.D
         //         println!("<Access Fault : Page Permission Fault {:01x}>", (pte_val >> 1) & 0x0f);
         //         if (acc_type == MemAccType::Fetch) {
-        //             generate_exception (self, ExceptCode::InstPageFault, vaddr as XlenType);
+        //             generate_exception (self, ExceptCode::InstPageFault, vaddr as XlenT);
         //         }
         //         return (MemResult::TlbError, paddr);
         //     }
@@ -95,17 +95,17 @@ impl RiscvMmu for EnvBase {
         // }
 
         let satp = self.m_csr.csrrs(CsrAddr::Satp, 0);
-        let pte_base: AddrType =
-            Self::extract_bit_field(satp, SYSREG_SATP_PPN_MSB, SYSREG_SATP_PPN_LSB) as AddrType;
+        let pte_base: AddrT =
+            Self::extract_bit_field(satp, SYSREG_SATP_PPN_MSB, SYSREG_SATP_PPN_LSB) as AddrT;
 
-        let mut pte_val: XlenType = 0;
-        let mut pte_addr: AddrType = (pte_base * PAGESIZE) as AddrType;
+        let mut pte_val: XlenT = 0;
+        let mut pte_addr: AddrT = (pte_base * PAGESIZE) as AddrT;
         let level: usize = 0;
 
         for level in range(0, init_level).rev() {
-            let va_vpn_i: AddrType =
+            let va_vpn_i: AddrT =
                 (vaddr >> vpn_idx[level as usize]) & ((1 << vpn_len[level as usize]) - 1);
-            pte_addr += (va_vpn_i * PTESIZE) as AddrType;
+            pte_addr += (va_vpn_i * PTESIZE) as AddrT;
             pte_val = self.read_memory_word(pte_addr);
 
             // println!(
@@ -121,13 +121,13 @@ impl RiscvMmu for EnvBase {
 
                 match acc_type {
                     MemAccType::Fetch => {
-                        self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenType);
+                        self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenT);
                     }
                     MemAccType::Read => {
-                        self.generate_exception(ExceptCode::LoadPageFault, vaddr as XlenType);
+                        self.generate_exception(ExceptCode::LoadPageFault, vaddr as XlenT);
                     }
                     MemAccType::Write => {
-                        self.generate_exception(ExceptCode::StorePageFault, vaddr as XlenType);
+                        self.generate_exception(ExceptCode::StorePageFault, vaddr as XlenT);
                     }
                 };
                 return (MemResult::TlbError, 0);
@@ -147,23 +147,23 @@ impl RiscvMmu for EnvBase {
 
                     match acc_type {
                         MemAccType::Fetch => {
-                            self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenType);
+                            self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenT);
                         }
                         MemAccType::Read => {
-                            self.generate_exception(ExceptCode::LoadPageFault, vaddr as XlenType);
+                            self.generate_exception(ExceptCode::LoadPageFault, vaddr as XlenT);
                         }
                         MemAccType::Write => {
-                            self.generate_exception(ExceptCode::StorePageFault, vaddr as XlenType);
+                            self.generate_exception(ExceptCode::StorePageFault, vaddr as XlenT);
                         }
                     };
                     return (MemResult::TlbError, 0);
                 }
             }
-            let pte_ppn: AddrType = Self::extract_bit_field(
-                pte_val as XlenType,
+            let pte_ppn: AddrT = Self::extract_bit_field(
+                pte_val as XlenT,
                 pte_len[(init_level - 1) as usize] + pte_idx[(init_level - 1) as usize] - 1,
                 pte_idx[0],
-            ) as AddrType;
+            ) as AddrT;
             pte_addr = pte_ppn * PAGESIZE;
         }
 
@@ -182,7 +182,7 @@ impl RiscvMmu for EnvBase {
 
         if level != 0
             && Self::extract_bit_field(
-                pte_val as XlenType,
+                pte_val as XlenT,
                 pte_len[level - 1] + pte_idx[level - 1] - 1,
                 pte_idx[0],
             ) != 0
@@ -204,45 +204,45 @@ impl RiscvMmu for EnvBase {
 
             match acc_type {
                 MemAccType::Fetch => {
-                    self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenType);
+                    self.generate_exception(ExceptCode::InstPageFault, vaddr as XlenT);
                 }
                 MemAccType::Read => {
-                    self.generate_exception(ExceptCode::LoadPageFault, vaddr as XlenType);
+                    self.generate_exception(ExceptCode::LoadPageFault, vaddr as XlenT);
                 }
                 MemAccType::Write => {
-                    self.generate_exception(ExceptCode::StorePageFault, vaddr as XlenType);
+                    self.generate_exception(ExceptCode::StorePageFault, vaddr as XlenT);
                 }
             };
             return (MemResult::TlbError, 0);
         }
 
-        let mut phy_addr: AddrType = (Self::extract_bit_field(
-            pte_val as XlenType,
+        let mut phy_addr: AddrT = (Self::extract_bit_field(
+            pte_val as XlenT,
             pte_len[(init_level - 1) as usize] + pte_idx[(init_level - 1) as usize] - 1,
             pte_idx[level],
-        ) << ppn_idx[level]) as AddrType;
+        ) << ppn_idx[level]) as AddrT;
 
         // println!("Level = {}", level);
 
         for l in 0..(level + 1) {
-            let vaddr_vpn: AddrType = Self::extract_bit_field(
-                vaddr as XlenType,
+            let vaddr_vpn: AddrT = Self::extract_bit_field(
+                vaddr as XlenT,
                 vpn_len[level - l as usize] + vpn_idx[level - l as usize] - 1,
                 vpn_idx[level - l as usize],
-            ) as AddrType;
+            ) as AddrT;
             phy_addr |= vaddr_vpn << ppn_idx[level as usize];
         }
 
         // Finally Add Page Offset
-        phy_addr |= Self::extract_bit_field(vaddr as XlenType, vpn_idx[0] - 1, 0) as AddrType;
+        phy_addr |= Self::extract_bit_field(vaddr as XlenT, vpn_idx[0] - 1, 0) as AddrT;
 
         //==========================
         // Update Simple TLB Search
         //==========================
         // println!(
         //     "<Info: TLB[{:d}] <= 0x{:016x}(0x{:016x})>",
-        //     vaddr as XlenType_tag,
-        //     vaddr as XlenType_vpn,
+        //     vaddr as XlenT_tag,
+        //     vaddr as XlenT_vpn,
         //     *paddr & !0x0fff
         // );
         // m_tlb_en  [vaddr_tag] = true;
@@ -255,17 +255,17 @@ impl RiscvMmu for EnvBase {
 
     fn convert_virtual_address(
         &mut self,
-        vaddr: AddrType,
+        vaddr: AddrT,
         acc_type: MemAccType,
-    ) -> (MemResult, AddrType) {
+    ) -> (MemResult, AddrT) {
         let is_fetch_access = match acc_type {
             MemAccType::Fetch => true,
             _ => false,
         };
 
-        let mstatus: XlenType = self
+        let mstatus: XlenT = self
             .m_csr
-            .csrrs(CsrAddr::Mstatus, PrivMode::Machine as XlenType);
+            .csrrs(CsrAddr::Mstatus, PrivMode::Machine as XlenT);
         let mprv: u8 =
             Self::extract_bit_field(mstatus, SYSREG_MSTATUS_MPRV_MSB, SYSREG_MSTATUS_MPRV_LSB)
                 as u8;
@@ -327,7 +327,7 @@ impl RiscvMmu for EnvBase {
             MemAccType::Fetch => (i_type & 0x04) != 0,
             MemAccType::Write => ((i_type & 0x01) != 0) && ((i_type & 0x02) != 0),
             MemAccType::Read => {
-                let mstatus: XlenType = self.m_csr.csrrs(CsrAddr::Mstatus, 0);
+                let mstatus: XlenT = self.m_csr.csrrs(CsrAddr::Mstatus, 0);
                 let mxr: u8 = Self::extract_bit_field(
                     mstatus,
                     SYSREG_MSTATUS_MXR_MSB,

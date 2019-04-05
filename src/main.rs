@@ -13,8 +13,8 @@ mod riscv_tracer;
 use crate::riscv_core::EnvBase;
 use crate::riscv_core::Riscv32Core;
 
-use crate::riscv_core::InstType;
-use crate::riscv_core::XlenType;
+use crate::riscv_core::InstT;
+use crate::riscv_core::XlenT;
 use crate::riscv_core::DRAM_BASE;
 
 use crate::riscv_core::MemResult;
@@ -35,7 +35,7 @@ fn main() -> Result<(), Box<std::error::Error>> {
 
     for result in filebuf.bytes() {
         let l = result?;
-        riscv32_core.write_memory_byte(hex_addr + DRAM_BASE, l as XlenType);
+        riscv32_core.write_memory_byte(hex_addr + DRAM_BASE, l as XlenT);
         hex_addr = hex_addr + 1;
     }
 
@@ -47,7 +47,7 @@ fn main() -> Result<(), Box<std::error::Error>> {
             continue;
         }
         let inst_decode = riscv32_core.decode_inst(inst_data);
-        riscv32_core.execute_inst(inst_decode, inst_data as InstType, count);
+        riscv32_core.execute_inst(inst_decode, inst_data as InstT, count);
 
         count += 1;
     }

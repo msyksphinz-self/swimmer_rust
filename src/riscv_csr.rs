@@ -1,4 +1,4 @@
-use crate::riscv_core::XlenType;
+use crate::riscv_core::XlenT;
 
 pub enum CsrAddr {
     None = 0x000,
@@ -396,7 +396,7 @@ impl CsrAddr {
 }
 
 pub struct RiscvCsrBase {
-    pub m_csr: XlenType,
+    pub m_csr: XlenT,
 }
 
 impl RiscvCsrBase {
@@ -404,20 +404,20 @@ impl RiscvCsrBase {
         RiscvCsrBase { m_csr: 0x0 }
     }
 
-    fn csrrw(&mut self, imm: XlenType) -> XlenType {
-        let ret_val: XlenType = self.m_csr;
+    fn csrrw(&mut self, imm: XlenT) -> XlenT {
+        let ret_val: XlenT = self.m_csr;
         self.m_csr = imm;
         return ret_val;
     }
 
-    fn csrrs(&mut self, imm: XlenType) -> XlenType {
-        let ret_val: XlenType = self.m_csr;
+    fn csrrs(&mut self, imm: XlenT) -> XlenT {
+        let ret_val: XlenT = self.m_csr;
         self.m_csr = self.m_csr | imm;
         return ret_val;
     }
 
-    fn csrrc(&mut self, imm: XlenType) -> XlenType {
-        let ret_val: XlenType = self.m_csr;
+    fn csrrc(&mut self, imm: XlenT) -> XlenT {
+        let ret_val: XlenT = self.m_csr;
         self.m_csr = self.m_csr & !imm;
         return ret_val;
     }
@@ -496,7 +496,7 @@ impl RiscvCsr {
         }
     }
 
-    pub fn csrrw(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
+    pub fn csrrw(&mut self, addr: CsrAddr, data: XlenT) -> XlenT {
         match addr {
             CsrAddr::Mcycle => return self.m_mcycle.csrrw(data),
             CsrAddr::Minstret => return self.m_minstret.csrrw(data),
@@ -534,7 +534,7 @@ impl RiscvCsr {
         }
     }
 
-    pub fn csrrs(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
+    pub fn csrrs(&mut self, addr: CsrAddr, data: XlenT) -> XlenT {
         match addr {
             CsrAddr::Mcycle => return self.m_mcycle.csrrs(data),
             CsrAddr::Minstret => return self.m_minstret.csrrs(data),
@@ -572,7 +572,7 @@ impl RiscvCsr {
         }
     }
 
-    pub fn csrrc(&mut self, addr: CsrAddr, data: XlenType) -> XlenType {
+    pub fn csrrc(&mut self, addr: CsrAddr, data: XlenT) -> XlenT {
         match addr {
             CsrAddr::Mcycle => return self.m_mcycle.csrrc(data),
             CsrAddr::Minstret => return self.m_minstret.csrrc(data),

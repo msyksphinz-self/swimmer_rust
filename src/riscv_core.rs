@@ -22,13 +22,13 @@ use crate::riscv_exception::RiscvException;
 
 use crate::riscv_mmu::RiscvMmu;
 
-pub type XlenType = i32;
-pub type UXlenType = u32;
-pub type InstType = u32;
-pub type AddrType = u32;
-pub type RegAddrType = u8;
+pub type XlenT = i32;
+pub type UXlenT = u32;
+pub type InstT = u32;
+pub type AddrT = u32;
+pub type RegAddrT = u8;
 
-pub const DRAM_BASE: AddrType = 0x8000_0000;
+pub const DRAM_BASE: AddrT = 0x8000_0000;
 pub const DRAM_SIZE: usize = 0x10_0000;
 
 pub enum RiscvInst {
@@ -154,9 +154,9 @@ pub enum MemSize {
 
 pub struct EnvBase {
     // m_bitmode: RiscvBitMode,
-    pub m_pc: AddrType,
-    m_previous_pc: AddrType,
-    m_regs: [XlenType; 32],
+    pub m_pc: AddrT,
+    m_previous_pc: AddrT,
+    m_regs: [XlenT; 32],
     pub m_memory: [u8; DRAM_SIZE], // memory
     pub m_csr: RiscvCsr,
 
@@ -166,10 +166,10 @@ pub struct EnvBase {
 
     m_trace: Tracer,
 
-    m_tohost_addr: AddrType,
-    m_fromhost_addr: AddrType,
-    m_tohost: XlenType,
-    m_fromhost: XlenType,
+    m_tohost_addr: AddrT,
+    m_fromhost_addr: AddrT,
+    m_tohost: XlenT,
+    m_fromhost: XlenT,
 
     m_finish_cpu: bool,
 
@@ -180,15 +180,15 @@ impl EnvBase {
     pub fn new() -> EnvBase {
         EnvBase {
             // m_bitmode: RiscvBitMode::Bit32,
-            m_pc: DRAM_BASE as AddrType,
+            m_pc: DRAM_BASE as AddrT,
             m_memory: [0; DRAM_SIZE],
             m_regs: [0; 32],
             m_maxpriv: PrivMode::Machine,
             m_previous_pc: 0,
             m_vmmode: VMMode::Mbare,
             m_finish_cpu: false,
-            m_fromhost_addr: (DRAM_BASE + 0x001000) as AddrType,
-            m_tohost_addr: (DRAM_BASE + 0x001000) as AddrType,
+            m_fromhost_addr: (DRAM_BASE + 0x001000) as AddrT,
+            m_tohost_addr: (DRAM_BASE + 0x001000) as AddrT,
             m_fromhost: 0,
             m_tohost: 0,
             m_is_update_pc: false,
@@ -198,67 +198,67 @@ impl EnvBase {
         }
     }
 
-    fn extend_sign(data: XlenType, msb: XlenType) -> XlenType {
-        let mask: XlenType = 1 << msb; // mask can be pre-computed if b is fixed
+    fn extend_sign(data: XlenT, msb: XlenT) -> XlenT {
+        let mask: XlenT = 1 << msb; // mask can be pre-computed if b is fixed
         let res_data = data & ((1 << (msb + 1)) - 1); // (Skip this if bits in x above position b are already zero.)
         return (res_data ^ mask) - mask;
     }
 
-    pub fn extract_bit_field(hex: XlenType, left: u8, right: u8) -> XlenType {
-        let mask: XlenType = (1 << (left - right + 1)) - 1;
+    pub fn extract_bit_field(hex: XlenT, left: u8, right: u8) -> XlenT {
+        let mask: XlenT = (1 << (left - right + 1)) - 1;
         return (hex >> right) & mask;
     }
 
-    pub fn set_bit_field(hex: XlenType, val: XlenType, left: u8, right: u8) -> XlenType {
-        let mask: XlenType = (1 << (left - right + 1)) - 1;
+    pub fn set_bit_field(hex: XlenT, val: XlenT, left: u8, right: u8) -> XlenT {
+        let mask: XlenT = (1 << (left - right + 1)) - 1;
         return (hex & !(mask << right)) | (val << right);
     }
 
-    fn extract_uj_field(hex: InstType) -> XlenType {
-        let i24_21 = Self::extract_bit_field(hex as XlenType, 24, 21) & 0x0f;
-        let i30_25 = Self::extract_bit_field(hex as XlenType, 30, 25) & 0x03f;
-        let i20_20 = Self::extract_bit_field(hex as XlenType, 20, 20) & 0x01;
-        let i19_12 = Self::extract_bit_field(hex as XlenType, 19, 12) & 0x0ff;
-        let i31_31 = Self::extract_bit_field(hex as XlenType, 31, 31) & 0x01;
+    fn extract_uj_field(hex: InstT) -> XlenT {
+        let i24_21 = Self::extract_bit_field(hex as XlenT, 24, 21) & 0x0f;
+        let i30_25 = Self::extract_bit_field(hex as XlenT, 30, 25) & 0x03f;
+        let i20_20 = Self::extract_bit_field(hex as XlenT, 20, 20) & 0x01;
+        let i19_12 = Self::extract_bit_field(hex as XlenT, 19, 12) & 0x0ff;
+        let i31_31 = Self::extract_bit_field(hex as XlenT, 31, 31) & 0x01;
 
-        let u_res: XlenType =
+        let u_res: XlenT =
             (i31_31 << 20) | (i19_12 << 12) | (i20_20 << 11) | (i30_25 << 5) | (i24_21 << 1);
         return Self::extend_sign(u_res, 20);
     }
 
-    fn extract_ifield(hex: InstType) -> XlenType {
-        let uimm32: XlenType = Self::extract_bit_field(hex as XlenType, 31, 20);
+    fn extract_ifield(hex: InstT) -> XlenT {
+        let uimm32: XlenT = Self::extract_bit_field(hex as XlenT, 31, 20);
         return Self::extend_sign(uimm32, 11);
     }
 
-    fn extract_shamt_field(hex: InstType) -> XlenType {
-        return Self::extract_bit_field(hex as XlenType, 24, 20);
+    fn extract_shamt_field(hex: InstT) -> XlenT {
+        return Self::extract_bit_field(hex as XlenT, 24, 20);
     }
 
-    fn extract_sb_field(hex: InstType) -> XlenType {
-        let i07_07: XlenType = Self::extract_bit_field(hex as XlenType, 7, 7) & 0x01;
-        let i11_08: XlenType = Self::extract_bit_field(hex as XlenType, 11, 8) & 0x0f;
-        let i30_25: XlenType = Self::extract_bit_field(hex as XlenType, 30, 25) & 0x03f;
-        let i31_31: XlenType = Self::extract_bit_field(hex as XlenType, 31, 31) & 0x01;
+    fn extract_sb_field(hex: InstT) -> XlenT {
+        let i07_07: XlenT = Self::extract_bit_field(hex as XlenT, 7, 7) & 0x01;
+        let i11_08: XlenT = Self::extract_bit_field(hex as XlenT, 11, 8) & 0x0f;
+        let i30_25: XlenT = Self::extract_bit_field(hex as XlenT, 30, 25) & 0x03f;
+        let i31_31: XlenT = Self::extract_bit_field(hex as XlenT, 31, 31) & 0x01;
 
-        let u_res: XlenType = (i31_31 << 12) | (i07_07 << 11) | (i30_25 << 5) | (i11_08 << 1);
+        let u_res: XlenT = (i31_31 << 12) | (i07_07 << 11) | (i30_25 << 5) | (i11_08 << 1);
         return Self::extend_sign(u_res, 12);
     }
 
-    fn extract_sfield(hex: InstType) -> XlenType {
-        let i11_07: XlenType = Self::extract_bit_field(hex as XlenType, 11, 7) & 0x01f;
-        let i31_25: XlenType = Self::extract_bit_field(hex as XlenType, 31, 25) & 0x07f;
+    fn extract_sfield(hex: InstT) -> XlenT {
+        let i11_07: XlenT = Self::extract_bit_field(hex as XlenT, 11, 7) & 0x01f;
+        let i31_25: XlenT = Self::extract_bit_field(hex as XlenT, 31, 25) & 0x07f;
 
-        let u_res: XlenType = (i31_25 << 5) | (i11_07 << 0);
+        let u_res: XlenT = (i31_25 << 5) | (i11_07 << 0);
 
         return Self::extend_sign(u_res, 11);
     }
 
-    fn sext_xlen(hex: InstType) -> XlenType {
-        return hex as XlenType;
+    fn sext_xlen(hex: InstT) -> XlenT {
+        return hex as XlenT;
     }
-    fn uext_xlen(hex: InstType) -> UXlenType {
-        return hex as UXlenType;
+    fn uext_xlen(hex: InstT) -> UXlenT {
+        return hex as UXlenT;
     }
 
     fn is_update_pc(&mut self) -> bool {
@@ -270,34 +270,34 @@ impl EnvBase {
 }
 
 pub trait Riscv32Core {
-    fn get_rs1_addr(inst: InstType) -> RegAddrType;
-    fn get_rs2_addr(inst: InstType) -> RegAddrType;
-    fn get_rd_addr(inst: InstType) -> RegAddrType;
+    fn get_rs1_addr(inst: InstT) -> RegAddrT;
+    fn get_rs2_addr(inst: InstT) -> RegAddrT;
+    fn get_rd_addr(inst: InstT) -> RegAddrT;
 
-    fn set_pc(&mut self, addr: AddrType);
-    fn get_pc(&mut self) -> AddrType;
-    fn get_previous_pc(&mut self) -> AddrType;
+    fn set_pc(&mut self, addr: AddrT);
+    fn get_pc(&mut self) -> AddrT;
+    fn get_previous_pc(&mut self) -> AddrT;
 
-    fn read_memory_word(&mut self, phy_addr: AddrType) -> XlenType;
-    fn read_memory_hword(&mut self, phy_addr: AddrType) -> XlenType;
-    fn read_memory_byte(&mut self, phy_addr: AddrType) -> XlenType;
-    fn write_memory_word(&mut self, phy_addr: AddrType, data: XlenType) -> XlenType;
-    fn write_memory_hword(&mut self, phy_addr: AddrType, data: XlenType) -> XlenType;
-    fn write_memory_byte(&mut self, phy_addr: AddrType, data: XlenType) -> XlenType;
+    fn read_memory_word(&mut self, phy_addr: AddrT) -> XlenT;
+    fn read_memory_hword(&mut self, phy_addr: AddrT) -> XlenT;
+    fn read_memory_byte(&mut self, phy_addr: AddrT) -> XlenT;
+    fn write_memory_word(&mut self, phy_addr: AddrT, data: XlenT) -> XlenT;
+    fn write_memory_hword(&mut self, phy_addr: AddrT, data: XlenT) -> XlenT;
+    fn write_memory_byte(&mut self, phy_addr: AddrT, data: XlenT) -> XlenT;
 
-    fn fetch_bus(&mut self) -> (MemResult, InstType);
-    fn read_bus_word(&mut self, addr: AddrType) -> (MemResult, XlenType);
-    fn read_bus_hword(&mut self, addr: AddrType) -> (MemResult, XlenType);
-    fn read_bus_byte(&mut self, addr: AddrType) -> (MemResult, XlenType);
-    fn write_bus_word(&mut self, addr: AddrType, data: XlenType) -> MemResult;
-    fn write_bus_hword(&mut self, addr: AddrType, data: XlenType) -> MemResult;
-    fn write_bus_byte(&mut self, addr: AddrType, data: XlenType) -> MemResult;
+    fn fetch_bus(&mut self) -> (MemResult, InstT);
+    fn read_bus_word(&mut self, addr: AddrT) -> (MemResult, XlenT);
+    fn read_bus_hword(&mut self, addr: AddrT) -> (MemResult, XlenT);
+    fn read_bus_byte(&mut self, addr: AddrT) -> (MemResult, XlenT);
+    fn write_bus_word(&mut self, addr: AddrT, data: XlenT) -> MemResult;
+    fn write_bus_hword(&mut self, addr: AddrT, data: XlenT) -> MemResult;
+    fn write_bus_byte(&mut self, addr: AddrT, data: XlenT) -> MemResult;
 
-    fn read_reg(&mut self, reg_addr: RegAddrType) -> i32;
-    fn write_reg(&mut self, reg_addr: RegAddrType, data: XlenType);
+    fn read_reg(&mut self, reg_addr: RegAddrT) -> i32;
+    fn write_reg(&mut self, reg_addr: RegAddrT, data: XlenT);
 
-    fn decode_inst(&mut self, inst: InstType) -> RiscvInst;
-    fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstType, step: u32);
+    fn decode_inst(&mut self, inst: InstT) -> RiscvInst;
+    fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstT, step: u32);
 
     // fn print_priv_mode(priv_mode: PrivMode) -> &str;
 
@@ -312,23 +312,23 @@ pub trait Riscv32Core {
 
     fn get_is_finish_cpu(&mut self) -> bool;
 
-    fn get_tohost(&mut self) -> XlenType;
-    fn get_fromhost(&mut self) -> XlenType;
+    fn get_tohost(&mut self) -> XlenT;
+    fn get_fromhost(&mut self) -> XlenT;
 }
 
 impl Riscv32Core for EnvBase {
-    fn get_rs1_addr(inst: InstType) -> RegAddrType {
-        return ((inst >> 15) & 0x1f) as RegAddrType;
+    fn get_rs1_addr(inst: InstT) -> RegAddrT {
+        return ((inst >> 15) & 0x1f) as RegAddrT;
     }
-    fn get_rs2_addr(inst: InstType) -> RegAddrType {
-        return ((inst >> 20) & 0x1f) as RegAddrType;
+    fn get_rs2_addr(inst: InstT) -> RegAddrT {
+        return ((inst >> 20) & 0x1f) as RegAddrT;
     }
-    fn get_rd_addr(inst: InstType) -> RegAddrType {
-        return ((inst >> 7) & 0x1f) as RegAddrType;
+    fn get_rd_addr(inst: InstT) -> RegAddrT {
+        return ((inst >> 7) & 0x1f) as RegAddrT;
     }
 
-    fn read_reg(&mut self, reg_addr: RegAddrType) -> XlenType {
-        let ret_val: XlenType;
+    fn read_reg(&mut self, reg_addr: RegAddrT) -> XlenT {
+        let ret_val: XlenT;
 
         if reg_addr == 0 {
             ret_val = 0;
@@ -338,7 +338,7 @@ impl Riscv32Core for EnvBase {
 
         let mut read_reg_trace = TraceInfo::new();
         read_reg_trace.m_trace_type = TraceType::XRegRead;
-        read_reg_trace.m_trace_addr = reg_addr as AddrType;
+        read_reg_trace.m_trace_addr = reg_addr as AddrT;
         read_reg_trace.m_trace_value = ret_val;
         read_reg_trace.m_trace_memresult = MemResult::NoExcept;
 
@@ -347,12 +347,12 @@ impl Riscv32Core for EnvBase {
         return ret_val;
     }
 
-    fn write_reg(&mut self, reg_addr: RegAddrType, data: XlenType) {
+    fn write_reg(&mut self, reg_addr: RegAddrT, data: XlenT) {
         if reg_addr != 0 {
             let mut write_reg_trace = TraceInfo::new();
 
             write_reg_trace.m_trace_type = TraceType::XRegWrite;
-            write_reg_trace.m_trace_addr = reg_addr as AddrType;
+            write_reg_trace.m_trace_addr = reg_addr as AddrT;
             write_reg_trace.m_trace_value = data;
             write_reg_trace.m_trace_memresult = MemResult::NoExcept;
 
@@ -363,16 +363,16 @@ impl Riscv32Core for EnvBase {
         }
     }
 
-    fn set_pc(&mut self, addr: AddrType) {
+    fn set_pc(&mut self, addr: AddrT) {
         self.m_previous_pc = self.m_pc;
         self.m_pc = addr;
     }
 
-    fn get_pc(&mut self) -> AddrType {
+    fn get_pc(&mut self) -> AddrT {
         return self.m_pc;
     }
 
-    fn get_previous_pc(&mut self) -> AddrType {
+    fn get_previous_pc(&mut self) -> AddrT {
         return self.m_previous_pc;
     }
 
@@ -396,7 +396,7 @@ impl Riscv32Core for EnvBase {
         self.m_vmmode = vmmode;
     }
 
-    fn read_memory_word(&mut self, phy_addr: AddrType) -> XlenType {
+    fn read_memory_word(&mut self, phy_addr: AddrT) -> XlenT {
         if phy_addr == self.m_tohost_addr {
             return self.m_tohost;
         } else if phy_addr == self.m_fromhost_addr {
@@ -409,19 +409,19 @@ impl Riscv32Core for EnvBase {
         }
     }
 
-    fn read_memory_hword(&mut self, phy_addr: AddrType) -> XlenType {
+    fn read_memory_hword(&mut self, phy_addr: AddrT) -> XlenT {
         return (self.read_memory_byte(phy_addr + 1) << 8)
             | (self.read_memory_byte(phy_addr + 0) << 0);
     }
 
-    fn read_memory_byte(&mut self, phy_addr: AddrType) -> XlenType {
+    fn read_memory_byte(&mut self, phy_addr: AddrT) -> XlenT {
         assert!(phy_addr >= DRAM_BASE);
-        let base_addr: AddrType = phy_addr - DRAM_BASE;
+        let base_addr: AddrT = phy_addr - DRAM_BASE;
 
-        return self.m_memory[base_addr as usize + 0] as XlenType;
+        return self.m_memory[base_addr as usize + 0] as XlenT;
     }
 
-    fn write_memory_word(&mut self, phy_addr: AddrType, data: XlenType) -> XlenType {
+    fn write_memory_word(&mut self, phy_addr: AddrT, data: XlenT) -> XlenT {
         if phy_addr == self.m_tohost_addr {
             self.m_finish_cpu = true;
             self.m_tohost = data;
@@ -437,33 +437,33 @@ impl Riscv32Core for EnvBase {
         return 0;
     }
 
-    fn write_memory_hword(&mut self, phy_addr: AddrType, data: XlenType) -> XlenType {
+    fn write_memory_hword(&mut self, phy_addr: AddrT, data: XlenT) -> XlenT {
         self.write_memory_byte(phy_addr + 0, (data >> 0) & 0xff);
         self.write_memory_byte(phy_addr + 1, (data >> 8) & 0xff);
 
         return 0;
     }
 
-    fn write_memory_byte(&mut self, phy_addr: AddrType, data: XlenType) -> XlenType {
+    fn write_memory_byte(&mut self, phy_addr: AddrT, data: XlenT) -> XlenT {
         assert!(phy_addr >= DRAM_BASE);
-        let base_addr: AddrType = phy_addr - DRAM_BASE;
+        let base_addr: AddrT = phy_addr - DRAM_BASE;
 
         self.m_memory[base_addr as usize] = (data & 0xff) as u8;
         return 0;
     }
 
-    fn fetch_bus(&mut self) -> (MemResult, InstType) {
+    fn fetch_bus(&mut self) -> (MemResult, InstT) {
         // let result: MemResult;
-        // let phy_addr: AddrType;
+        // let phy_addr: AddrT;
         let (result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
 
         if result != MemResult::NoExcept {
             return (result, 0);
         }
-        return (result, self.read_memory_word(phy_addr) as InstType);
+        return (result, self.read_memory_word(phy_addr) as InstT);
     }
 
-    fn read_bus_word(&mut self, addr: AddrType) -> (MemResult, XlenType) {
+    fn read_bus_word(&mut self, addr: AddrT) -> (MemResult, XlenT) {
         let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
 
         if result != MemResult::NoExcept {
@@ -484,7 +484,7 @@ impl Riscv32Core for EnvBase {
         return (result, ret_val);
     }
 
-    fn read_bus_hword(&mut self, addr: AddrType) -> (MemResult, XlenType) {
+    fn read_bus_hword(&mut self, addr: AddrT) -> (MemResult, XlenT) {
         let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
 
         if result != MemResult::NoExcept {
@@ -494,7 +494,7 @@ impl Riscv32Core for EnvBase {
         return (result, self.read_memory_hword(phy_addr));
     }
 
-    fn read_bus_byte(&mut self, addr: AddrType) -> (MemResult, XlenType) {
+    fn read_bus_byte(&mut self, addr: AddrT) -> (MemResult, XlenT) {
         let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
 
         if result != MemResult::NoExcept {
@@ -503,9 +503,9 @@ impl Riscv32Core for EnvBase {
         return (result, self.read_memory_byte(phy_addr));
     }
 
-    fn write_bus_word(&mut self, addr: AddrType, data: XlenType) -> MemResult {
+    fn write_bus_word(&mut self, addr: AddrT, data: XlenT) -> MemResult {
         // let result: MemResult;
-        // let phy_addr: AddrType;
+        // let phy_addr: AddrT;
         let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Write);
 
         if result != MemResult::NoExcept {
@@ -526,7 +526,7 @@ impl Riscv32Core for EnvBase {
         return result;
     }
 
-    fn write_bus_hword(&mut self, addr: AddrType, data: XlenType) -> MemResult {
+    fn write_bus_hword(&mut self, addr: AddrT, data: XlenT) -> MemResult {
         let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Write);
 
         if result != MemResult::NoExcept {
@@ -538,7 +538,7 @@ impl Riscv32Core for EnvBase {
         return result;
     }
 
-    fn write_bus_byte(&mut self, addr: AddrType, data: XlenType) -> MemResult {
+    fn write_bus_byte(&mut self, addr: AddrT, data: XlenT) -> MemResult {
         let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Write);
 
         if result != MemResult::NoExcept {
@@ -550,7 +550,7 @@ impl Riscv32Core for EnvBase {
         return result;
     }
 
-    fn decode_inst(&mut self, inst: InstType) -> RiscvInst {
+    fn decode_inst(&mut self, inst: InstT) -> RiscvInst {
         let opcode = inst & 0x7f;
         let funct3 = (inst >> 12) & 0x07;
         let funct5 = (inst >> 25) & 0x7f;
@@ -659,7 +659,7 @@ impl Riscv32Core for EnvBase {
         return dec_inst;
     }
 
-    fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstType, step: u32) {
+    fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstT, step: u32) {
         self.m_trace.m_executed_pc = self.m_pc;
         self.m_trace.m_inst_hex = inst;
         self.m_trace.m_step = step;
@@ -678,49 +678,49 @@ impl Riscv32Core for EnvBase {
         match dec_inst {
             RiscvInst::CSRRW => {
                 let rs1_data = self.read_reg(rs1);
-                let reg_data: XlenType = self.m_csr.csrrw(csr_addr, rs1_data);
+                let reg_data: XlenT = self.m_csr.csrrw(csr_addr, rs1_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::CSRRS => {
                 let rs1_data = self.read_reg(rs1);
-                let reg_data: XlenType = self.m_csr.csrrs(csr_addr, rs1_data);
+                let reg_data: XlenT = self.m_csr.csrrs(csr_addr, rs1_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::CSRRC => {
                 let rs1_data = self.read_reg(rs1);
-                let reg_data: XlenType = self.m_csr.csrrc(csr_addr, rs1_data);
+                let reg_data: XlenT = self.m_csr.csrrc(csr_addr, rs1_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::CSRRWI => {
-                let zimm: XlenType = ((inst >> 15) & 0x1f) as XlenType;
-                let reg_data: XlenType = self.m_csr.csrrw(csr_addr, zimm);
+                let zimm: XlenT = ((inst >> 15) & 0x1f) as XlenT;
+                let reg_data: XlenT = self.m_csr.csrrw(csr_addr, zimm);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::CSRRSI => {
-                let zimm: XlenType = ((inst >> 15) & 0x1f) as XlenType;
-                let reg_data: XlenType = self.m_csr.csrrs(csr_addr, zimm);
+                let zimm: XlenT = ((inst >> 15) & 0x1f) as XlenT;
+                let reg_data: XlenT = self.m_csr.csrrs(csr_addr, zimm);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::CSRRCI => {
-                let zimm: XlenType = ((inst >> 15) & 0x1f) as XlenType;
-                let reg_data: XlenType = self.m_csr.csrrc(csr_addr, zimm);
+                let zimm: XlenT = ((inst >> 15) & 0x1f) as XlenT;
+                let reg_data: XlenT = self.m_csr.csrrc(csr_addr, zimm);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::LUI => {
-                let mut imm: XlenType =
-                    Self::extend_sign(Self::extract_bit_field(inst as XlenType, 31, 12), 19);
+                let mut imm: XlenT =
+                    Self::extend_sign(Self::extract_bit_field(inst as XlenT, 31, 12), 19);
                 imm = imm << 12;
                 self.write_reg(rd, imm);
             }
             RiscvInst::AUIPC => {
-                let mut imm: XlenType =
-                    Self::extend_sign(Self::extract_bit_field(inst as XlenType, 31, 12), 19);
-                imm = (imm << 12).wrapping_add(self.m_pc as XlenType);
+                let mut imm: XlenT =
+                    Self::extend_sign(Self::extract_bit_field(inst as XlenT, 31, 12), 19);
+                imm = (imm << 12).wrapping_add(self.m_pc as XlenT);
                 self.write_reg(rd, imm);
             }
             RiscvInst::LB => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_byte(addr as AddrType);
+                let (result, reg_data) = self.read_bus_byte(addr as AddrT);
                 if result == MemResult::NoExcept {
                     let extended_reg_data = Self::extend_sign(reg_data, 7);
                     self.write_reg(rd, extended_reg_data);
@@ -728,7 +728,7 @@ impl Riscv32Core for EnvBase {
             }
             RiscvInst::LH => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_hword(addr as AddrType);
+                let (result, reg_data) = self.read_bus_hword(addr as AddrT);
                 if result == MemResult::NoExcept {
                     let extended_reg_data = Self::extend_sign(reg_data, 15);
                     self.write_reg(rd, extended_reg_data);
@@ -736,114 +736,114 @@ impl Riscv32Core for EnvBase {
             }
             RiscvInst::LW => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_word(addr as AddrType);
+                let (result, reg_data) = self.read_bus_word(addr as AddrT);
                 if result == MemResult::NoExcept {
                     self.write_reg(rd, reg_data);
                 }
             }
             RiscvInst::LBU => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_byte(addr as AddrType);
+                let (result, reg_data) = self.read_bus_byte(addr as AddrT);
                 if result == MemResult::NoExcept {
-                    self.write_reg(rd, reg_data as XlenType);
+                    self.write_reg(rd, reg_data as XlenT);
                 }
             }
             RiscvInst::LHU => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_hword(addr as AddrType);
+                let (result, reg_data) = self.read_bus_hword(addr as AddrT);
                 if result == MemResult::NoExcept {
-                    self.write_reg(rd, reg_data as XlenType);
+                    self.write_reg(rd, reg_data as XlenT);
                 }
             }
             RiscvInst::ADDI => {
                 let rs1_data = self.read_reg(rs1);
                 let imm_data = Self::extract_ifield(inst);
-                let reg_data: XlenType = rs1_data.wrapping_add(imm_data);
+                let reg_data: XlenT = rs1_data.wrapping_add(imm_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SLTI => {
                 let reg_data: bool = self.read_reg(rs1) < Self::extract_ifield(inst);
-                self.write_reg(rd, reg_data as XlenType);
+                self.write_reg(rd, reg_data as XlenT);
             }
             RiscvInst::SLTIU => {
                 let reg_data: bool =
-                    (self.read_reg(rs1) as UXlenType) < (Self::extract_ifield(inst) as UXlenType);
-                self.write_reg(rd, reg_data as XlenType);
+                    (self.read_reg(rs1) as UXlenT) < (Self::extract_ifield(inst) as UXlenT);
+                self.write_reg(rd, reg_data as XlenT);
             }
             RiscvInst::XORI => {
-                let reg_data: XlenType = self.read_reg(rs1) ^ Self::extract_ifield(inst);
+                let reg_data: XlenT = self.read_reg(rs1) ^ Self::extract_ifield(inst);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::ORI => {
-                let reg_data: XlenType = self.read_reg(rs1) | Self::extract_ifield(inst);
+                let reg_data: XlenT = self.read_reg(rs1) | Self::extract_ifield(inst);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::ANDI => {
-                let reg_data: XlenType = self.read_reg(rs1) & Self::extract_ifield(inst);
+                let reg_data: XlenT = self.read_reg(rs1) & Self::extract_ifield(inst);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SLLI => {
-                let reg_data: XlenType = self.read_reg(rs1) << Self::extract_shamt_field(inst);
+                let reg_data: XlenT = self.read_reg(rs1) << Self::extract_shamt_field(inst);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SRLI => {
-                let reg_data: UXlenType =
-                    (self.read_reg(rs1) as UXlenType) >> Self::extract_shamt_field(inst);
-                self.write_reg(rd, reg_data as XlenType);
+                let reg_data: UXlenT =
+                    (self.read_reg(rs1) as UXlenT) >> Self::extract_shamt_field(inst);
+                self.write_reg(rd, reg_data as XlenT);
             }
             RiscvInst::SRAI => {
-                let reg_data: XlenType = self.read_reg(rs1) >> Self::extract_shamt_field(inst);
+                let reg_data: XlenT = self.read_reg(rs1) >> Self::extract_shamt_field(inst);
                 self.write_reg(rd, reg_data);
             }
 
             RiscvInst::ADD => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let reg_data: XlenType = rs1_data.wrapping_add(rs2_data);
+                let reg_data: XlenT = rs1_data.wrapping_add(rs2_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SUB => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let reg_data: XlenType = rs1_data.wrapping_sub(rs2_data);
+                let reg_data: XlenT = rs1_data.wrapping_sub(rs2_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SLL => {
                 let rs1_data = self.read_reg(rs1);
-                let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
-                let reg_data: XlenType = rs1_data.wrapping_shl(rs2_data);
+                let rs2_data: UXlenT = self.read_reg(rs2) as UXlenT;
+                let reg_data: XlenT = rs1_data.wrapping_shl(rs2_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SLT => {
                 let reg_data: bool = self.read_reg(rs1) < self.read_reg(rs2);
-                self.write_reg(rd, reg_data as XlenType);
+                self.write_reg(rd, reg_data as XlenT);
             }
             RiscvInst::SLTU => {
                 let reg_data: bool =
-                    (self.read_reg(rs1) as UXlenType) < (self.read_reg(rs2) as UXlenType);
-                self.write_reg(rd, reg_data as XlenType);
+                    (self.read_reg(rs1) as UXlenT) < (self.read_reg(rs2) as UXlenT);
+                self.write_reg(rd, reg_data as XlenT);
             }
             RiscvInst::XOR => {
-                let reg_data: XlenType = self.read_reg(rs1) ^ self.read_reg(rs2);
+                let reg_data: XlenT = self.read_reg(rs1) ^ self.read_reg(rs2);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SRL => {
-                let rs1_data = self.read_reg(rs1) as UXlenType;
+                let rs1_data = self.read_reg(rs1) as UXlenT;
                 let rs2_data = self.read_reg(rs2);
                 let reg_data = rs1_data.wrapping_shr(rs2_data as u32);
-                self.write_reg(rd, reg_data as XlenType);
+                self.write_reg(rd, reg_data as XlenT);
             }
             RiscvInst::SRA => {
                 let rs1_data = self.read_reg(rs1);
-                let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
-                let reg_data: XlenType = rs1_data.wrapping_shr(rs2_data as u32);
+                let rs2_data: UXlenT = self.read_reg(rs2) as UXlenT;
+                let reg_data: XlenT = rs1_data.wrapping_shr(rs2_data as u32);
                 self.write_reg(rd, reg_data);
             }
 
             RiscvInst::MUL => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let reg_data: XlenType = rs1_data.wrapping_mul(rs2_data);
+                let reg_data: XlenT = rs1_data.wrapping_mul(rs2_data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::MULH => {
@@ -851,27 +851,27 @@ impl Riscv32Core for EnvBase {
                 let rs2_data: i64 = self.read_reg(rs2) as i64;
                 let mut reg_data: i64 = rs1_data.wrapping_mul(rs2_data);
                 reg_data = (reg_data >> 32) & 0x0ffffffff;
-                self.write_reg(rd, reg_data as XlenType);
+                self.write_reg(rd, reg_data as XlenT);
             }
             RiscvInst::MULHSU => {
                 let rs1_data: i64 = (self.read_reg(rs1) as i32) as i64;
                 let rs2_data: i64 = (self.read_reg(rs2) as u32) as i64;
                 let mut reg_data: i64 = rs1_data.wrapping_mul(rs2_data);
                 reg_data = (reg_data >> 32) & 0xffffffff;
-                self.write_reg(rd, reg_data as XlenType);
+                self.write_reg(rd, reg_data as XlenT);
             }
             RiscvInst::MULHU => {
                 let rs1_data: u64 = (self.read_reg(rs1) as u32) as u64;
                 let rs2_data: u64 = (self.read_reg(rs2) as u32) as u64;
                 let mut reg_data: u64 = rs1_data.wrapping_mul(rs2_data);
                 reg_data = (reg_data >> 32) & 0xffffffff;
-                self.write_reg(rd, reg_data as XlenType);
+                self.write_reg(rd, reg_data as XlenT);
             }
 
             RiscvInst::REM => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let reg_data: XlenType;
+                let reg_data: XlenT;
                 if rs2_data == 0 {
                     reg_data = rs1_data;
                 } else if rs2_data == -1 {
@@ -882,21 +882,21 @@ impl Riscv32Core for EnvBase {
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::REMU => {
-                let rs1_data: UXlenType = self.read_reg(rs1) as UXlenType;
-                let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
-                let reg_data: UXlenType;
+                let rs1_data: UXlenT = self.read_reg(rs1) as UXlenT;
+                let rs2_data: UXlenT = self.read_reg(rs2) as UXlenT;
+                let reg_data: UXlenT;
                 if rs2_data == 0 {
                     reg_data = rs1_data;
                 } else {
                     reg_data = rs1_data.wrapping_rem(rs2_data);
                 }
-                self.write_reg(rd, reg_data as XlenType);
+                self.write_reg(rd, reg_data as XlenT);
             }
 
             RiscvInst::DIV => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let reg_data: XlenType;
+                let reg_data: XlenT;
                 if rs2_data == 0 {
                     reg_data = -1;
                 } else {
@@ -905,43 +905,43 @@ impl Riscv32Core for EnvBase {
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::DIVU => {
-                let rs1_data: UXlenType = self.read_reg(rs1) as UXlenType;
-                let rs2_data: UXlenType = self.read_reg(rs2) as UXlenType;
-                let reg_data: UXlenType;
+                let rs1_data: UXlenT = self.read_reg(rs1) as UXlenT;
+                let rs2_data: UXlenT = self.read_reg(rs2) as UXlenT;
+                let reg_data: UXlenT;
                 if rs2_data == 0 {
                     reg_data = 0xffffffff;
                 } else {
                     reg_data = rs1_data.wrapping_div(rs2_data);
                 }
-                self.write_reg(rd, reg_data as XlenType);
+                self.write_reg(rd, reg_data as XlenT);
             }
 
             RiscvInst::OR => {
-                let reg_data: XlenType = self.read_reg(rs1) | self.read_reg(rs2);
+                let reg_data: XlenT = self.read_reg(rs1) | self.read_reg(rs2);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::AND => {
-                let reg_data: XlenType = self.read_reg(rs1) & self.read_reg(rs2);
+                let reg_data: XlenT = self.read_reg(rs1) & self.read_reg(rs2);
                 self.write_reg(rd, reg_data);
             }
             RiscvInst::SB => {
                 let rs2_data = self.read_reg(rs2);
-                let addr: AddrType = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrType;
+                let addr: AddrT = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrT;
                 self.write_bus_byte(addr, rs2_data);
             }
             RiscvInst::SH => {
                 let rs2_data = self.read_reg(rs2);
-                let addr: AddrType = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrType;
+                let addr: AddrT = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrT;
                 self.write_bus_hword(addr, rs2_data);
             }
             RiscvInst::SW => {
                 let rs2_data = self.read_reg(rs2);
                 let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
-                self.write_bus_word(addr as AddrType, rs2_data);
+                self.write_bus_word(addr as AddrT, rs2_data);
             }
             RiscvInst::JAL => {
-                let addr: AddrType = Self::extract_uj_field(inst) as AddrType;
-                self.write_reg(rd, (self.m_pc + 4) as XlenType);
+                let addr: AddrT = Self::extract_uj_field(inst) as AddrT;
+                self.write_reg(rd, (self.m_pc + 4) as XlenT);
                 self.m_pc = self.m_pc.wrapping_add(addr);
                 self.set_update_pc(true);
             }
@@ -951,17 +951,17 @@ impl Riscv32Core for EnvBase {
             | RiscvInst::BGE
             | RiscvInst::BLTU
             | RiscvInst::BGEU => {
-                let rs1_data: XlenType = self.read_reg(rs1);
-                let rs2_data: XlenType = self.read_reg(rs2);
-                let addr: AddrType = Self::extract_sb_field(inst) as AddrType;
+                let rs1_data: XlenT = self.read_reg(rs1);
+                let rs2_data: XlenT = self.read_reg(rs2);
+                let addr: AddrT = Self::extract_sb_field(inst) as AddrT;
                 let jump_en: bool;
                 match dec_inst {
                     RiscvInst::BEQ => jump_en = rs1_data == rs2_data,
                     RiscvInst::BNE => jump_en = rs1_data != rs2_data,
                     RiscvInst::BLT => jump_en = rs1_data < rs2_data,
                     RiscvInst::BGE => jump_en = rs1_data >= rs2_data,
-                    RiscvInst::BLTU => jump_en = (rs1_data as UXlenType) < (rs2_data as UXlenType),
-                    RiscvInst::BGEU => jump_en = (rs1_data as UXlenType) >= (rs2_data as UXlenType),
+                    RiscvInst::BLTU => jump_en = (rs1_data as UXlenT) < (rs2_data as UXlenT),
+                    RiscvInst::BGEU => jump_en = (rs1_data as UXlenT) >= (rs2_data as UXlenT),
                     _ => panic!("Unknown value Branch"),
                 }
                 if jump_en {
@@ -970,19 +970,19 @@ impl Riscv32Core for EnvBase {
                 }
             }
             RiscvInst::JALR => {
-                let mut addr: AddrType = Self::extract_ifield(inst) as AddrType;
-                let rs1_data: AddrType = self.read_reg(rs1) as AddrType;
+                let mut addr: AddrT = Self::extract_ifield(inst) as AddrT;
+                let rs1_data: AddrT = self.read_reg(rs1) as AddrT;
                 addr = rs1_data.wrapping_add(addr);
                 addr = addr & (!0x01);
 
-                self.write_reg(rd, (self.m_pc + 4) as XlenType);
+                self.write_reg(rd, (self.m_pc + 4) as XlenT);
                 self.m_pc = addr;
                 self.set_update_pc(true);
             }
             RiscvInst::FENCE => {}
             RiscvInst::FENCEI => {}
             RiscvInst::ECALL => {
-                self.m_csr.csrrw(CsrAddr::Mepc, self.m_pc as XlenType); // MEPC
+                self.m_csr.csrrw(CsrAddr::Mepc, self.m_pc as XlenT); // MEPC
 
                 let current_priv: PrivMode = self.m_priv;
 
@@ -997,16 +997,16 @@ impl Riscv32Core for EnvBase {
             RiscvInst::EBREAK => {}
             RiscvInst::URET => {}
             RiscvInst::SRET => {
-                let mstatus: XlenType = self
+                let mstatus: XlenT = self
                     .m_csr
-                    .csrrs(CsrAddr::Mstatus, PrivMode::Machine as XlenType);
-                let next_priv_uint: XlenType = Self::extract_bit_field(
+                    .csrrs(CsrAddr::Mstatus, PrivMode::Machine as XlenT);
+                let next_priv_uint: XlenT = Self::extract_bit_field(
                     mstatus,
                     SYSREG_MSTATUS_SPP_MSB,
                     SYSREG_MSTATUS_SPP_LSB,
                 );
                 let next_priv: PrivMode = PrivMode::from_u8(next_priv_uint as u8);
-                let mut next_mstatus: XlenType = mstatus;
+                let mut next_mstatus: XlenT = mstatus;
                 next_mstatus = Self::set_bit_field(
                     next_mstatus,
                     Self::extract_bit_field(
@@ -1025,7 +1025,7 @@ impl Riscv32Core for EnvBase {
                 );
                 next_mstatus = Self::set_bit_field(
                     next_mstatus,
-                    PrivMode::User as XlenType,
+                    PrivMode::User as XlenT,
                     SYSREG_MSTATUS_SPP_MSB,
                     SYSREG_MSTATUS_SPP_LSB,
                 );
@@ -1034,12 +1034,12 @@ impl Riscv32Core for EnvBase {
                 let ret_pc = self.m_csr.csrrs(CsrAddr::Sepc, 0);
                 self.set_priv_mode(next_priv);
 
-                self.set_pc(ret_pc as AddrType);
+                self.set_pc(ret_pc as AddrT);
                 self.set_update_pc(true);
             }
             RiscvInst::MRET => {
-                let mepc: XlenType = self.m_csr.csrrs(CsrAddr::Mepc, 0); // MEPC
-                self.m_pc = mepc as AddrType;
+                let mepc: XlenT = self.m_csr.csrrs(CsrAddr::Mepc, 0); // MEPC
+                self.m_pc = mepc as AddrT;
                 self.set_update_pc(true);
             }
             _ => {}
@@ -1077,10 +1077,10 @@ impl Riscv32Core for EnvBase {
         return self.m_finish_cpu;
     }
 
-    fn get_tohost(&mut self) -> XlenType {
+    fn get_tohost(&mut self) -> XlenT {
         return self.m_tohost;
     }
-    fn get_fromhost(&mut self) -> XlenType {
+    fn get_fromhost(&mut self) -> XlenT {
         return self.m_fromhost;
     }
 }

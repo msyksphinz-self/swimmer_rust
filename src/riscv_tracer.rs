@@ -3,9 +3,9 @@ use crate::riscv_core::VMMode;
 
 use crate::riscv_core::MemResult;
 
-use crate::riscv_core::AddrType;
-use crate::riscv_core::InstType;
-use crate::riscv_core::XlenType;
+use crate::riscv_core::AddrT;
+use crate::riscv_core::InstT;
+use crate::riscv_core::XlenT;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum TraceType {
@@ -25,8 +25,8 @@ pub enum TraceType {
 pub struct TraceInfo {
     pub m_trace_type: TraceType,
     pub m_trace_size: u32,
-    pub m_trace_addr: AddrType,
-    pub m_trace_value: XlenType,
+    pub m_trace_addr: AddrT,
+    pub m_trace_value: XlenT,
     pub m_trace_memresult: MemResult, /* Memory Access Result */
 }
 
@@ -45,9 +45,9 @@ impl TraceInfo {
 pub struct Tracer {
     pub m_priv: PrivMode,
     pub m_vmmode: VMMode,
-    pub m_executed_pc: AddrType,
-    pub m_executed_phypc: AddrType,
-    pub m_inst_hex: InstType,
+    pub m_executed_pc: AddrT,
+    pub m_executed_phypc: AddrT,
+    pub m_inst_hex: InstT,
     pub m_step: u32,
 
     pub m_trace_info: Vec<TraceInfo>,
