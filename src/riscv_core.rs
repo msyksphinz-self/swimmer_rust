@@ -21,7 +21,7 @@ pub type InstT = u32;
 pub type AddrT = u32;
 pub type RegAddrT = u8;
 
-use crate::riscv_core64::Xlen64T;
+// use crate::riscv_core64::Xlen64T;
 
 pub const DRAM_BASE: AddrT = 0x8000_0000;
 pub const DRAM_SIZE: usize = 0x10_0000;
@@ -273,7 +273,7 @@ impl Riscv32Core for Riscv32Env {
         let mut read_reg_trace = TraceInfo::new();
         read_reg_trace.m_trace_type = TraceType::XRegRead;
         read_reg_trace.m_trace_addr = reg_addr as AddrT;
-        read_reg_trace.m_trace_value = ret_val as Xlen64T;
+        read_reg_trace.m_trace_value = ret_val;
         read_reg_trace.m_trace_memresult = MemResult::NoExcept;
 
         self.m_trace.m_trace_info.push(read_reg_trace);
@@ -287,7 +287,7 @@ impl Riscv32Core for Riscv32Env {
 
             write_reg_trace.m_trace_type = TraceType::XRegWrite;
             write_reg_trace.m_trace_addr = reg_addr as AddrT;
-            write_reg_trace.m_trace_value = data as Xlen64T;
+            write_reg_trace.m_trace_value = data;
             write_reg_trace.m_trace_memresult = MemResult::NoExcept;
 
             self.m_trace.m_trace_info.push(write_reg_trace);
@@ -410,7 +410,7 @@ impl Riscv32Core for Riscv32Env {
 
         read_mem_trace.m_trace_type = TraceType::MemRead;
         read_mem_trace.m_trace_addr = addr;
-        read_mem_trace.m_trace_value = ret_val as Xlen64T;
+        read_mem_trace.m_trace_value = ret_val;
         read_mem_trace.m_trace_memresult = MemResult::NoExcept;
 
         self.m_trace.m_trace_info.push(read_mem_trace);
@@ -450,7 +450,7 @@ impl Riscv32Core for Riscv32Env {
 
         write_mem_trace.m_trace_type = TraceType::MemWrite;
         write_mem_trace.m_trace_addr = addr;
-        write_mem_trace.m_trace_value = data as Xlen64T;
+        write_mem_trace.m_trace_value = data;
         write_mem_trace.m_trace_memresult = MemResult::NoExcept;
 
         self.m_trace.m_trace_info.push(write_mem_trace);
