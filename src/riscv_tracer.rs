@@ -6,6 +6,7 @@ use crate::riscv_core::MemResult;
 use crate::riscv_core::AddrT;
 use crate::riscv_core::InstT;
 use crate::riscv_core::XlenT;
+use crate::riscv_core64::Xlen64T;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum TraceType {
@@ -26,7 +27,7 @@ pub struct TraceInfo {
     pub m_trace_type: TraceType,
     pub m_trace_size: u32,
     pub m_trace_addr: AddrT,
-    pub m_trace_value: XlenT,
+    pub m_trace_value: Xlen64T,
     pub m_trace_memresult: MemResult, /* Memory Access Result */
 }
 

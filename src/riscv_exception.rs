@@ -1,4 +1,4 @@
-use crate::riscv_core::EnvBase;
+use crate::riscv_core::Riscv32Env;
 use crate::riscv_core::Riscv32Core;
 
 use crate::riscv_core::PrivMode;
@@ -45,7 +45,7 @@ pub trait RiscvException {
     fn generate_exception(&mut self, code: ExceptCode, tval: XlenT);
 }
 
-impl RiscvException for EnvBase {
+impl RiscvException for Riscv32Env {
     fn generate_exception(&mut self, code: ExceptCode, tval: XlenT) {
         // FlushTlb();
 

@@ -1,6 +1,6 @@
 use num::iter::range;
 
-use crate::riscv_core::EnvBase;
+use crate::riscv_core::Riscv32Env;
 use crate::riscv_core::Riscv32Core;
 
 use crate::riscv_core::AddrT;
@@ -51,7 +51,7 @@ pub trait RiscvMmu {
     fn is_allowed_access(&mut self, i_type: u8, acc_type: MemAccType, priv_mode: PrivMode) -> bool;
 }
 
-impl RiscvMmu for EnvBase {
+impl RiscvMmu for Riscv32Env {
     fn walk_page_table(
         &mut self,
         vaddr: AddrT,

@@ -21,6 +21,8 @@ pub type InstT = u32;
 pub type AddrT = u32;
 pub type RegAddrT = u8;
 
+use crate::riscv_core64::Xlen64T;
+
 pub const DRAM_BASE: AddrT = 0x8000_0000;
 pub const DRAM_SIZE: usize = 0x10_0000;
 
@@ -84,7 +86,7 @@ pub enum MemSize {
     DWORD,
 }
 
-pub struct EnvBase {
+pub struct Riscv32Env {
     // m_bitmode: RiscvBitMode,
     pub m_pc: AddrT,
     m_previous_pc: AddrT,
@@ -108,9 +110,9 @@ pub struct EnvBase {
     m_is_update_pc: bool,
 }
 
-impl EnvBase {
-    pub fn new() -> EnvBase {
-        EnvBase {
+impl Riscv32Env {
+    pub fn new() -> Riscv32Env {
+        Riscv32Env {
             // m_bitmode: RiscvBitMode::Bit32,
             m_pc: DRAM_BASE as AddrT,
             m_memory: [0; DRAM_SIZE],
@@ -225,7 +227,7 @@ pub trait Riscv32Core {
     fn write_bus_hword(&mut self, addr: AddrT, data: XlenT) -> MemResult;
     fn write_bus_byte(&mut self, addr: AddrT, data: XlenT) -> MemResult;
 
-    fn read_reg(&mut self, reg_addr: RegAddrT) -> i32;
+    fn read_reg(&mut self, reg_addr: RegAddrT) -> XlenT;
     fn write_reg(&mut self, reg_addr: RegAddrT, data: XlenT);
 
     // fn decode_inst(&mut self, inst: InstT) -> RiscvInst;
@@ -248,7 +250,7 @@ pub trait Riscv32Core {
     fn get_fromhost(&mut self) -> XlenT;
 }
 
-impl Riscv32Core for EnvBase {
+impl Riscv32Core for Riscv32Env {
     fn get_rs1_addr(inst: InstT) -> RegAddrT {
         return ((inst >> 15) & 0x1f) as RegAddrT;
     }
@@ -271,7 +273,7 @@ impl Riscv32Core for EnvBase {
         let mut read_reg_trace = TraceInfo::new();
         read_reg_trace.m_trace_type = TraceType::XRegRead;
         read_reg_trace.m_trace_addr = reg_addr as AddrT;
-        read_reg_trace.m_trace_value = ret_val;
+        read_reg_trace.m_trace_value = ret_val as Xlen64T;
         read_reg_trace.m_trace_memresult = MemResult::NoExcept;
 
         self.m_trace.m_trace_info.push(read_reg_trace);
@@ -285,7 +287,7 @@ impl Riscv32Core for EnvBase {
 
             write_reg_trace.m_trace_type = TraceType::XRegWrite;
             write_reg_trace.m_trace_addr = reg_addr as AddrT;
-            write_reg_trace.m_trace_value = data;
+            write_reg_trace.m_trace_value = data as Xlen64T;
             write_reg_trace.m_trace_memresult = MemResult::NoExcept;
 
             self.m_trace.m_trace_info.push(write_reg_trace);
@@ -408,7 +410,7 @@ impl Riscv32Core for EnvBase {
 
         read_mem_trace.m_trace_type = TraceType::MemRead;
         read_mem_trace.m_trace_addr = addr;
-        read_mem_trace.m_trace_value = ret_val;
+        read_mem_trace.m_trace_value = ret_val as Xlen64T;
         read_mem_trace.m_trace_memresult = MemResult::NoExcept;
 
         self.m_trace.m_trace_info.push(read_mem_trace);
@@ -448,7 +450,7 @@ impl Riscv32Core for EnvBase {
 
         write_mem_trace.m_trace_type = TraceType::MemWrite;
         write_mem_trace.m_trace_addr = addr;
-        write_mem_trace.m_trace_value = data;
+        write_mem_trace.m_trace_value = data as Xlen64T;
         write_mem_trace.m_trace_memresult = MemResult::NoExcept;
 
         self.m_trace.m_trace_info.push(write_mem_trace);

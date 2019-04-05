@@ -1,4 +1,4 @@
-use crate::riscv_core::EnvBase;
+use crate::riscv_core::Riscv32Env;
 use crate::riscv_core::Riscv32Core;
 
 use crate::riscv_csr::CsrAddr;
@@ -98,7 +98,7 @@ pub trait Riscv32Insts {
     fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstT, step: u32);
 }
 
-impl Riscv32Insts for EnvBase {
+impl Riscv32Insts for Riscv32Env {
     fn decode_inst(&mut self, inst: InstT) -> RiscvInst {
         let opcode = inst & 0x7f;
         let funct3 = (inst >> 12) & 0x07;
