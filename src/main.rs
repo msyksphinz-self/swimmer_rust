@@ -11,8 +11,8 @@ mod riscv_insts;
 mod riscv_mmu;
 mod riscv_tracer;
 
-use crate::riscv_core::EnvBase;
 use crate::riscv_core::Riscv32Core;
+use crate::riscv_core::Riscv32Env;
 
 use crate::riscv_insts::Riscv32Insts;
 use crate::riscv_insts::RiscvInst;
@@ -35,7 +35,7 @@ fn main() -> Result<(), Box<std::error::Error>> {
     let filebuf = BufReader::new(file);
     let mut hex_addr = 0;
 
-    let mut riscv32_core = EnvBase::new();
+    let mut riscv32_core = Riscv32Env::new();
 
     for result in filebuf.bytes() {
         let l = result?;
