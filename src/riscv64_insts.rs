@@ -19,8 +19,8 @@ use crate::riscv64_core::Riscv64Core;
 use crate::riscv_exception::ExceptCode;
 use crate::riscv_exception::RiscvException;
 
-use crate::riscv_insts::RiscvInsts;
-use crate::riscv_insts::RiscvInst;
+use crate::riscv32_insts::RiscvInsts;
+use crate::riscv32_insts::RiscvInst;
 
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_MSB;
