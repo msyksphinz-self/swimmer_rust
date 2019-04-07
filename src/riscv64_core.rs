@@ -1,6 +1,5 @@
 use crate::riscv_csr::CsrAddr;
 use crate::riscv_csr::RiscvCsr;
-use crate::riscv_csr::RiscvCsrBase;
 
 use crate::riscv_mmu::RiscvMmu;
 
@@ -10,10 +9,6 @@ use crate::riscv32_core::VMMode;
 use crate::riscv32_core::MemAccType;
 use crate::riscv32_core::MemResult;
 
-use crate::riscv_exception::ExceptCode;
-use crate::riscv_exception::RiscvException;
-
-use crate::riscv_tracer::RiscvTracer;
 use crate::riscv_tracer::TraceInfo;
 use crate::riscv_tracer::TraceType;
 use crate::riscv_tracer::Tracer;
@@ -21,8 +16,6 @@ use crate::riscv_tracer::Tracer;
 use crate::riscv32_core::AddrT;
 use crate::riscv32_core::InstT;
 use crate::riscv32_core::RegAddrT;
-use crate::riscv32_core::UXlenT;
-use crate::riscv32_core::XlenT;
 
 use crate::riscv32_core::DRAM_BASE;
 use crate::riscv32_core::DRAM_SIZE;
@@ -113,7 +106,7 @@ impl Riscv64Env {
     }
 
     pub fn extract_shamt_field(hex: InstT) -> Xlen64T {
-        return Self::extract_bit_field(hex as Xlen64T, 24, 20);
+        return Self::extract_bit_field(hex as Xlen64T, 25, 20);
     }
 
     pub fn extract_sb_field(hex: InstT) -> Xlen64T {

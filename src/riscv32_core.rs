@@ -1,17 +1,12 @@
 use crate::riscv_csr::CsrAddr;
 use crate::riscv_csr::RiscvCsr;
-use crate::riscv_csr::RiscvCsrBase;
 
 use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_MSB;
 
-use crate::riscv_tracer::RiscvTracer;
 use crate::riscv_tracer::TraceInfo;
 use crate::riscv_tracer::TraceType;
 use crate::riscv_tracer::Tracer;
-
-use crate::riscv_exception::ExceptCode;
-use crate::riscv_exception::RiscvException;
 
 use crate::riscv_mmu::RiscvMmu;
 
@@ -25,8 +20,6 @@ use crate::riscv64_core::Xlen64T;
 
 pub const DRAM_BASE: AddrT = 0x8000_0000;
 pub const DRAM_SIZE: usize = 0x10_0000;
-
-use crate::riscv_insts::RiscvInst;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum PrivMode {

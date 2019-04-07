@@ -9,16 +9,13 @@ mod riscv_csr;
 mod riscv_csr_bitdef;
 mod riscv_exception;
 mod riscv_insts;
+mod riscv64_insts;
 mod riscv_mmu;
 mod riscv_tracer;
-
-use crate::riscv32_core::Riscv32Core;
-use crate::riscv32_core::Riscv32Env;
 
 use crate::riscv64_core::Riscv64Core;
 use crate::riscv64_core::Riscv64Env;
 
-use crate::riscv_insts::RiscvInst;
 use crate::riscv_insts::RiscvInsts;
 
 use crate::riscv32_core::InstT;

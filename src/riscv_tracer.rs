@@ -5,7 +5,6 @@ use crate::riscv32_core::MemResult;
 
 use crate::riscv32_core::AddrT;
 use crate::riscv32_core::InstT;
-use crate::riscv32_core::XlenT;
 use crate::riscv64_core::Xlen64T;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
@@ -114,14 +113,14 @@ impl RiscvTracer for Tracer {
             match self.m_trace_info[trace_idx].m_trace_type {
                 TraceType::XRegWrite => {
                     print!(
-                        "x{:02}<={:08x} ",
+                        "x{:02}<={:016x} ",
                         self.m_trace_info[trace_idx].m_trace_addr,
                         self.m_trace_info[trace_idx].m_trace_value
                     );
                 }
                 TraceType::XRegRead => {
                     print!(
-                        "x{:02}=>{:08x} ",
+                        "x{:02}=>{:016x} ",
                         self.m_trace_info[trace_idx].m_trace_addr,
                         self.m_trace_info[trace_idx].m_trace_value
                     );

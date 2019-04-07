@@ -1,5 +1,3 @@
-use num::Integer;
-
 use crate::riscv32_core::XlenT;
 use crate::riscv64_core::Xlen64T;
 
