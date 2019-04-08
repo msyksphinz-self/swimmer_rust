@@ -1,6 +1,9 @@
-use std::env;
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
+use std::{env, process};
+
+extern crate getopts;
+use getopts::Options;
 
 mod core_base;
 mod riscv32_core;
@@ -16,6 +19,9 @@ mod riscv_tracer;
 use crate::riscv64_core::Riscv64Core;
 use crate::riscv64_core::Riscv64Env;
 
+use crate::riscv32_core::Riscv32Core;
+use crate::riscv32_core::Riscv32Env;
+
 use crate::riscv32_insts::RiscvInstId;
 use crate::riscv32_insts::RiscvInsts;
 
@@ -26,15 +32,51 @@ use crate::riscv64_core::Xlen64T;
 
 use crate::riscv32_core::MemResult;
 
-fn main() -> Result<(), Box<std::error::Error>> {
+#[derive(Debug)]
+struct Args {
+    bin_file: Vec<String>,
+    rv_arch: Option<String>,
+}
+
+fn print_usage(program: &str, opts: &Options) {
+    writeln!(std::io::stderr(), "Usage: {} binfile", program).unwrap();
+    std::process::exit(1);
+}
+
+fn parse_args() -> Args {
     let args: Vec<String> = env::args().collect::<Vec<String>>();
 
-    if args.len() != 2 {
-        writeln!(std::io::stderr(), "Usage: swimmer_rust_origin binfile").unwrap();
-        std::process::exit(1);
+    let program = args[0].clone();
+
+    let mut opts = Options::new();
+    opts.optopt("a", "arch", "select RISC-V architecture", "ARCH");
+    opts.optflag("h", "help", "print this help menu");
+
+    let matches = opts
+        .parse(&args[1..])
+        .unwrap_or_else(|f| panic!(f.to_string()));
+
+    if matches.opt_present("h") {
+        print_usage(&program, &opts);
     }
 
-    let file = File::open(&args[1]).unwrap();
+    if matches.free.is_empty() {
+        print_usage(&program, &opts);
+    }
+
+    Args {
+        bin_file: matches.free.clone(),
+        rv_arch: matches.opt_str("arch"),
+    }
+}
+
+fn main() -> Result<(), Box<std::error::Error>> {
+    let args = parse_args();
+
+    println!("RISC-V Arch = {:?}", Some(args.rv_arch));
+
+    let filename = args.bin_file[0].clone();
+    let file = File::open(filename.clone()).unwrap();
     let filebuf = BufReader::new(file);
     let mut hex_addr = 0;
 
@@ -63,9 +105,9 @@ fn main() -> Result<(), Box<std::error::Error>> {
     }
 
     if riscv64_core.get_tohost() == 1 {
-        eprintln!("PASS : {}", args[1]);
+        eprintln!("PASS : {}", filename.clone());
     } else {
-        eprintln!("FAIL : {}", args[1]);
+        eprintln!("FAIL : {}", filename.clone());
     }
 
     Ok(())
