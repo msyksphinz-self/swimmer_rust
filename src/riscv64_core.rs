@@ -175,8 +175,8 @@ pub trait Riscv64Core {
     fn read_reg(&mut self, reg_addr: RegAddrT) -> Xlen64T;
     fn write_reg(&mut self, reg_addr: RegAddrT, data: Xlen64T);
 
-    // fn decode_inst(&mut self, inst: InstT) -> RiscvInst;
-    // fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstT, step: u32);
+    // fn decode_inst(&mut self, inst: InstT) -> RiscvInstId;
+    // fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32);
 
     // fn print_priv_mode(priv_mode: PrivMode) -> &str;
 

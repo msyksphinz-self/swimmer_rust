@@ -223,8 +223,8 @@ pub trait Riscv32Core {
     fn read_reg(&mut self, reg_addr: RegAddrT) -> XlenT;
     fn write_reg(&mut self, reg_addr: RegAddrT, data: XlenT);
 
-    // fn decode_inst(&mut self, inst: InstT) -> RiscvInst;
-    // fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstT, step: u32);
+    // fn decode_inst(&mut self, inst: InstT) -> RiscvInstId;
+    // fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32);
 
     // fn print_priv_mode(priv_mode: PrivMode) -> &str;
 

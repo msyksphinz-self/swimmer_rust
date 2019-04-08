@@ -6,6 +6,9 @@ TEST32_PATTERNS += $(wildcard ./riscv-tests/isa/rv32um-v-*.bin)
 
 TEST64_PATTERNS =
 TEST64_PATTERNS += $(wildcard ./riscv-tests/isa/rv64ui-p-*.bin)
+# TEST64_PATTERNS += $(wildcard ./riscv-tests/isa/rv64ui-v-*.bin)
+# TEST64_PATTERNS += $(wildcard ./riscv-tests/isa/rv64um-p-*.bin)
+# TEST64_PATTERNS += $(wildcard ./riscv-tests/isa/rv64um-v-*.bin)
 
 RUN32_PATTERNS = $(addsuffix _run,$(notdir $(basename $(TEST32_PATTERNS))))
 RUN64_PATTERNS = $(addsuffix _run,$(notdir $(basename $(TEST64_PATTERNS))))

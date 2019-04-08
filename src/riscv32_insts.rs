@@ -26,7 +26,7 @@ use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPIE_MSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_MSB;
 
-pub enum RiscvInst {
+pub enum RiscvInstId {
     CSRRW,
     CSRRS,
     CSRRC,
@@ -102,121 +102,121 @@ pub enum RiscvInst {
 }
 
 pub trait RiscvInsts {
-    fn decode_inst(&mut self, inst: InstT) -> RiscvInst;
-    fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstT, step: u32);
+    fn decode_inst(&mut self, inst: InstT) -> RiscvInstId;
+    fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32);
 }
 
 impl RiscvInsts for Riscv32Env {
-    fn decode_inst(&mut self, inst: InstT) -> RiscvInst {
+    fn decode_inst(&mut self, inst: InstT) -> RiscvInstId {
         let opcode = inst & 0x7f;
         let funct3 = (inst >> 12) & 0x07;
         let funct5 = (inst >> 25) & 0x7f;
         let imm12 = (inst >> 20) & 0xfff;
 
-        let dec_inst: RiscvInst;
+        let dec_inst: RiscvInstId;
 
         match opcode {
             0x0f => match funct3 {
-                0b000 => dec_inst = RiscvInst::FENCE,
-                0b001 => dec_inst = RiscvInst::FENCEI,
-                _ => dec_inst = RiscvInst::NOP,
+                0b000 => dec_inst = RiscvInstId::FENCE,
+                0b001 => dec_inst = RiscvInstId::FENCEI,
+                _ => dec_inst = RiscvInstId::NOP,
             },
             0x33 => match funct5 {
                 0b0000000 => match funct3 {
-                    0b000 => dec_inst = RiscvInst::ADD,
-                    0b001 => dec_inst = RiscvInst::SLL,
-                    0b010 => dec_inst = RiscvInst::SLT,
-                    0b011 => dec_inst = RiscvInst::SLTU,
-                    0b100 => dec_inst = RiscvInst::XOR,
-                    0b101 => dec_inst = RiscvInst::SRL,
-                    0b110 => dec_inst = RiscvInst::OR,
-                    0b111 => dec_inst = RiscvInst::AND,
-                    _ => dec_inst = RiscvInst::NOP,
+                    0b000 => dec_inst = RiscvInstId::ADD,
+                    0b001 => dec_inst = RiscvInstId::SLL,
+                    0b010 => dec_inst = RiscvInstId::SLT,
+                    0b011 => dec_inst = RiscvInstId::SLTU,
+                    0b100 => dec_inst = RiscvInstId::XOR,
+                    0b101 => dec_inst = RiscvInstId::SRL,
+                    0b110 => dec_inst = RiscvInstId::OR,
+                    0b111 => dec_inst = RiscvInstId::AND,
+                    _ => dec_inst = RiscvInstId::NOP,
                 },
                 0b0100000 => match funct3 {
-                    0b000 => dec_inst = RiscvInst::SUB,
-                    0b101 => dec_inst = RiscvInst::SRA,
-                    _ => dec_inst = RiscvInst::NOP,
+                    0b000 => dec_inst = RiscvInstId::SUB,
+                    0b101 => dec_inst = RiscvInstId::SRA,
+                    _ => dec_inst = RiscvInstId::NOP,
                 },
                 0b0000001 => match funct3 {
-                    0b000 => dec_inst = RiscvInst::MUL,
-                    0b001 => dec_inst = RiscvInst::MULH,
-                    0b010 => dec_inst = RiscvInst::MULHSU,
-                    0b011 => dec_inst = RiscvInst::MULHU,
-                    0b100 => dec_inst = RiscvInst::DIV,
-                    0b101 => dec_inst = RiscvInst::DIVU,
-                    0b110 => dec_inst = RiscvInst::REM,
-                    0b111 => dec_inst = RiscvInst::REMU,
-                    _ => dec_inst = RiscvInst::NOP,
+                    0b000 => dec_inst = RiscvInstId::MUL,
+                    0b001 => dec_inst = RiscvInstId::MULH,
+                    0b010 => dec_inst = RiscvInstId::MULHSU,
+                    0b011 => dec_inst = RiscvInstId::MULHU,
+                    0b100 => dec_inst = RiscvInstId::DIV,
+                    0b101 => dec_inst = RiscvInstId::DIVU,
+                    0b110 => dec_inst = RiscvInstId::REM,
+                    0b111 => dec_inst = RiscvInstId::REMU,
+                    _ => dec_inst = RiscvInstId::NOP,
                 },
-                _ => dec_inst = RiscvInst::NOP,
+                _ => dec_inst = RiscvInstId::NOP,
             },
             0x03 => match funct3 {
-                0b000 => dec_inst = RiscvInst::LB,
-                0b001 => dec_inst = RiscvInst::LH,
-                0b010 => dec_inst = RiscvInst::LW,
-                0b100 => dec_inst = RiscvInst::LBU,
-                0b101 => dec_inst = RiscvInst::LHU,
-                _ => dec_inst = RiscvInst::NOP,
+                0b000 => dec_inst = RiscvInstId::LB,
+                0b001 => dec_inst = RiscvInstId::LH,
+                0b010 => dec_inst = RiscvInstId::LW,
+                0b100 => dec_inst = RiscvInstId::LBU,
+                0b101 => dec_inst = RiscvInstId::LHU,
+                _ => dec_inst = RiscvInstId::NOP,
             },
             0x23 => match funct3 {
-                0b000 => dec_inst = RiscvInst::SB,
-                0b001 => dec_inst = RiscvInst::SH,
-                0b010 => dec_inst = RiscvInst::SW,
-                _ => dec_inst = RiscvInst::NOP,
+                0b000 => dec_inst = RiscvInstId::SB,
+                0b001 => dec_inst = RiscvInstId::SH,
+                0b010 => dec_inst = RiscvInstId::SW,
+                _ => dec_inst = RiscvInstId::NOP,
             },
-            0x37 => dec_inst = RiscvInst::LUI,
-            0x17 => dec_inst = RiscvInst::AUIPC,
+            0x37 => dec_inst = RiscvInstId::LUI,
+            0x17 => dec_inst = RiscvInstId::AUIPC,
             0x63 => match funct3 {
-                0b000 => dec_inst = RiscvInst::BEQ,
-                0b001 => dec_inst = RiscvInst::BNE,
-                0b100 => dec_inst = RiscvInst::BLT,
-                0b101 => dec_inst = RiscvInst::BGE,
-                0b110 => dec_inst = RiscvInst::BLTU,
-                0b111 => dec_inst = RiscvInst::BGEU,
-                _ => dec_inst = RiscvInst::NOP,
+                0b000 => dec_inst = RiscvInstId::BEQ,
+                0b001 => dec_inst = RiscvInstId::BNE,
+                0b100 => dec_inst = RiscvInstId::BLT,
+                0b101 => dec_inst = RiscvInstId::BGE,
+                0b110 => dec_inst = RiscvInstId::BLTU,
+                0b111 => dec_inst = RiscvInstId::BGEU,
+                _ => dec_inst = RiscvInstId::NOP,
             },
             0x13 => match funct3 {
-                0b000 => dec_inst = RiscvInst::ADDI,
-                0b010 => dec_inst = RiscvInst::SLTI,
-                0b011 => dec_inst = RiscvInst::SLTIU,
-                0b100 => dec_inst = RiscvInst::XORI,
-                0b110 => dec_inst = RiscvInst::ORI,
-                0b111 => dec_inst = RiscvInst::ANDI,
-                0b001 => dec_inst = RiscvInst::SLLI,
+                0b000 => dec_inst = RiscvInstId::ADDI,
+                0b010 => dec_inst = RiscvInstId::SLTI,
+                0b011 => dec_inst = RiscvInstId::SLTIU,
+                0b100 => dec_inst = RiscvInstId::XORI,
+                0b110 => dec_inst = RiscvInstId::ORI,
+                0b111 => dec_inst = RiscvInstId::ANDI,
+                0b001 => dec_inst = RiscvInstId::SLLI,
                 0b101 => match funct5 {
-                    0b0000000 => dec_inst = RiscvInst::SRLI,
-                    0b0100000 => dec_inst = RiscvInst::SRAI,
-                    _ => dec_inst = RiscvInst::NOP,
+                    0b0000000 => dec_inst = RiscvInstId::SRLI,
+                    0b0100000 => dec_inst = RiscvInstId::SRAI,
+                    _ => dec_inst = RiscvInstId::NOP,
                 },
-                _ => dec_inst = RiscvInst::NOP,
+                _ => dec_inst = RiscvInstId::NOP,
             },
-            0x6f => dec_inst = RiscvInst::JAL,
-            0x67 => dec_inst = RiscvInst::JALR,
+            0x6f => dec_inst = RiscvInstId::JAL,
+            0x67 => dec_inst = RiscvInstId::JALR,
             0x73 => match funct3 {
                 0x000 => match imm12 {
-                    0x000 => dec_inst = RiscvInst::ECALL,
-                    0x001 => dec_inst = RiscvInst::EBREAK,
-                    0x002 => dec_inst = RiscvInst::URET,
-                    0x102 => dec_inst = RiscvInst::SRET,
-                    0x302 => dec_inst = RiscvInst::MRET,
-                    _ => dec_inst = RiscvInst::NOP,
+                    0x000 => dec_inst = RiscvInstId::ECALL,
+                    0x001 => dec_inst = RiscvInstId::EBREAK,
+                    0x002 => dec_inst = RiscvInstId::URET,
+                    0x102 => dec_inst = RiscvInstId::SRET,
+                    0x302 => dec_inst = RiscvInstId::MRET,
+                    _ => dec_inst = RiscvInstId::NOP,
                 },
-                0b001 => dec_inst = RiscvInst::CSRRW,
-                0b010 => dec_inst = RiscvInst::CSRRS,
-                0b011 => dec_inst = RiscvInst::CSRRC,
-                0b101 => dec_inst = RiscvInst::CSRRWI,
-                0b110 => dec_inst = RiscvInst::CSRRSI,
-                0b111 => dec_inst = RiscvInst::CSRRCI,
-                _ => dec_inst = RiscvInst::NOP,
+                0b001 => dec_inst = RiscvInstId::CSRRW,
+                0b010 => dec_inst = RiscvInstId::CSRRS,
+                0b011 => dec_inst = RiscvInstId::CSRRC,
+                0b101 => dec_inst = RiscvInstId::CSRRWI,
+                0b110 => dec_inst = RiscvInstId::CSRRSI,
+                0b111 => dec_inst = RiscvInstId::CSRRCI,
+                _ => dec_inst = RiscvInstId::NOP,
             },
-            _ => dec_inst = RiscvInst::WFI,
+            _ => dec_inst = RiscvInstId::WFI,
         }
 
         return dec_inst;
     }
 
-    fn execute_inst(&mut self, dec_inst: RiscvInst, inst: InstT, step: u32) {
+    fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32) {
         self.m_trace.m_executed_pc = self.m_pc;
         self.m_trace.m_inst_hex = inst;
         self.m_trace.m_step = step;
@@ -233,49 +233,49 @@ impl RiscvInsts for Riscv32Env {
         self.set_update_pc(false);
 
         match dec_inst {
-            RiscvInst::CSRRW => {
+            RiscvInstId::CSRRW => {
                 let rs1_data = self.read_reg(rs1);
                 let reg_data: XlenT = self.m_csr.csrrw(csr_addr, rs1_data);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::CSRRS => {
+            RiscvInstId::CSRRS => {
                 let rs1_data = self.read_reg(rs1);
                 let reg_data: XlenT = self.m_csr.csrrs(csr_addr, rs1_data);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::CSRRC => {
+            RiscvInstId::CSRRC => {
                 let rs1_data = self.read_reg(rs1);
                 let reg_data: XlenT = self.m_csr.csrrc(csr_addr, rs1_data);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::CSRRWI => {
+            RiscvInstId::CSRRWI => {
                 let zimm: XlenT = ((inst >> 15) & 0x1f) as XlenT;
                 let reg_data: XlenT = self.m_csr.csrrw(csr_addr, zimm);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::CSRRSI => {
+            RiscvInstId::CSRRSI => {
                 let zimm: XlenT = ((inst >> 15) & 0x1f) as XlenT;
                 let reg_data: XlenT = self.m_csr.csrrs(csr_addr, zimm);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::CSRRCI => {
+            RiscvInstId::CSRRCI => {
                 let zimm: XlenT = ((inst >> 15) & 0x1f) as XlenT;
                 let reg_data: XlenT = self.m_csr.csrrc(csr_addr, zimm);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::LUI => {
+            RiscvInstId::LUI => {
                 let mut imm: XlenT =
                     Self::extend_sign(Self::extract_bit_field(inst as XlenT, 31, 12), 19);
                 imm = imm << 12;
                 self.write_reg(rd, imm);
             }
-            RiscvInst::AUIPC => {
+            RiscvInstId::AUIPC => {
                 let mut imm: XlenT =
                     Self::extend_sign(Self::extract_bit_field(inst as XlenT, 31, 12), 19);
                 imm = (imm << 12).wrapping_add(self.m_pc as XlenT);
                 self.write_reg(rd, imm);
             }
-            RiscvInst::LB => {
+            RiscvInstId::LB => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
                 let (result, reg_data) = self.read_bus_byte(addr as AddrT);
                 if result == MemResult::NoExcept {
@@ -283,7 +283,7 @@ impl RiscvInsts for Riscv32Env {
                     self.write_reg(rd, extended_reg_data);
                 }
             }
-            RiscvInst::LH => {
+            RiscvInstId::LH => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
                 let (result, reg_data) = self.read_bus_hword(addr as AddrT);
                 if result == MemResult::NoExcept {
@@ -291,133 +291,133 @@ impl RiscvInsts for Riscv32Env {
                     self.write_reg(rd, extended_reg_data);
                 }
             }
-            RiscvInst::LW => {
+            RiscvInstId::LW => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
                 let (result, reg_data) = self.read_bus_word(addr as AddrT);
                 if result == MemResult::NoExcept {
                     self.write_reg(rd, reg_data);
                 }
             }
-            RiscvInst::LBU => {
+            RiscvInstId::LBU => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
                 let (result, reg_data) = self.read_bus_byte(addr as AddrT);
                 if result == MemResult::NoExcept {
                     self.write_reg(rd, reg_data as XlenT);
                 }
             }
-            RiscvInst::LHU => {
+            RiscvInstId::LHU => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
                 let (result, reg_data) = self.read_bus_hword(addr as AddrT);
                 if result == MemResult::NoExcept {
                     self.write_reg(rd, reg_data as XlenT);
                 }
             }
-            RiscvInst::ADDI => {
+            RiscvInstId::ADDI => {
                 let rs1_data = self.read_reg(rs1);
                 let imm_data = Self::extract_ifield(inst);
                 let reg_data: XlenT = rs1_data.wrapping_add(imm_data);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::SLTI => {
+            RiscvInstId::SLTI => {
                 let reg_data: bool = self.read_reg(rs1) < Self::extract_ifield(inst);
                 self.write_reg(rd, reg_data as XlenT);
             }
-            RiscvInst::SLTIU => {
+            RiscvInstId::SLTIU => {
                 let reg_data: bool =
                     (self.read_reg(rs1) as UXlenT) < (Self::extract_ifield(inst) as UXlenT);
                 self.write_reg(rd, reg_data as XlenT);
             }
-            RiscvInst::XORI => {
+            RiscvInstId::XORI => {
                 let reg_data: XlenT = self.read_reg(rs1) ^ Self::extract_ifield(inst);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::ORI => {
+            RiscvInstId::ORI => {
                 let reg_data: XlenT = self.read_reg(rs1) | Self::extract_ifield(inst);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::ANDI => {
+            RiscvInstId::ANDI => {
                 let reg_data: XlenT = self.read_reg(rs1) & Self::extract_ifield(inst);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::SLLI => {
+            RiscvInstId::SLLI => {
                 let reg_data: XlenT = self.read_reg(rs1) << Self::extract_shamt_field(inst);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::SRLI => {
+            RiscvInstId::SRLI => {
                 let reg_data: UXlenT =
                     (self.read_reg(rs1) as UXlenT) >> Self::extract_shamt_field(inst);
                 self.write_reg(rd, reg_data as XlenT);
             }
-            RiscvInst::SRAI => {
+            RiscvInstId::SRAI => {
                 let reg_data: XlenT = self.read_reg(rs1) >> Self::extract_shamt_field(inst);
                 self.write_reg(rd, reg_data);
             }
 
-            RiscvInst::ADD => {
+            RiscvInstId::ADD => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
                 let reg_data: XlenT = rs1_data.wrapping_add(rs2_data);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::SUB => {
+            RiscvInstId::SUB => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
                 let reg_data: XlenT = rs1_data.wrapping_sub(rs2_data);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::SLL => {
+            RiscvInstId::SLL => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data: UXlenT = self.read_reg(rs2) as UXlenT;
                 let reg_data: XlenT = rs1_data.wrapping_shl(rs2_data);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::SLT => {
+            RiscvInstId::SLT => {
                 let reg_data: bool = self.read_reg(rs1) < self.read_reg(rs2);
                 self.write_reg(rd, reg_data as XlenT);
             }
-            RiscvInst::SLTU => {
+            RiscvInstId::SLTU => {
                 let reg_data: bool =
                     (self.read_reg(rs1) as UXlenT) < (self.read_reg(rs2) as UXlenT);
                 self.write_reg(rd, reg_data as XlenT);
             }
-            RiscvInst::XOR => {
+            RiscvInstId::XOR => {
                 let reg_data: XlenT = self.read_reg(rs1) ^ self.read_reg(rs2);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::SRL => {
+            RiscvInstId::SRL => {
                 let rs1_data = self.read_reg(rs1) as UXlenT;
                 let rs2_data = self.read_reg(rs2);
                 let reg_data = rs1_data.wrapping_shr(rs2_data as u32);
                 self.write_reg(rd, reg_data as XlenT);
             }
-            RiscvInst::SRA => {
+            RiscvInstId::SRA => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data: UXlenT = self.read_reg(rs2) as UXlenT;
                 let reg_data: XlenT = rs1_data.wrapping_shr(rs2_data as u32);
                 self.write_reg(rd, reg_data);
             }
 
-            RiscvInst::MUL => {
+            RiscvInstId::MUL => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
                 let reg_data: XlenT = rs1_data.wrapping_mul(rs2_data);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::MULH => {
+            RiscvInstId::MULH => {
                 let rs1_data: i64 = self.read_reg(rs1) as i64;
                 let rs2_data: i64 = self.read_reg(rs2) as i64;
                 let mut reg_data: i64 = rs1_data.wrapping_mul(rs2_data);
                 reg_data = (reg_data >> 32) & 0x0ffffffff;
                 self.write_reg(rd, reg_data as XlenT);
             }
-            RiscvInst::MULHSU => {
+            RiscvInstId::MULHSU => {
                 let rs1_data: i64 = (self.read_reg(rs1) as i32) as i64;
                 let rs2_data: i64 = (self.read_reg(rs2) as u32) as i64;
                 let mut reg_data: i64 = rs1_data.wrapping_mul(rs2_data);
                 reg_data = (reg_data >> 32) & 0xffffffff;
                 self.write_reg(rd, reg_data as XlenT);
             }
-            RiscvInst::MULHU => {
+            RiscvInstId::MULHU => {
                 let rs1_data: u64 = (self.read_reg(rs1) as u32) as u64;
                 let rs2_data: u64 = (self.read_reg(rs2) as u32) as u64;
                 let mut reg_data: u64 = rs1_data.wrapping_mul(rs2_data);
@@ -425,7 +425,7 @@ impl RiscvInsts for Riscv32Env {
                 self.write_reg(rd, reg_data as XlenT);
             }
 
-            RiscvInst::REM => {
+            RiscvInstId::REM => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
                 let reg_data: XlenT;
@@ -438,7 +438,7 @@ impl RiscvInsts for Riscv32Env {
                 }
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::REMU => {
+            RiscvInstId::REMU => {
                 let rs1_data: UXlenT = self.read_reg(rs1) as UXlenT;
                 let rs2_data: UXlenT = self.read_reg(rs2) as UXlenT;
                 let reg_data: UXlenT;
@@ -450,7 +450,7 @@ impl RiscvInsts for Riscv32Env {
                 self.write_reg(rd, reg_data as XlenT);
             }
 
-            RiscvInst::DIV => {
+            RiscvInstId::DIV => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
                 let reg_data: XlenT;
@@ -461,7 +461,7 @@ impl RiscvInsts for Riscv32Env {
                 }
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::DIVU => {
+            RiscvInstId::DIVU => {
                 let rs1_data: UXlenT = self.read_reg(rs1) as UXlenT;
                 let rs2_data: UXlenT = self.read_reg(rs2) as UXlenT;
                 let reg_data: UXlenT;
@@ -473,52 +473,52 @@ impl RiscvInsts for Riscv32Env {
                 self.write_reg(rd, reg_data as XlenT);
             }
 
-            RiscvInst::OR => {
+            RiscvInstId::OR => {
                 let reg_data: XlenT = self.read_reg(rs1) | self.read_reg(rs2);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::AND => {
+            RiscvInstId::AND => {
                 let reg_data: XlenT = self.read_reg(rs1) & self.read_reg(rs2);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInst::SB => {
+            RiscvInstId::SB => {
                 let rs2_data = self.read_reg(rs2);
                 let addr: AddrT = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrT;
                 self.write_bus_byte(addr, rs2_data);
             }
-            RiscvInst::SH => {
+            RiscvInstId::SH => {
                 let rs2_data = self.read_reg(rs2);
                 let addr: AddrT = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrT;
                 self.write_bus_hword(addr, rs2_data);
             }
-            RiscvInst::SW => {
+            RiscvInstId::SW => {
                 let rs2_data = self.read_reg(rs2);
                 let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
                 self.write_bus_word(addr as AddrT, rs2_data);
             }
-            RiscvInst::JAL => {
+            RiscvInstId::JAL => {
                 let addr: AddrT = Self::extract_uj_field(inst) as AddrT;
                 self.write_reg(rd, (self.m_pc + 4) as XlenT);
                 self.m_pc = self.m_pc.wrapping_add(addr);
                 self.set_update_pc(true);
             }
-            RiscvInst::BEQ
-            | RiscvInst::BNE
-            | RiscvInst::BLT
-            | RiscvInst::BGE
-            | RiscvInst::BLTU
-            | RiscvInst::BGEU => {
+            RiscvInstId::BEQ
+            | RiscvInstId::BNE
+            | RiscvInstId::BLT
+            | RiscvInstId::BGE
+            | RiscvInstId::BLTU
+            | RiscvInstId::BGEU => {
                 let rs1_data: XlenT = self.read_reg(rs1);
                 let rs2_data: XlenT = self.read_reg(rs2);
                 let addr: AddrT = Self::extract_sb_field(inst) as AddrT;
                 let jump_en: bool;
                 match dec_inst {
-                    RiscvInst::BEQ => jump_en = rs1_data == rs2_data,
-                    RiscvInst::BNE => jump_en = rs1_data != rs2_data,
-                    RiscvInst::BLT => jump_en = rs1_data < rs2_data,
-                    RiscvInst::BGE => jump_en = rs1_data >= rs2_data,
-                    RiscvInst::BLTU => jump_en = (rs1_data as UXlenT) < (rs2_data as UXlenT),
-                    RiscvInst::BGEU => jump_en = (rs1_data as UXlenT) >= (rs2_data as UXlenT),
+                    RiscvInstId::BEQ => jump_en = rs1_data == rs2_data,
+                    RiscvInstId::BNE => jump_en = rs1_data != rs2_data,
+                    RiscvInstId::BLT => jump_en = rs1_data < rs2_data,
+                    RiscvInstId::BGE => jump_en = rs1_data >= rs2_data,
+                    RiscvInstId::BLTU => jump_en = (rs1_data as UXlenT) < (rs2_data as UXlenT),
+                    RiscvInstId::BGEU => jump_en = (rs1_data as UXlenT) >= (rs2_data as UXlenT),
                     _ => panic!("Unknown value Branch"),
                 }
                 if jump_en {
@@ -526,7 +526,7 @@ impl RiscvInsts for Riscv32Env {
                     self.set_update_pc(true);
                 }
             }
-            RiscvInst::JALR => {
+            RiscvInstId::JALR => {
                 let mut addr: AddrT = Self::extract_ifield(inst) as AddrT;
                 let rs1_data: AddrT = self.read_reg(rs1) as AddrT;
                 addr = rs1_data.wrapping_add(addr);
@@ -536,9 +536,9 @@ impl RiscvInsts for Riscv32Env {
                 self.m_pc = addr;
                 self.set_update_pc(true);
             }
-            RiscvInst::FENCE => {}
-            RiscvInst::FENCEI => {}
-            RiscvInst::ECALL => {
+            RiscvInstId::FENCE => {}
+            RiscvInstId::FENCEI => {}
+            RiscvInstId::ECALL => {
                 self.m_csr.csrrw(CsrAddr::Mepc, self.m_pc as XlenT); // MEPC
 
                 let current_priv: PrivMode = self.m_priv;
@@ -551,9 +551,9 @@ impl RiscvInsts for Riscv32Env {
                 }
                 self.set_update_pc(true);
             }
-            RiscvInst::EBREAK => {}
-            RiscvInst::URET => {}
-            RiscvInst::SRET => {
+            RiscvInstId::EBREAK => {}
+            RiscvInstId::URET => {}
+            RiscvInstId::SRET => {
                 let mstatus: XlenT = self
                     .m_csr
                     .csrrs(CsrAddr::Mstatus, PrivMode::Machine as XlenT);
@@ -594,7 +594,7 @@ impl RiscvInsts for Riscv32Env {
                 self.set_pc(ret_pc as AddrT);
                 self.set_update_pc(true);
             }
-            RiscvInst::MRET => {
+            RiscvInstId::MRET => {
                 let mepc: XlenT = self.m_csr.csrrs(CsrAddr::Mepc, 0); // MEPC
                 self.m_pc = mepc as AddrT;
                 self.set_update_pc(true);
