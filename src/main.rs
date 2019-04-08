@@ -4,18 +4,19 @@ use std::io::{BufReader, Read, Write};
 
 mod core_base;
 mod riscv32_core;
+mod riscv32_insts;
 mod riscv64_core;
+mod riscv64_insts;
 mod riscv_csr;
 mod riscv_csr_bitdef;
 mod riscv_exception;
-mod riscv32_insts;
-mod riscv64_insts;
 mod riscv_mmu;
 mod riscv_tracer;
 
 use crate::riscv64_core::Riscv64Core;
 use crate::riscv64_core::Riscv64Env;
 
+use crate::riscv32_insts::RiscvInstId;
 use crate::riscv32_insts::RiscvInsts;
 
 use crate::riscv32_core::InstT;
@@ -52,8 +53,11 @@ fn main() -> Result<(), Box<std::error::Error>> {
         if result != MemResult::NoExcept {
             continue;
         }
-        let inst_decode = riscv64_core.decode_inst(inst_data);
-        riscv64_core.execute_inst(inst_decode, inst_data as InstT, count);
+        let inst_decode: RiscvInstId;
+        match riscv64_core.decode_inst(inst_data) {
+            None => println!("<Error: Unknown instruction>\n"),
+            Some(inst_decode) => riscv64_core.execute_inst(inst_decode, inst_data as InstT, count),
+        }
 
         count += 1;
     }

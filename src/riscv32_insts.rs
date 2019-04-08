@@ -102,118 +102,114 @@ pub enum RiscvInstId {
 }
 
 pub trait RiscvInsts {
-    fn decode_inst(&mut self, inst: InstT) -> RiscvInstId;
+    fn decode_inst(&mut self, inst: InstT) -> Option<RiscvInstId>;
     fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32);
 }
 
 impl RiscvInsts for Riscv32Env {
-    fn decode_inst(&mut self, inst: InstT) -> RiscvInstId {
+    fn decode_inst(&mut self, inst: InstT) -> Option<RiscvInstId> {
         let opcode = inst & 0x7f;
         let funct3 = (inst >> 12) & 0x07;
-        let funct5 = (inst >> 25) & 0x7f;
+        let funct7 = (inst >> 25) & 0x7f;
         let imm12 = (inst >> 20) & 0xfff;
 
-        let dec_inst: RiscvInstId;
-
-        match opcode {
+        return match opcode {
             0x0f => match funct3 {
-                0b000 => dec_inst = RiscvInstId::FENCE,
-                0b001 => dec_inst = RiscvInstId::FENCEI,
-                _ => dec_inst = RiscvInstId::NOP,
+                0b000 => Some(RiscvInstId::FENCE),
+                0b001 => Some(RiscvInstId::FENCEI),
+                _ => None,
             },
-            0x33 => match funct5 {
+            0x33 => match funct7 {
                 0b0000000 => match funct3 {
-                    0b000 => dec_inst = RiscvInstId::ADD,
-                    0b001 => dec_inst = RiscvInstId::SLL,
-                    0b010 => dec_inst = RiscvInstId::SLT,
-                    0b011 => dec_inst = RiscvInstId::SLTU,
-                    0b100 => dec_inst = RiscvInstId::XOR,
-                    0b101 => dec_inst = RiscvInstId::SRL,
-                    0b110 => dec_inst = RiscvInstId::OR,
-                    0b111 => dec_inst = RiscvInstId::AND,
-                    _ => dec_inst = RiscvInstId::NOP,
+                    0b000 => Some(RiscvInstId::ADD),
+                    0b001 => Some(RiscvInstId::SLL),
+                    0b010 => Some(RiscvInstId::SLT),
+                    0b011 => Some(RiscvInstId::SLTU),
+                    0b100 => Some(RiscvInstId::XOR),
+                    0b101 => Some(RiscvInstId::SRL),
+                    0b110 => Some(RiscvInstId::OR),
+                    0b111 => Some(RiscvInstId::AND),
+                    _ => None,
                 },
                 0b0100000 => match funct3 {
-                    0b000 => dec_inst = RiscvInstId::SUB,
-                    0b101 => dec_inst = RiscvInstId::SRA,
-                    _ => dec_inst = RiscvInstId::NOP,
+                    0b000 => Some(RiscvInstId::SUB),
+                    0b101 => Some(RiscvInstId::SRA),
+                    _ => None,
                 },
                 0b0000001 => match funct3 {
-                    0b000 => dec_inst = RiscvInstId::MUL,
-                    0b001 => dec_inst = RiscvInstId::MULH,
-                    0b010 => dec_inst = RiscvInstId::MULHSU,
-                    0b011 => dec_inst = RiscvInstId::MULHU,
-                    0b100 => dec_inst = RiscvInstId::DIV,
-                    0b101 => dec_inst = RiscvInstId::DIVU,
-                    0b110 => dec_inst = RiscvInstId::REM,
-                    0b111 => dec_inst = RiscvInstId::REMU,
-                    _ => dec_inst = RiscvInstId::NOP,
+                    0b000 => Some(RiscvInstId::MUL),
+                    0b001 => Some(RiscvInstId::MULH),
+                    0b010 => Some(RiscvInstId::MULHSU),
+                    0b011 => Some(RiscvInstId::MULHU),
+                    0b100 => Some(RiscvInstId::DIV),
+                    0b101 => Some(RiscvInstId::DIVU),
+                    0b110 => Some(RiscvInstId::REM),
+                    0b111 => Some(RiscvInstId::REMU),
+                    _ => None,
                 },
-                _ => dec_inst = RiscvInstId::NOP,
+                _ => None,
             },
             0x03 => match funct3 {
-                0b000 => dec_inst = RiscvInstId::LB,
-                0b001 => dec_inst = RiscvInstId::LH,
-                0b010 => dec_inst = RiscvInstId::LW,
-                0b100 => dec_inst = RiscvInstId::LBU,
-                0b101 => dec_inst = RiscvInstId::LHU,
-                _ => dec_inst = RiscvInstId::NOP,
+                0b000 => Some(RiscvInstId::LB),
+                0b001 => Some(RiscvInstId::LH),
+                0b010 => Some(RiscvInstId::LW),
+                0b100 => Some(RiscvInstId::LBU),
+                0b101 => Some(RiscvInstId::LHU),
+                _ => None,
             },
             0x23 => match funct3 {
-                0b000 => dec_inst = RiscvInstId::SB,
-                0b001 => dec_inst = RiscvInstId::SH,
-                0b010 => dec_inst = RiscvInstId::SW,
-                _ => dec_inst = RiscvInstId::NOP,
+                0b000 => Some(RiscvInstId::SB),
+                0b001 => Some(RiscvInstId::SH),
+                0b010 => Some(RiscvInstId::SW),
+                _ => None,
             },
-            0x37 => dec_inst = RiscvInstId::LUI,
-            0x17 => dec_inst = RiscvInstId::AUIPC,
+            0x37 => Some(RiscvInstId::LUI),
+            0x17 => Some(RiscvInstId::AUIPC),
             0x63 => match funct3 {
-                0b000 => dec_inst = RiscvInstId::BEQ,
-                0b001 => dec_inst = RiscvInstId::BNE,
-                0b100 => dec_inst = RiscvInstId::BLT,
-                0b101 => dec_inst = RiscvInstId::BGE,
-                0b110 => dec_inst = RiscvInstId::BLTU,
-                0b111 => dec_inst = RiscvInstId::BGEU,
-                _ => dec_inst = RiscvInstId::NOP,
+                0b000 => Some(RiscvInstId::BEQ),
+                0b001 => Some(RiscvInstId::BNE),
+                0b100 => Some(RiscvInstId::BLT),
+                0b101 => Some(RiscvInstId::BGE),
+                0b110 => Some(RiscvInstId::BLTU),
+                0b111 => Some(RiscvInstId::BGEU),
+                _ => None,
             },
             0x13 => match funct3 {
-                0b000 => dec_inst = RiscvInstId::ADDI,
-                0b010 => dec_inst = RiscvInstId::SLTI,
-                0b011 => dec_inst = RiscvInstId::SLTIU,
-                0b100 => dec_inst = RiscvInstId::XORI,
-                0b110 => dec_inst = RiscvInstId::ORI,
-                0b111 => dec_inst = RiscvInstId::ANDI,
-                0b001 => dec_inst = RiscvInstId::SLLI,
-                0b101 => match funct5 {
-                    0b0000000 => dec_inst = RiscvInstId::SRLI,
-                    0b0100000 => dec_inst = RiscvInstId::SRAI,
-                    _ => dec_inst = RiscvInstId::NOP,
+                0b000 => Some(RiscvInstId::ADDI),
+                0b010 => Some(RiscvInstId::SLTI),
+                0b011 => Some(RiscvInstId::SLTIU),
+                0b100 => Some(RiscvInstId::XORI),
+                0b110 => Some(RiscvInstId::ORI),
+                0b111 => Some(RiscvInstId::ANDI),
+                0b001 => Some(RiscvInstId::SLLI),
+                0b101 => match funct7 {
+                    0b0000000 => Some(RiscvInstId::SRLI),
+                    0b0100000 => Some(RiscvInstId::SRAI),
+                    _ => None,
                 },
-                _ => dec_inst = RiscvInstId::NOP,
+                _ => None,
             },
-            0x6f => dec_inst = RiscvInstId::JAL,
-            0x67 => dec_inst = RiscvInstId::JALR,
+            0x6f => Some(RiscvInstId::JAL),
+            0x67 => Some(RiscvInstId::JALR),
             0x73 => match funct3 {
                 0x000 => match imm12 {
-                    0x000 => dec_inst = RiscvInstId::ECALL,
-                    0x001 => dec_inst = RiscvInstId::EBREAK,
-                    0x002 => dec_inst = RiscvInstId::URET,
-                    0x102 => dec_inst = RiscvInstId::SRET,
-                    0x302 => dec_inst = RiscvInstId::MRET,
-                    _ => dec_inst = RiscvInstId::NOP,
+                    0x000 => Some(RiscvInstId::ECALL),
+                    0x001 => Some(RiscvInstId::EBREAK),
+                    0x002 => Some(RiscvInstId::URET),
+                    0x102 => Some(RiscvInstId::SRET),
+                    0x302 => Some(RiscvInstId::MRET),
+                    _ => None,
                 },
-                0b001 => dec_inst = RiscvInstId::CSRRW,
-                0b010 => dec_inst = RiscvInstId::CSRRS,
-                0b011 => dec_inst = RiscvInstId::CSRRC,
-                0b101 => dec_inst = RiscvInstId::CSRRWI,
-                0b110 => dec_inst = RiscvInstId::CSRRSI,
-                0b111 => dec_inst = RiscvInstId::CSRRCI,
-                _ => dec_inst = RiscvInstId::NOP,
+                0b001 => Some(RiscvInstId::CSRRW),
+                0b010 => Some(RiscvInstId::CSRRS),
+                0b011 => Some(RiscvInstId::CSRRC),
+                0b101 => Some(RiscvInstId::CSRRWI),
+                0b110 => Some(RiscvInstId::CSRRSI),
+                0b111 => Some(RiscvInstId::CSRRCI),
+                _ => None,
             },
-            _ => dec_inst = RiscvInstId::WFI,
-        }
-
-        return dec_inst;
+            _ => Some(RiscvInstId::WFI),
+        };
     }
 
     fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32) {
