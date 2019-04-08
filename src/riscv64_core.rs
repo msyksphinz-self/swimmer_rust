@@ -16,6 +16,7 @@ use crate::riscv_tracer::Tracer;
 use crate::riscv32_core::AddrT;
 use crate::riscv32_core::InstT;
 use crate::riscv32_core::RegAddrT;
+use crate::riscv32_core::XlenT;
 
 use crate::riscv32_core::DRAM_BASE;
 use crate::riscv32_core::DRAM_SIZE;
@@ -152,17 +153,21 @@ pub trait Riscv64Core {
     fn get_pc(&mut self) -> AddrT;
     fn get_previous_pc(&mut self) -> AddrT;
 
+    fn read_memory_dword(&mut self, phy_addr: AddrT) -> Xlen64T;
     fn read_memory_word(&mut self, phy_addr: AddrT) -> Xlen64T;
     fn read_memory_hword(&mut self, phy_addr: AddrT) -> Xlen64T;
     fn read_memory_byte(&mut self, phy_addr: AddrT) -> Xlen64T;
+    fn write_memory_dword(&mut self, phy_addr: AddrT, data: Xlen64T) -> Xlen64T;
     fn write_memory_word(&mut self, phy_addr: AddrT, data: Xlen64T) -> Xlen64T;
     fn write_memory_hword(&mut self, phy_addr: AddrT, data: Xlen64T) -> Xlen64T;
     fn write_memory_byte(&mut self, phy_addr: AddrT, data: Xlen64T) -> Xlen64T;
 
     fn fetch_bus(&mut self) -> (MemResult, InstT);
+    fn read_bus_dword(&mut self, addr: AddrT) -> (MemResult, Xlen64T);
     fn read_bus_word(&mut self, addr: AddrT) -> (MemResult, Xlen64T);
     fn read_bus_hword(&mut self, addr: AddrT) -> (MemResult, Xlen64T);
     fn read_bus_byte(&mut self, addr: AddrT) -> (MemResult, Xlen64T);
+    fn write_bus_dword(&mut self, addr: AddrT, data: Xlen64T) -> MemResult;
     fn write_bus_word(&mut self, addr: AddrT, data: Xlen64T) -> MemResult;
     fn write_bus_hword(&mut self, addr: AddrT, data: Xlen64T) -> MemResult;
     fn write_bus_byte(&mut self, addr: AddrT, data: Xlen64T) -> MemResult;
@@ -270,16 +275,29 @@ impl Riscv64Core for Riscv64Env {
         self.m_vmmode = vmmode;
     }
 
+    fn read_memory_dword(&mut self, phy_addr: AddrT) -> Xlen64T {
+        let dword_val: Xlen64T = (self.read_memory_byte(phy_addr + 7) << 56)
+            | (self.read_memory_byte(phy_addr + 6) << 48)
+            | (self.read_memory_byte(phy_addr + 5) << 40)
+            | (self.read_memory_byte(phy_addr + 4) << 32)
+            | (self.read_memory_byte(phy_addr + 3) << 24)
+            | (self.read_memory_byte(phy_addr + 2) << 16)
+            | (self.read_memory_byte(phy_addr + 1) << 8)
+            | (self.read_memory_byte(phy_addr + 0) << 0);
+        return dword_val;
+    }
+
     fn read_memory_word(&mut self, phy_addr: AddrT) -> Xlen64T {
         if phy_addr == self.m_tohost_addr {
             return self.m_tohost;
         } else if phy_addr == self.m_fromhost_addr {
             return self.m_fromhost;
         } else {
-            return (self.read_memory_byte(phy_addr + 3) << 24)
-                | (self.read_memory_byte(phy_addr + 2) << 16)
-                | (self.read_memory_byte(phy_addr + 1) << 8)
-                | (self.read_memory_byte(phy_addr + 0) << 0);
+            let word_val: XlenT = ((self.read_memory_byte(phy_addr + 3) << 24) as XlenT)
+                | ((self.read_memory_byte(phy_addr + 2) << 16) as XlenT)
+                | ((self.read_memory_byte(phy_addr + 1) << 8) as XlenT)
+                | ((self.read_memory_byte(phy_addr + 0) << 0) as XlenT);
+            return word_val as Xlen64T;
         }
     }
 
@@ -293,6 +311,19 @@ impl Riscv64Core for Riscv64Env {
         let base_addr: AddrT = phy_addr - DRAM_BASE;
 
         return self.m_memory[base_addr as usize + 0] as Xlen64T;
+    }
+
+    fn write_memory_dword(&mut self, phy_addr: AddrT, data: Xlen64T) -> Xlen64T {
+        self.write_memory_byte(phy_addr + 0, (data >> 0) & 0xff);
+        self.write_memory_byte(phy_addr + 1, (data >> 8) & 0xff);
+        self.write_memory_byte(phy_addr + 2, (data >> 16) & 0xff);
+        self.write_memory_byte(phy_addr + 3, (data >> 24) & 0xff);
+        self.write_memory_byte(phy_addr + 4, (data >> 32) & 0xff);
+        self.write_memory_byte(phy_addr + 5, (data >> 40) & 0xff);
+        self.write_memory_byte(phy_addr + 6, (data >> 48) & 0xff);
+        self.write_memory_byte(phy_addr + 7, (data >> 56) & 0xff);
+
+        return 0;
     }
 
     fn write_memory_word(&mut self, phy_addr: AddrT, data: Xlen64T) -> Xlen64T {
@@ -337,6 +368,27 @@ impl Riscv64Core for Riscv64Env {
         return (result, self.read_memory_word(phy_addr) as InstT);
     }
 
+    fn read_bus_dword(&mut self, addr: AddrT) -> (MemResult, Xlen64T) {
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
+
+        if result != MemResult::NoExcept {
+            return (result, 0);
+        }
+
+        let ret_val = self.read_memory_dword(phy_addr);
+
+        let mut read_mem_trace = TraceInfo::new();
+
+        read_mem_trace.m_trace_type = TraceType::MemRead;
+        read_mem_trace.m_trace_addr = addr;
+        read_mem_trace.m_trace_value = ret_val;
+        read_mem_trace.m_trace_memresult = MemResult::NoExcept;
+
+        self.m_trace.m_trace_info.push(read_mem_trace);
+
+        return (result, ret_val);
+    }
+
     fn read_bus_word(&mut self, addr: AddrT) -> (MemResult, Xlen64T) {
         let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
 
@@ -375,6 +427,29 @@ impl Riscv64Core for Riscv64Env {
             return (result, 0);
         }
         return (result, self.read_memory_byte(phy_addr));
+    }
+
+    fn write_bus_dword(&mut self, addr: AddrT, data: Xlen64T) -> MemResult {
+        // let result: MemResult;
+        // let phy_addr: AddrT;
+        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Write);
+
+        if result != MemResult::NoExcept {
+            return result;
+        }
+
+        let mut write_mem_trace = TraceInfo::new();
+
+        write_mem_trace.m_trace_type = TraceType::MemWrite;
+        write_mem_trace.m_trace_addr = addr;
+        write_mem_trace.m_trace_value = data;
+        write_mem_trace.m_trace_memresult = MemResult::NoExcept;
+
+        self.m_trace.m_trace_info.push(write_mem_trace);
+
+        self.write_memory_dword(phy_addr, data);
+
+        return result;
     }
 
     fn write_bus_word(&mut self, addr: AddrT, data: Xlen64T) -> MemResult {
