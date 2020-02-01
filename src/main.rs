@@ -14,7 +14,9 @@ mod riscv_csr;
 mod riscv_csr_bitdef;
 mod riscv_exception;
 mod riscv_mmu;
+mod riscv_inst_mnemonic;
 mod riscv_tracer;
+mod riscv_inst_operand;
 
 use crate::riscv64_core::Riscv64Core;
 use crate::riscv64_core::Riscv64Env;
@@ -95,6 +97,7 @@ fn main() -> Result<(), Box<std::error::Error>> {
         if result != MemResult::NoExcept {
             continue;
         }
+        riscv64_core.m_trace.FormatOperand();
         let inst_decode: RiscvInstId;
         match riscv64_core.decode_inst(inst_data) {
             None => println!("<Error: Unknown instruction>\n"),

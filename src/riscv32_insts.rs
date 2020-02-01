@@ -1,8 +1,6 @@
 use crate::riscv32_core::Riscv32Core;
 use crate::riscv32_core::Riscv32Env;
 
-use crate::riscv64_core::Riscv64Core;
-
 use crate::riscv_csr::CsrAddr;
 
 use crate::riscv32_core::PrivMode;
@@ -26,6 +24,8 @@ use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPIE_MSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_MSB;
 
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum RiscvInstId {
     CSRRW,
     CSRRS,

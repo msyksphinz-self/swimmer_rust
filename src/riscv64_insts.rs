@@ -36,8 +36,6 @@ impl RiscvInsts for Riscv64Env {
         let funct7 = (inst >> 25) & 0x7f;
         let imm12 = (inst >> 20) & 0xfff;
 
-        let dec_inst: RiscvInstId;
-
         return match opcode {
             0x0f => match funct3 {
                 0b000 => Some(RiscvInstId::FENCE),
@@ -167,6 +165,8 @@ impl RiscvInsts for Riscv64Env {
     fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32) {
         self.m_trace.m_executed_pc = self.m_pc;
         self.m_trace.m_inst_hex = inst;
+        self.m_trace.m_dec_inst = Some(dec_inst);
+
         self.m_trace.m_step = step;
 
         self.m_trace.m_priv = self.m_priv;
