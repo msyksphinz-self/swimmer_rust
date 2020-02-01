@@ -156,8 +156,9 @@ impl RiscvTracer for Tracer {
                                     OperandType::TypeUnSign  => { print!("0x{:x}", opr_val); consume_idx = consume_idx + 2 + ((opr_val as f32).log10() as u32); },
                                     OperandType::TypeUnSignJ => { print!("0x{:x}", opr_val); consume_idx = consume_idx + 2 + ((opr_val as f32).log10() as u32); },
                                     OperandType::TypeSignBit => { print!("0b{:b}", opr_val); consume_idx = consume_idx + 2 + (msb - lsb + 1); },
-                                    OperandType::TypeHex     => { print!("0x{:0>width$x}", opr_val, width = ((msb as f32 - lsb as f32 + 1.0) / 4.0).ceil() as usize);
-                                                                  consume_idx = consume_idx + 2 + (((msb as f32 - lsb as f32 + 1.0) / 4.0).ceil() as u32); }
+                                    OperandType::TypeHex     => { let bit_width = ((msb as f32 - lsb as f32 + 1.0) / 4.0).ceil() as u32;
+                                                                  print!("0x{:0>width$x}", opr_val, width = bit_width as usize);
+                                                                  consume_idx = consume_idx + 2 + bit_width; }
                                     OperandType::TypeRoundMode => panic!("TypeRoundMode is currently not supported"),
                                     OperandType::TypeCompactReg => panic!("TypeCompactReg is currently not supported"),
                                     OperandType::TypeCompactFReg => panic!("TypeCompactFReg is currently not supported"),
@@ -173,7 +174,7 @@ impl RiscvTracer for Tracer {
                             print!(" ");
                         }
                     }
-                    None => {}
+                    None => panic!("Implementation Error: No operand information in this inst."),
                 }
                 print!(":");
             }
