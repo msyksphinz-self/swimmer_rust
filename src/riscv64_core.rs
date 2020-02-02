@@ -504,10 +504,13 @@ impl Riscv64Core for Riscv64Env {
     fn get_vm_mode(&mut self) -> VMMode {
         let satp_val = self.m_csr.csrrs(CsrAddr::Satp, 0) as Xlen64T; // SATP;
         let mode = Self::extract_bit_field(satp_val, SYSREG_SATP_MODE_MSB, SYSREG_SATP_MODE_LSB);
-        return if mode == 1 {
-            VMMode::Sv32
-        } else {
-            VMMode::Mbare
+        return match mode {
+            0 => VMMode::Mbare,
+            8 => VMMode::Sv39,
+            9 => VMMode::Sv48,
+            10 => VMMode::Sv57,
+            11 => VMMode::Sv64,
+            _ => panic!("Error: illegal VM Mode in SATP"),
         };
     }
 

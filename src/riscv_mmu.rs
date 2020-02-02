@@ -109,10 +109,10 @@ impl RiscvMmu for Riscv32Env {
             pte_addr += (va_vpn_i * ptesize) as AddrT;
             pte_val = self.read_memory_word(pte_addr);
 
-            // println!(
-            //     "<Info: VAddr = 0x{:08x} PTEAddr = 0x{:08x} : PPTE = 0x{:08x}>",
-            //     vaddr, pte_addr, pte_val
-            // );
+            println!(
+                "<Info: VAddr = 0x{:08x} PTEAddr = 0x{:08x} : PPTE = 0x{:08x}>",
+                vaddr, pte_addr, pte_val
+            );
 
             // 3. If pte:v = 0, or if pte:r = 0 and pte:w = 1, stop and raise a page-fault exception.
             if (pte_val & 0x01) == 0 || (((pte_val & 0x02) == 0) && ((pte_val & 0x04) == 0x04)) {
@@ -223,7 +223,7 @@ impl RiscvMmu for Riscv32Env {
             pte_idx[level],
         ) << ppn_idx[level]) as AddrT;
 
-        // println!("Level = {}", level);
+        println!("Level = {}", level);
 
         for l in 0..(level + 1) {
             let vaddr_vpn: AddrT = Self::extract_bit_field(
@@ -250,7 +250,7 @@ impl RiscvMmu for Riscv32Env {
         // m_tlb_tag [vaddr_tag] = vaddr_vpn;
         // m_tlb_addr[vaddr_tag] = (*paddr & !0x0fff) | (pte_val & 0x0ff);
 
-        // println!("<Converted Virtual Address = {:08x}>", phy_addr);
+        println!("<Converted Virtual Address = {:08x}>", phy_addr);
         return (MemResult::NoExcept, phy_addr);
     }
 
@@ -280,8 +280,8 @@ impl RiscvMmu for Riscv32Env {
             self.m_priv
         };
 
-        // println!("<Convert Virtual Addres : vm_mode = {}, priv_mode = {}>",
-        //          self.get_vm_mode() as u32, priv_mode as u32);
+        println!("<Convert Virtual Addres : vm_mode = {}, priv_mode = {}>",
+                 self.get_vm_mode() as u32, priv_mode as u32);
 
         if self.get_vm_mode() == VMMode::Sv39
             && (priv_mode == PrivMode::Supervisor || priv_mode == PrivMode::User)
@@ -569,8 +569,8 @@ impl RiscvMmu for Riscv64Env {
             self.m_priv
         };
 
-        // println!("<Convert Virtual Addres : vm_mode = {}, priv_mode = {}>",
-        //          self.get_vm_mode() as u32, priv_mode as u32);
+        println!("<Convert Virtual Addres. vaddr={:x} : vm_mode = {}, priv_mode = {}>",
+                 vaddr, self.get_vm_mode() as u32, priv_mode as u32);
 
         if self.get_vm_mode() == VMMode::Sv39
             && (priv_mode == PrivMode::Supervisor || priv_mode == PrivMode::User)
