@@ -34,6 +34,7 @@ impl RiscvInsts for Riscv64Env {
         let opcode = inst & 0x7f;
         let funct3 = (inst >> 12) & 0x07;
         let funct7 = (inst >> 25) & 0x7f;
+        let funct6 = (inst >> 26) & 0x3f; // RV64 shamt
         let imm12 = (inst >> 20) & 0xfff;
 
         return match opcode {
@@ -132,9 +133,9 @@ impl RiscvInsts for Riscv64Env {
                 0b110 => Some(RiscvInstId::ORI),
                 0b111 => Some(RiscvInstId::ANDI),
                 0b001 => Some(RiscvInstId::SLLI),
-                0b101 => match funct7 {
-                    0b0000000 => Some(RiscvInstId::SRLI),
-                    0b0100000 => Some(RiscvInstId::SRAI),
+                0b101 => match funct6 {
+                    0b000000 => Some(RiscvInstId::SRLI),
+                    0b010000 => Some(RiscvInstId::SRAI),
                     _ => None,
                 },
                 _ => None,
