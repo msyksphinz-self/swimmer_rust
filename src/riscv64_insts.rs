@@ -2,16 +2,16 @@ use crate::riscv_csr::CsrAddr;
 
 use crate::riscv_tracer::RiscvTracer;
 
-use crate::riscv32_core::AddrT;
-use crate::riscv32_core::InstT;
 use crate::riscv32_core::UXlenT;
 use crate::riscv32_core::XlenT;
 use crate::riscv64_core::UXlen64T;
+use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
 use crate::riscv32_core::PrivMode;
-
 use crate::riscv32_core::MemResult;
+
+use crate::riscv32_core::InstT;
 
 use crate::riscv64_core::Riscv64Core;
 use crate::riscv64_core::Riscv64Env;
@@ -35,7 +35,7 @@ impl RiscvInsts for Riscv64Env {
         let funct3 = (inst >> 12) & 0x07;
         let funct7 = (inst >> 25) & 0x7f;
         let funct6 = (inst >> 26) & 0x3f; // RV64 shamt
-        let imm12 = (inst >> 20) & 0xfff;
+        let rs2 = (inst >> 20) & 0x1f;
 
         return match opcode {
             0x0f => match funct3 {
@@ -143,14 +143,24 @@ impl RiscvInsts for Riscv64Env {
             0x6f => Some(RiscvInstId::JAL),
             0x67 => Some(RiscvInstId::JALR),
             0x73 => match funct3 {
-                0x000 => match imm12 {
-                    0x000 => Some(RiscvInstId::ECALL),
-                    0x001 => Some(RiscvInstId::EBREAK),
-                    0x002 => Some(RiscvInstId::URET),
-                    0x102 => Some(RiscvInstId::SRET),
-                    0x302 => Some(RiscvInstId::MRET),
+                0x000 => match funct7 {
+                    0b0001001 => Some(RiscvInstId::SFENCEVMA),
+                    0b0000000 => match rs2 {
+                        0b00001 => Some(RiscvInstId::EBREAK),
+                        0b00010 => Some(RiscvInstId::URET),
+                        0b00000 => Some(RiscvInstId::ECALL),
+                        _ => None,
+                    }
+                    0b0001000 => match rs2 {
+                        0b00010 => Some(RiscvInstId::SRET),
+                        _ => None,
+                    }
+                    0b0011000 => match rs2 {
+                        0b00010 => Some(RiscvInstId::MRET),
+                        _ => None,
+                    }
                     _ => None,
-                },
+                }
                 0b001 => Some(RiscvInstId::CSRRW),
                 0b010 => Some(RiscvInstId::CSRRS),
                 0b011 => Some(RiscvInstId::CSRRC),
@@ -226,7 +236,7 @@ impl RiscvInsts for Riscv64Env {
             }
             RiscvInstId::LB => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_byte(addr as AddrT);
+                let (result, reg_data) = self.read_bus_byte(addr as Addr64T);
                 if result == MemResult::NoExcept {
                     let extended_reg_data = Self::extend_sign(reg_data, 7);
                     self.write_reg(rd, extended_reg_data);
@@ -234,7 +244,7 @@ impl RiscvInsts for Riscv64Env {
             }
             RiscvInstId::LH => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_hword(addr as AddrT);
+                let (result, reg_data) = self.read_bus_hword(addr as Addr64T);
                 if result == MemResult::NoExcept {
                     let extended_reg_data = Self::extend_sign(reg_data, 15);
                     self.write_reg(rd, extended_reg_data);
@@ -242,35 +252,35 @@ impl RiscvInsts for Riscv64Env {
             }
             RiscvInstId::LW => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_word(addr as AddrT);
+                let (result, reg_data) = self.read_bus_word(addr as Addr64T);
                 if result == MemResult::NoExcept {
                     self.write_reg(rd, reg_data);
                 }
             }
             RiscvInstId::LD => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_dword(addr as AddrT);
+                let (result, reg_data) = self.read_bus_dword(addr as Addr64T);
                 if result == MemResult::NoExcept {
                     self.write_reg(rd, reg_data);
                 }
             }
             RiscvInstId::LBU => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_byte(addr as AddrT);
+                let (result, reg_data) = self.read_bus_byte(addr as Addr64T);
                 if result == MemResult::NoExcept {
                     self.write_reg(rd, reg_data as Xlen64T);
                 }
             }
             RiscvInstId::LHU => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_hword(addr as AddrT);
+                let (result, reg_data) = self.read_bus_hword(addr as Addr64T);
                 if result == MemResult::NoExcept {
                     self.write_reg(rd, reg_data as Xlen64T);
                 }
             }
             RiscvInstId::LWU => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_word(addr as AddrT);
+                let (result, reg_data) = self.read_bus_word(addr as Addr64T);
                 if result == MemResult::NoExcept {
                     self.write_reg(rd, reg_data & 0xffffffff);
                 }
@@ -448,26 +458,26 @@ impl RiscvInsts for Riscv64Env {
             }
             RiscvInstId::SB => {
                 let rs2_data = self.read_reg(rs2);
-                let addr: AddrT = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrT;
-                self.write_bus_byte(addr, rs2_data);
+                let addr: Addr64T = (self.read_reg(rs1) + Self::extract_sfield(inst)) as Addr64T;
+                self.write_bus_byte(addr as Addr64T, rs2_data);
             }
             RiscvInstId::SH => {
                 let rs2_data = self.read_reg(rs2);
-                let addr: AddrT = (self.read_reg(rs1) + Self::extract_sfield(inst)) as AddrT;
-                self.write_bus_hword(addr, rs2_data);
+                let addr: Addr64T = (self.read_reg(rs1) + Self::extract_sfield(inst)) as Addr64T;
+                self.write_bus_hword(addr as Addr64T, rs2_data);
             }
             RiscvInstId::SW => {
                 let rs2_data = self.read_reg(rs2);
                 let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
-                self.write_bus_word(addr as AddrT, rs2_data);
+                self.write_bus_word(addr as Addr64T, rs2_data);
             }
             RiscvInstId::SD => {
                 let rs2_data = self.read_reg(rs2);
                 let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
-                self.write_bus_dword(addr as AddrT, rs2_data);
+                self.write_bus_dword(addr as Addr64T, rs2_data);
             }
             RiscvInstId::JAL => {
-                let addr: AddrT = Self::extract_uj_field(inst) as AddrT;
+                let addr: Addr64T = Self::extract_uj_field(inst) as Addr64T;
                 self.write_reg(rd, (self.m_pc + 4) as Xlen64T);
                 self.m_pc = self.m_pc.wrapping_add(addr);
                 self.set_update_pc(true);
@@ -480,7 +490,7 @@ impl RiscvInsts for Riscv64Env {
             | RiscvInstId::BGEU => {
                 let rs1_data: Xlen64T = self.read_reg(rs1);
                 let rs2_data: Xlen64T = self.read_reg(rs2);
-                let addr: AddrT = Self::extract_sb_field(inst) as AddrT;
+                let addr: Addr64T = Self::extract_sb_field(inst) as Addr64T;
                 let jump_en: bool;
                 match dec_inst {
                     RiscvInstId::BEQ => jump_en = rs1_data == rs2_data,
@@ -497,8 +507,8 @@ impl RiscvInsts for Riscv64Env {
                 }
             }
             RiscvInstId::JALR => {
-                let mut addr: AddrT = Self::extract_ifield(inst) as AddrT;
-                let rs1_data: AddrT = self.read_reg(rs1) as AddrT;
+                let mut addr: Addr64T = Self::extract_ifield(inst) as Addr64T;
+                let rs1_data: Addr64T = self.read_reg(rs1) as Addr64T;
                 addr = rs1_data.wrapping_add(addr);
                 addr = addr & (!0x01);
 
@@ -508,6 +518,7 @@ impl RiscvInsts for Riscv64Env {
             }
             RiscvInstId::FENCE => {}
             RiscvInstId::FENCEI => {}
+            RiscvInstId::SFENCEVMA => {}
             RiscvInstId::ECALL => {
                 self.m_csr.csrrw(CsrAddr::Mepc, self.m_pc as Xlen64T); // MEPC
 
@@ -561,12 +572,12 @@ impl RiscvInsts for Riscv64Env {
                 let ret_pc = self.m_csr.csrrs(CsrAddr::Sepc, 0);
                 self.set_priv_mode(next_priv);
 
-                self.set_pc(ret_pc as AddrT);
+                self.set_pc(ret_pc as Addr64T);
                 self.set_update_pc(true);
             }
             RiscvInstId::MRET => {
                 let mepc: Xlen64T = self.m_csr.csrrs(CsrAddr::Mepc, 0); // MEPC
-                self.m_pc = mepc as AddrT;
+                self.m_pc = mepc as Addr64T;
                 self.set_update_pc(true);
             }
             RiscvInstId::ADDIW => {

@@ -8,7 +8,7 @@ use crate::riscv_tracer::TraceInfo;
 use crate::riscv_tracer::TraceType;
 use crate::riscv_tracer::Tracer;
 
-use crate::riscv_mmu::RiscvMmu;
+use crate::riscv_mmu::Riscv32Mmu;
 
 pub type XlenT = i32;
 pub type UXlenT = u32;
@@ -16,6 +16,7 @@ pub type InstT = u32;
 pub type AddrT = u32;
 pub type RegAddrT = u8;
 
+use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
 pub const DRAM_BASE: AddrT = 0x8000_0000;
@@ -258,7 +259,7 @@ impl Riscv32Core for Riscv32Env {
 
         let mut read_reg_trace = TraceInfo::new();
         read_reg_trace.m_trace_type = TraceType::XRegRead;
-        read_reg_trace.m_trace_addr = reg_addr as AddrT;
+        read_reg_trace.m_trace_addr = reg_addr as Addr64T;
         read_reg_trace.m_trace_value = ret_val as Xlen64T;
         read_reg_trace.m_trace_memresult = MemResult::NoExcept;
 
@@ -272,7 +273,7 @@ impl Riscv32Core for Riscv32Env {
             let mut write_reg_trace = TraceInfo::new();
 
             write_reg_trace.m_trace_type = TraceType::XRegWrite;
-            write_reg_trace.m_trace_addr = reg_addr as AddrT;
+            write_reg_trace.m_trace_addr = reg_addr as Addr64T;
             write_reg_trace.m_trace_value = data as Xlen64T;
             write_reg_trace.m_trace_memresult = MemResult::NoExcept;
 
@@ -395,7 +396,7 @@ impl Riscv32Core for Riscv32Env {
         let mut read_mem_trace = TraceInfo::new();
 
         read_mem_trace.m_trace_type = TraceType::MemRead;
-        read_mem_trace.m_trace_addr = addr;
+        read_mem_trace.m_trace_addr = addr as Addr64T;
         read_mem_trace.m_trace_value = ret_val as Xlen64T;
         read_mem_trace.m_trace_memresult = MemResult::NoExcept;
 
@@ -435,7 +436,7 @@ impl Riscv32Core for Riscv32Env {
         let mut write_mem_trace = TraceInfo::new();
 
         write_mem_trace.m_trace_type = TraceType::MemWrite;
-        write_mem_trace.m_trace_addr = addr;
+        write_mem_trace.m_trace_addr = addr as Addr64T;
         write_mem_trace.m_trace_value = data as Xlen64T;
         write_mem_trace.m_trace_memresult = MemResult::NoExcept;
 

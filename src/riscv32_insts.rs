@@ -17,6 +17,8 @@ use crate::riscv32_core::InstT;
 use crate::riscv32_core::UXlenT;
 use crate::riscv32_core::XlenT;
 
+use crate::riscv64_core::Addr64T;
+
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_MSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPIE_LSB;
@@ -80,6 +82,7 @@ pub enum RiscvInstId {
     REMU,
     FENCE,
     FENCEI,
+    SFENCEVMA,
     ECALL,
     EBREAK,
     MRET,
@@ -110,7 +113,7 @@ impl RiscvInsts for Riscv32Env {
         let opcode = inst & 0x7f;
         let funct3 = (inst >> 12) & 0x07;
         let funct7 = (inst >> 25) & 0x7f;
-        let imm12 = (inst >> 20) & 0xfff;
+        let rs2 = (inst >> 20) & 0x1f;
 
         return match opcode {
             0x0f => match funct3 {
@@ -191,12 +194,22 @@ impl RiscvInsts for Riscv32Env {
             0x6f => Some(RiscvInstId::JAL),
             0x67 => Some(RiscvInstId::JALR),
             0x73 => match funct3 {
-                0x000 => match imm12 {
-                    0x000 => Some(RiscvInstId::ECALL),
-                    0x001 => Some(RiscvInstId::EBREAK),
-                    0x002 => Some(RiscvInstId::URET),
-                    0x102 => Some(RiscvInstId::SRET),
-                    0x302 => Some(RiscvInstId::MRET),
+                0x000 => match funct7 {
+                    0b0001001 => Some(RiscvInstId::SFENCEVMA),
+                    0b0000000 => match rs2 {
+                        0b00001 => Some(RiscvInstId::EBREAK),
+                        0b00010 => Some(RiscvInstId::URET),
+                        0b00000 => Some(RiscvInstId::ECALL),
+                        _ => None,
+                    }
+                    0b0001000 => match rs2 {
+                        0b00010 => Some(RiscvInstId::SRET),
+                        _ => None,
+                    }
+                    0b0011000 => match rs2 {
+                        0b00010 => Some(RiscvInstId::MRET),
+                        _ => None,
+                    }
                     _ => None,
                 },
                 0b001 => Some(RiscvInstId::CSRRW),
@@ -212,7 +225,7 @@ impl RiscvInsts for Riscv32Env {
     }
 
     fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32) {
-        self.m_trace.m_executed_pc = self.m_pc;
+        self.m_trace.m_executed_pc = self.m_pc as Addr64T;
         self.m_trace.m_inst_hex = inst;
         self.m_trace.m_step = step;
 
@@ -533,6 +546,7 @@ impl RiscvInsts for Riscv32Env {
             }
             RiscvInstId::FENCE => {}
             RiscvInstId::FENCEI => {}
+            RiscvInstId::SFENCEVMA => {}
             RiscvInstId::ECALL => {
                 self.m_csr.csrrw(CsrAddr::Mepc, self.m_pc as XlenT); // MEPC
 

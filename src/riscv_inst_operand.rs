@@ -994,14 +994,14 @@ impl Tracer {
 
 	        self.m_inst_operand_map.insert(RiscvInstId::FENCE, inst_operand);
         }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FENCE_I
-        //     inst_operand.m_size = 0;
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FENCE_I, inst_operand);
-        // }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FENCE_I
+            inst_operand.m_size = 0;
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FENCEI, inst_operand);
+        }
         {
 	        let mut inst_operand = OperandInfo::new();
 
@@ -2810,24 +2810,24 @@ impl Tracer {
         //
 	    //     self.m_inst_operand_map.insert(RiscvInstId::WFI, inst_operand);
         // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_SFENCE_VMA
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 19;
-        //     inst_operand.m_lsb_lst[0] = 15;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[19:15]", "r[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[19:15]", "r[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::SFENCE_VMA, inst_operand);
-        // }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_SFENCE_VMA
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 19;
+            inst_operand.m_lsb_lst[0] = 15;
+            inst_operand.m_connect[0] = false;
+            // ["r[19:15]", "r[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
+            inst_operand.m_connect[1] = false;
+            // ["r[19:15]", "r[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::SFENCEVMA, inst_operand);
+        }
         {
 	        let mut inst_operand = OperandInfo::new();
 

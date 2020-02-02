@@ -10,6 +10,7 @@ use crate::riscv_csr::CsrAddr;
 
 use crate::riscv32_core::AddrT;
 use crate::riscv32_core::XlenT;
+use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
 use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SIE_LSB;
@@ -188,7 +189,7 @@ impl RiscvException<Xlen64T> for Riscv64Env {
             code as u32, tval, self.m_pc
         );
 
-        let epc: AddrT;
+        let epc: Addr64T;
         if code == ExceptCode::InstAddrMisalign {
             epc = self.get_previous_pc();
         } else {
@@ -266,7 +267,7 @@ impl RiscvException<Xlen64T> for Riscv64Env {
 
         self.set_priv_mode(next_priv);
 
-        self.set_pc(tvec as AddrT);
+        self.set_pc(tvec as Addr64T);
         self.set_update_pc(true);
 
         println!(

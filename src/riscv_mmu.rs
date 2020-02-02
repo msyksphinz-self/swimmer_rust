@@ -8,6 +8,7 @@ use crate::riscv64_core::Riscv64Env;
 
 use crate::riscv32_core::AddrT;
 use crate::riscv32_core::XlenT;
+use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
 use crate::riscv32_core::MemAccType;
@@ -31,7 +32,7 @@ use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MXR_MSB;
 use crate::riscv_csr_bitdef::SYSREG_SATP_PPN_LSB;
 use crate::riscv_csr_bitdef::SYSREG_SATP_PPN_MSB;
 
-pub trait RiscvMmu {
+pub trait Riscv32Mmu {
     fn convert_virtual_address(&mut self, vaddr: AddrT, acc_type: MemAccType)
         -> (MemResult, AddrT);
 
@@ -52,7 +53,7 @@ pub trait RiscvMmu {
     fn is_allowed_access(&mut self, i_type: u8, acc_type: MemAccType, priv_mode: PrivMode) -> bool;
 }
 
-impl RiscvMmu for Riscv32Env {
+impl Riscv32Mmu for Riscv32Env {
     fn walk_page_table(
         &mut self,
         vaddr: AddrT,
@@ -250,7 +251,7 @@ impl RiscvMmu for Riscv32Env {
         // m_tlb_tag [vaddr_tag] = vaddr_vpn;
         // m_tlb_addr[vaddr_tag] = (*paddr & !0x0fff) | (pte_val & 0x0ff);
 
-        println!("<Converted Virtual Address = {:08x}>", phy_addr);
+        // println!("<Converted Virtual Address = {:08x}>", phy_addr);
         return (MemResult::NoExcept, phy_addr);
     }
 
@@ -280,8 +281,8 @@ impl RiscvMmu for Riscv32Env {
             self.m_priv
         };
 
-        println!("<Convert Virtual Addres : vm_mode = {}, priv_mode = {}>",
-                 self.get_vm_mode() as u32, priv_mode as u32);
+        // println!("<Convert Virtual Addres : vm_mode = {}, priv_mode = {}>",
+        //          self.get_vm_mode() as u32, priv_mode as u32);
 
         if self.get_vm_mode() == VMMode::Sv39
             && (priv_mode == PrivMode::Supervisor || priv_mode == PrivMode::User)
@@ -341,10 +342,13 @@ impl RiscvMmu for Riscv32Env {
     }
 }
 
-impl RiscvMmu for Riscv64Env {
+pub trait Riscv64Mmu {
+    fn convert_virtual_address(&mut self, vaddr: Addr64T, acc_type: MemAccType)
+        -> (MemResult, Addr64T);
+
     fn walk_page_table(
         &mut self,
-        vaddr: AddrT,
+        vaddr: Addr64T,
         acc_type: MemAccType,
         init_level: u32,
         ppn_idx: Vec<u8>,
@@ -354,7 +358,26 @@ impl RiscvMmu for Riscv64Env {
         vpn_idx: Vec<u8>,
         pagesize: u32,
         ptesize: u32,
-    ) -> (MemResult, AddrT) {
+    ) -> (MemResult, Addr64T);
+
+    fn is_allowed_access(&mut self, i_type: u8, acc_type: MemAccType, priv_mode: PrivMode) -> bool;
+}
+
+
+impl Riscv64Mmu for Riscv64Env {
+    fn walk_page_table(
+        &mut self,
+        vaddr: Addr64T,
+        acc_type: MemAccType,
+        init_level: u32,
+        ppn_idx: Vec<u8>,
+        pte_len: Vec<u8>,
+        pte_idx: Vec<u8>,
+        vpn_len: Vec<u8>,
+        vpn_idx: Vec<u8>,
+        pagesize: u32,
+        ptesize: u32,
+    ) -> (MemResult, Addr64T) {
         let is_write_access = match acc_type {
             MemAccType::Write => true,
             _ => false,
@@ -363,10 +386,10 @@ impl RiscvMmu for Riscv64Env {
         //===================
         // Simple TLB Search
         //===================
-        // let vaddr_vpn: AddrT = (vaddr >> 12);
+        // let vaddr_vpn: Addr64T = (vaddr >> 12);
         // let vaddr_tag: u8 = vaddr_vpn & (tlb_width-1);
         // if (m_tlb_en[vaddr_tag] && m_tlb_tag[vaddr_tag] == vaddr_vpn) {
-        //     let paddr:AddrT = (m_tlb_addr[vaddr_tag] & !0x0fff) + (vaddr & 0x0fff);
+        //     let paddr:Addr64T = (m_tlb_addr[vaddr_tag] & !0x0fff) + (vaddr & 0x0fff);
         //     let pte_val:u64 = m_tlb_addr[vaddr_tag] & 0x0ff;
         //
         //     if (!is_allowed_access ((pte_val >> 1) & 0x0f, acc_type, self.m_priv)) {
@@ -385,23 +408,23 @@ impl RiscvMmu for Riscv64Env {
         // }
 
         let satp = self.m_csr.csrrs(CsrAddr::Satp, 0) as Xlen64T;
-        let pte_base: AddrT =
-            Self::extract_bit_field(satp, SYSREG_SATP_PPN_MSB, SYSREG_SATP_PPN_LSB) as AddrT;
+        let pte_base: Addr64T =
+            Self::extract_bit_field(satp, SYSREG_SATP_PPN_MSB, SYSREG_SATP_PPN_LSB) as Addr64T;
 
         let mut pte_val: Xlen64T = 0;
-        let mut pte_addr: AddrT = (pte_base * pagesize) as AddrT;
+        let mut pte_addr: Addr64T = (pte_base * (pagesize as Addr64T)) as Addr64T;
         let level: usize = 0;
 
         for level in range(0, init_level).rev() {
-            let va_vpn_i: AddrT =
+            let va_vpn_i: Addr64T =
                 (vaddr >> vpn_idx[level as usize]) & ((1 << vpn_len[level as usize]) - 1);
-            pte_addr += (va_vpn_i * ptesize) as AddrT;
+            pte_addr += (va_vpn_i * (ptesize as Addr64T)) as Addr64T;
             pte_val = self.read_memory_word(pte_addr);
 
-            // println!(
-            //     "<Info: VAddr = 0x{:08x} PTEAddr = 0x{:08x} : PPTE = 0x{:08x}>",
-            //     vaddr, pte_addr, pte_val
-            // );
+            println!(
+                "<Info: VAddr = 0x{:016x} PTEAddr = 0x{:016x} : PPTE = 0x{:08x}>",
+                vaddr, pte_addr, pte_val
+            );
 
             // 3. If pte:v = 0, or if pte:r = 0 and pte:w = 1, stop and raise a page-fault exception.
             if (pte_val & 0x01) == 0 || (((pte_val & 0x02) == 0) && ((pte_val & 0x04) == 0x04)) {
@@ -449,12 +472,12 @@ impl RiscvMmu for Riscv64Env {
                     return (MemResult::TlbError, 0);
                 }
             }
-            let pte_ppn: AddrT = Self::extract_bit_field(
+            let pte_ppn: Addr64T = Self::extract_bit_field(
                 pte_val as Xlen64T,
                 pte_len[(init_level - 1) as usize] + pte_idx[(init_level - 1) as usize] - 1,
                 pte_idx[0],
-            ) as AddrT;
-            pte_addr = pte_ppn * pagesize;
+            ) as Addr64T;
+            pte_addr = pte_ppn * (pagesize as Addr64T);
         }
 
         let current_priv: PrivMode = self.m_priv.clone();
@@ -506,25 +529,25 @@ impl RiscvMmu for Riscv64Env {
             return (MemResult::TlbError, 0);
         }
 
-        let mut phy_addr: AddrT = (Self::extract_bit_field(
+        let mut phy_addr: Addr64T = (Self::extract_bit_field(
             pte_val as Xlen64T,
             pte_len[(init_level - 1) as usize] + pte_idx[(init_level - 1) as usize] - 1,
             pte_idx[level],
-        ) << ppn_idx[level]) as AddrT;
+        ) << ppn_idx[level]) as Addr64T;
 
         // println!("Level = {}", level);
 
         for l in 0..(level + 1) {
-            let vaddr_vpn: AddrT = Self::extract_bit_field(
+            let vaddr_vpn: Addr64T = Self::extract_bit_field(
                 vaddr as Xlen64T,
                 vpn_len[level - l as usize] + vpn_idx[level - l as usize] - 1,
                 vpn_idx[level - l as usize],
-            ) as AddrT;
+            ) as Addr64T;
             phy_addr |= vaddr_vpn << ppn_idx[level as usize];
         }
 
         // Finally Add Page Offset
-        phy_addr |= Self::extract_bit_field(vaddr as Xlen64T, vpn_idx[0] - 1, 0) as AddrT;
+        phy_addr |= Self::extract_bit_field(vaddr as Xlen64T, vpn_idx[0] - 1, 0) as Addr64T;
 
         //==========================
         // Update Simple TLB Search
@@ -545,9 +568,9 @@ impl RiscvMmu for Riscv64Env {
 
     fn convert_virtual_address(
         &mut self,
-        vaddr: AddrT,
+        vaddr: Addr64T,
         acc_type: MemAccType,
-    ) -> (MemResult, AddrT) {
+    ) -> (MemResult, Addr64T) {
         let is_fetch_access = match acc_type {
             MemAccType::Fetch => true,
             _ => false,
@@ -569,7 +592,7 @@ impl RiscvMmu for Riscv64Env {
             self.m_priv
         };
 
-        println!("<Convert Virtual Addres. vaddr={:x} : vm_mode = {}, priv_mode = {}>",
+        println!("<Convert Virtual Addres. vaddr={:016x} : vm_mode = {}, priv_mode = {}>",
                  vaddr, self.get_vm_mode() as u32, priv_mode as u32);
 
         if self.get_vm_mode() == VMMode::Sv39

@@ -5,8 +5,8 @@ use crate::riscv32_core::VMMode;
 
 use crate::riscv32_core::MemResult;
 
-use crate::riscv32_core::AddrT;
 use crate::riscv32_core::InstT;
+use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
 use crate::riscv32_insts::RiscvInstId;
@@ -36,7 +36,7 @@ pub enum TraceType {
 pub struct TraceInfo {
     pub m_trace_type: TraceType,
     pub m_trace_size: u32,
-    pub m_trace_addr: AddrT,
+    pub m_trace_addr: Addr64T,
     pub m_trace_value: Xlen64T,
     pub m_trace_memresult: MemResult, /* Memory Access Result */
 }
@@ -56,8 +56,8 @@ impl TraceInfo {
 pub struct Tracer {
     pub m_priv: PrivMode,
     pub m_vmmode: VMMode,
-    pub m_executed_pc: AddrT,
-    pub m_executed_phypc: AddrT,
+    pub m_executed_pc: Addr64T,
+    pub m_executed_phypc: Addr64T,
     pub m_inst_hex: InstT,
     pub m_dec_inst: Option<RiscvInstId>,
     pub m_step: u32,

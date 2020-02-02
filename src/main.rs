@@ -25,6 +25,7 @@ use crate::riscv32_insts::RiscvInsts;
 
 use crate::riscv32_core::InstT;
 use crate::riscv32_core::DRAM_BASE;
+use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
 use crate::riscv32_core::MemResult;
@@ -82,7 +83,7 @@ fn main() -> Result<(), Box<std::error::Error>> {
 
     for result in filebuf.bytes() {
         let l = result?;
-        riscv64_core.write_memory_byte(hex_addr + DRAM_BASE, l as Xlen64T);
+        riscv64_core.write_memory_byte(hex_addr + DRAM_BASE as Addr64T, l as Xlen64T);
         hex_addr = hex_addr + 1;
     }
 
