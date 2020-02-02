@@ -85,7 +85,6 @@ pub enum RiscvInstId {
     MRET,
     SRET,
     URET,
-    NOP,
     WFI,
     LWU,   // for RV64
     LD,    // for RV64

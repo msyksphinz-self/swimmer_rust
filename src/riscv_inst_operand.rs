@@ -1,8 +1,8 @@
 use crate::riscv_tracer::Tracer;
 use crate::riscv32_insts::RiscvInstId;
-use std::collections::HashMap;
 
 #[derive(Clone, Copy)]
+#[allow(dead_code)]
 pub enum OperandType {
     TypeXReg,
     TypeFreg,
@@ -43,7 +43,7 @@ impl OperandInfo {
 
 
 impl Tracer {
-    pub fn FormatOperand(&mut self)
+    pub fn format_operand(&mut self)
     {
         {
 	        let mut inst_operand = OperandInfo::new();

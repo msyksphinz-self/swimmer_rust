@@ -27,6 +27,7 @@ use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPP_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_MPP_MSB;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
+#[allow(dead_code)]
 pub enum ExceptCode {
     InstAddrMisalign = 0,
     InstAccessFault = 1,

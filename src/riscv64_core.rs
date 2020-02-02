@@ -129,9 +129,11 @@ impl Riscv64Env {
         return Self::extend_sign(u_res, 11);
     }
 
+    #[allow(dead_code)]
     fn sext_xlen(hex: InstT) -> Xlen64T {
         return hex as Xlen64T;
     }
+    #[allow(dead_code)]
     fn uext_xlen(hex: InstT) -> UXlen64T {
         return hex as UXlen64T;
     }

@@ -137,7 +137,6 @@ impl RiscvTracer for Tracer {
                 let operand_info = self.m_inst_operand_map.get(&id);
                 match operand_info {
                     Some(operand_info) => {
-                        let mut inst_string: String;
                         let mut at_index = 0;
                         let mut consume_idx = 0;
                         for c in inst_str.chars() {
@@ -170,7 +169,7 @@ impl RiscvTracer for Tracer {
                                 consume_idx = consume_idx + 1
                             }
                         }
-                        for idx in consume_idx..30 {
+                        for _idx in consume_idx..30 {
                             print!(" ");
                         }
                     }

@@ -45,8 +45,8 @@ pub trait RiscvMmu {
         pte_idx: Vec<u8>,
         vpn_len: Vec<u8>,
         vpn_idx: Vec<u8>,
-        PAGESIZE: u32,
-        PTESIZE: u32,
+        pagesize: u32,
+        ptesize: u32,
     ) -> (MemResult, AddrT);
 
     fn is_allowed_access(&mut self, i_type: u8, acc_type: MemAccType, priv_mode: PrivMode) -> bool;
@@ -63,8 +63,8 @@ impl RiscvMmu for Riscv32Env {
         pte_idx: Vec<u8>,
         vpn_len: Vec<u8>,
         vpn_idx: Vec<u8>,
-        PAGESIZE: u32,
-        PTESIZE: u32,
+        pagesize: u32,
+        ptesize: u32,
     ) -> (MemResult, AddrT) {
         let is_write_access = match acc_type {
             MemAccType::Write => true,
@@ -100,13 +100,13 @@ impl RiscvMmu for Riscv32Env {
             Self::extract_bit_field(satp, SYSREG_SATP_PPN_MSB, SYSREG_SATP_PPN_LSB) as AddrT;
 
         let mut pte_val: XlenT = 0;
-        let mut pte_addr: AddrT = (pte_base * PAGESIZE) as AddrT;
+        let mut pte_addr: AddrT = (pte_base * pagesize) as AddrT;
         let level: usize = 0;
 
         for level in range(0, init_level).rev() {
             let va_vpn_i: AddrT =
                 (vaddr >> vpn_idx[level as usize]) & ((1 << vpn_len[level as usize]) - 1);
-            pte_addr += (va_vpn_i * PTESIZE) as AddrT;
+            pte_addr += (va_vpn_i * ptesize) as AddrT;
             pte_val = self.read_memory_word(pte_addr);
 
             // println!(
@@ -136,7 +136,7 @@ impl RiscvMmu for Riscv32Env {
 
             // If pte:r = 1 or pte:x = 1, go to step 5. Otherwise, this PTE is a
             // pointer to the next level of the page table. Let i = i − 1. If i < 0, stop and raise a page-fault
-            // exception. Otherwise, let a = pte:ppn × PAGESIZE and go to step 2.
+            // exception. Otherwise, let a = pte:ppn × pagesize and go to step 2.
             if ((pte_val & 0x08) == 0x08) || ((pte_val & 0x02) == 0x02) {
                 break;
             } else {
@@ -165,7 +165,7 @@ impl RiscvMmu for Riscv32Env {
                 pte_len[(init_level - 1) as usize] + pte_idx[(init_level - 1) as usize] - 1,
                 pte_idx[0],
             ) as AddrT;
-            pte_addr = pte_ppn * PAGESIZE;
+            pte_addr = pte_ppn * pagesize;
         }
 
         let current_priv: PrivMode = self.m_priv.clone();
@@ -291,11 +291,11 @@ impl RiscvMmu for Riscv32Env {
             let pte_idx: Vec<u8> = vec![10, 19, 28];
             let vpn_len: Vec<u8> = vec![9, 9, 9];
             let vpn_idx: Vec<u8> = vec![12, 21, 30];
-            const PAGESIZE: u32 = 4096; // num::pow(2, 12);
-            const PTESIZE: u32 = 8;
+            let pagesize: u32 = 4096; // num::pow(2, 12);
+            let ptesize: u32 = 8;
 
             return self.walk_page_table(
-                vaddr, acc_type, 3, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, PAGESIZE, PTESIZE,
+                vaddr, acc_type, 3, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, pagesize, ptesize,
             );
         } else if self.get_vm_mode() == VMMode::Sv32
             && (priv_mode == PrivMode::Supervisor || priv_mode == PrivMode::User)
@@ -305,11 +305,11 @@ impl RiscvMmu for Riscv32Env {
             let pte_idx: Vec<u8> = vec![10, 20];
             let vpn_len: Vec<u8> = vec![10, 10];
             let vpn_idx: Vec<u8> = vec![12, 22];
-            const PAGESIZE: u32 = 4096; // num::pow(2, 12);
-            const PTESIZE: u32 = 4;
+            let pagesize: u32 = 4096; // num::pow(2, 12);
+            let ptesize: u32 = 4;
 
             return self.walk_page_table(
-                vaddr, acc_type, 2, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, PAGESIZE, PTESIZE,
+                vaddr, acc_type, 2, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, pagesize, ptesize,
             );
         } else {
             return (MemResult::NoExcept, vaddr);
@@ -352,8 +352,8 @@ impl RiscvMmu for Riscv64Env {
         pte_idx: Vec<u8>,
         vpn_len: Vec<u8>,
         vpn_idx: Vec<u8>,
-        PAGESIZE: u32,
-        PTESIZE: u32,
+        pagesize: u32,
+        ptesize: u32,
     ) -> (MemResult, AddrT) {
         let is_write_access = match acc_type {
             MemAccType::Write => true,
@@ -389,13 +389,13 @@ impl RiscvMmu for Riscv64Env {
             Self::extract_bit_field(satp, SYSREG_SATP_PPN_MSB, SYSREG_SATP_PPN_LSB) as AddrT;
 
         let mut pte_val: Xlen64T = 0;
-        let mut pte_addr: AddrT = (pte_base * PAGESIZE) as AddrT;
+        let mut pte_addr: AddrT = (pte_base * pagesize) as AddrT;
         let level: usize = 0;
 
         for level in range(0, init_level).rev() {
             let va_vpn_i: AddrT =
                 (vaddr >> vpn_idx[level as usize]) & ((1 << vpn_len[level as usize]) - 1);
-            pte_addr += (va_vpn_i * PTESIZE) as AddrT;
+            pte_addr += (va_vpn_i * ptesize) as AddrT;
             pte_val = self.read_memory_word(pte_addr);
 
             // println!(
@@ -425,7 +425,7 @@ impl RiscvMmu for Riscv64Env {
 
             // If pte:r = 1 or pte:x = 1, go to step 5. Otherwise, this PTE is a
             // pointer to the next level of the page table. Let i = i − 1. If i < 0, stop and raise a page-fault
-            // exception. Otherwise, let a = pte:ppn × PAGESIZE and go to step 2.
+            // exception. Otherwise, let a = pte:ppn × pagesize and go to step 2.
             if ((pte_val & 0x08) == 0x08) || ((pte_val & 0x02) == 0x02) {
                 break;
             } else {
@@ -454,7 +454,7 @@ impl RiscvMmu for Riscv64Env {
                 pte_len[(init_level - 1) as usize] + pte_idx[(init_level - 1) as usize] - 1,
                 pte_idx[0],
             ) as AddrT;
-            pte_addr = pte_ppn * PAGESIZE;
+            pte_addr = pte_ppn * pagesize;
         }
 
         let current_priv: PrivMode = self.m_priv.clone();
@@ -580,11 +580,11 @@ impl RiscvMmu for Riscv64Env {
             let pte_idx: Vec<u8> = vec![10, 19, 28];
             let vpn_len: Vec<u8> = vec![9, 9, 9];
             let vpn_idx: Vec<u8> = vec![12, 21, 30];
-            const PAGESIZE: u32 = 4096; // num::pow(2, 12);
-            const PTESIZE: u32 = 8;
+            let pagesize: u32 = 4096; // num::pow(2, 12);
+            let ptesize: u32 = 8;
 
             return self.walk_page_table(
-                vaddr, acc_type, 3, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, PAGESIZE, PTESIZE,
+                vaddr, acc_type, 3, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, pagesize, ptesize,
             );
         } else if self.get_vm_mode() == VMMode::Sv32
             && (priv_mode == PrivMode::Supervisor || priv_mode == PrivMode::User)
@@ -594,11 +594,11 @@ impl RiscvMmu for Riscv64Env {
             let pte_idx: Vec<u8> = vec![10, 20];
             let vpn_len: Vec<u8> = vec![10, 10];
             let vpn_idx: Vec<u8> = vec![12, 22];
-            const PAGESIZE: u32 = 4096; // num::pow(2, 12);
-            const PTESIZE: u32 = 4;
+            let pagesize: u32 = 4096; // num::pow(2, 12);
+            let ptesize: u32 = 4;
 
             return self.walk_page_table(
-                vaddr, acc_type, 2, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, PAGESIZE, PTESIZE,
+                vaddr, acc_type, 2, ppn_idx, pte_len, pte_idx, vpn_len, vpn_idx, pagesize, ptesize,
             );
         } else {
             return (MemResult::NoExcept, vaddr);

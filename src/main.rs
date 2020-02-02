@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
-use std::{env, process};
+use std::{env};
 
 extern crate getopts;
 use getopts::Options;
@@ -21,14 +21,9 @@ mod riscv_inst_operand;
 use crate::riscv64_core::Riscv64Core;
 use crate::riscv64_core::Riscv64Env;
 
-use crate::riscv32_core::Riscv32Core;
-use crate::riscv32_core::Riscv32Env;
-
-use crate::riscv32_insts::RiscvInstId;
 use crate::riscv32_insts::RiscvInsts;
 
 use crate::riscv32_core::InstT;
-use crate::riscv32_core::XlenT;
 use crate::riscv32_core::DRAM_BASE;
 use crate::riscv64_core::Xlen64T;
 
@@ -40,6 +35,7 @@ struct Args {
     rv_arch: Option<String>,
 }
 
+#[allow(unused_variables)]
 fn print_usage(program: &str, opts: &Options) {
     writeln!(std::io::stderr(), "Usage: {} binfile", program).unwrap();
     std::process::exit(1);
@@ -97,8 +93,7 @@ fn main() -> Result<(), Box<std::error::Error>> {
         if result != MemResult::NoExcept {
             continue;
         }
-        riscv64_core.m_trace.FormatOperand();
-        let inst_decode: RiscvInstId;
+        riscv64_core.m_trace.format_operand();
         match riscv64_core.decode_inst(inst_data) {
             None => println!("<Error: Unknown instruction>\n"),
             Some(inst_decode) => riscv64_core.execute_inst(inst_decode, inst_data as InstT, count),

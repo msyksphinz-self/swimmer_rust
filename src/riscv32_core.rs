@@ -49,6 +49,7 @@ pub enum MemAccType {
 }
 
 #[derive(PartialEq, Eq)]
+#[allow(dead_code)]
 pub enum MemResult {
     NoExcept = 0,
     MisAlign = 1 << 0,
@@ -58,6 +59,7 @@ pub enum MemResult {
 }
 
 #[derive(PartialEq, Eq)]
+#[allow(dead_code)]
 pub enum VMMode {
     Mbare = 0,
     Sv32 = 1,
@@ -65,18 +67,6 @@ pub enum VMMode {
     Sv48 = 9,
     Sv57 = 10,
     Sv64 = 11,
-}
-
-pub enum MemType {
-    LOAD,
-    STORE,
-}
-
-pub enum MemSize {
-    BYTE,
-    HWORD,
-    WORD,
-    DWORD,
 }
 
 pub struct Riscv32Env {
@@ -104,6 +94,7 @@ pub struct Riscv32Env {
 }
 
 impl Riscv32Env {
+    #[allow(dead_code)]
     pub fn new() -> Riscv32Env {
         Riscv32Env {
             // m_bitmode: RiscvBitMode::Bit32,
@@ -181,9 +172,11 @@ impl Riscv32Env {
         return Self::extend_sign(u_res, 11);
     }
 
+    #[allow(dead_code)]
     fn sext_xlen(hex: InstT) -> XlenT {
         return hex as XlenT;
     }
+    #[allow(dead_code)]
     fn uext_xlen(hex: InstT) -> UXlenT {
         return hex as UXlenT;
     }

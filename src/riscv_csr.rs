@@ -195,11 +195,6 @@ pub enum CsrAddr {
 }
 
 impl CsrAddr {
-    pub fn from_i64(n: i64) -> Option<CsrAddr> {
-        match n {
-            _ => None,
-        }
-    }
     pub fn from_u64(n: u64) -> CsrAddr {
         match n {
             // 0xc00 => CsrAddr::Cycle        ,
