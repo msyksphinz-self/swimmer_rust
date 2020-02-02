@@ -95,7 +95,7 @@ fn main() -> Result<(), Box<std::error::Error>> {
         }
         riscv64_core.m_trace.format_operand();
         match riscv64_core.decode_inst(inst_data) {
-            None => println!("<Error: Unknown instruction>\n"),
+            None => panic!("<Error: Unknown instruction : inst={:08x}>\n", inst_data),
             Some(inst_decode) => riscv64_core.execute_inst(inst_decode, inst_data as InstT, count),
         }
 
