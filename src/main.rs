@@ -28,8 +28,6 @@ use crate::riscv32_core::DRAM_BASE;
 use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
-use crate::riscv32_core::MemResult;
-
 #[derive(Debug)]
 struct Args {
     bin_file: Vec<String>,
@@ -90,9 +88,10 @@ fn main() -> Result<(), Box<std::error::Error>> {
     let mut count = 0;
     while count < 65535 && !riscv64_core.get_is_finish_cpu() {
         // println!("InstNo: {:10}", count);
-        let (result, inst_data) = riscv64_core.fetch_bus();
-        if result != MemResult::NoExcept {
-            continue;
+        let inst_data: InstT;
+        match riscv64_core.fetch_bus() {
+            Ok(v) => { inst_data = v; },
+            Err(_result) => { continue; },
         }
         riscv64_core.m_trace.format_operand();
         match riscv64_core.decode_inst(inst_data) {

@@ -9,7 +9,6 @@ use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
 use crate::riscv32_core::PrivMode;
-use crate::riscv32_core::MemResult;
 
 use crate::riscv32_core::InstT;
 
@@ -253,53 +252,79 @@ impl RiscvInsts for Riscv64Env {
             }
             RiscvInstId::LB => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_byte(addr as Addr64T);
-                if result == MemResult::NoExcept {
-                    let extended_reg_data = Self::extend_sign(reg_data, 7);
-                    self.write_reg(rd, extended_reg_data);
+                match self.read_bus_byte(addr as Addr64T) {
+                    Ok(reg_data) => {
+                        self.write_reg(rd, (reg_data as i8) as Xlen64T);
+                    }
+                    Err(_result) => {
+                        panic!("Read Memory Error Access Occurred.");
+                    }
                 }
             }
             RiscvInstId::LH => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_hword(addr as Addr64T);
-                if result == MemResult::NoExcept {
-                    let extended_reg_data = Self::extend_sign(reg_data, 15);
-                    self.write_reg(rd, extended_reg_data);
+                match self.read_bus_hword(addr as Addr64T) {
+                    Ok(reg_data) => {
+                        self.write_reg(rd, (reg_data as i16) as Xlen64T);
+                    }
+                    Err(_result) => {
+                        panic!("Read Memory Error Access Occurred.");
+                    }
                 }
             }
             RiscvInstId::LW => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_word(addr as Addr64T);
-                if result == MemResult::NoExcept {
-                    self.write_reg(rd, reg_data);
+                match self.read_bus_word(addr as Addr64T) {
+                    Ok(reg_data) => {
+                        self.write_reg(rd, (reg_data as XlenT) as Xlen64T);
+                    }
+                    Err(_result) => {
+                        panic!("Read Memory Error Access Occurred.");
+                    }
                 }
             }
             RiscvInstId::LD => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_dword(addr as Addr64T);
-                if result == MemResult::NoExcept {
-                    self.write_reg(rd, reg_data);
+                match self.read_bus_dword(addr as Addr64T) {
+                    Ok(reg_data) => {
+                        self.write_reg(rd, reg_data);
+                    }
+                    Err(_result) => {
+                        panic!("Read Memory Error Access Occurred.");
+                    }
                 }
             }
             RiscvInstId::LBU => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_byte(addr as Addr64T);
-                if result == MemResult::NoExcept {
-                    self.write_reg(rd, reg_data as Xlen64T);
+                match self.read_bus_byte(addr as Addr64T) {
+                    Ok(reg_data) => {
+                        self.write_reg(rd, reg_data as Xlen64T);
+                    }
+                    Err(_result) => {
+                        panic!("Read Memory Error Access Occurred.");
+                    }
                 }
             }
             RiscvInstId::LHU => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_hword(addr as Addr64T);
-                if result == MemResult::NoExcept {
-                    self.write_reg(rd, reg_data as Xlen64T);
+                match self.read_bus_hword(addr as Addr64T) {
+                    Ok(reg_data) => {
+                        self.write_reg(rd, reg_data as Xlen64T);
+                    }
+                    Err(_result) => {
+                        panic!("Read Memory Error Access Occurred.");
+                    }
                 }
             }
             RiscvInstId::LWU => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                let (result, reg_data) = self.read_bus_word(addr as Addr64T);
-                if result == MemResult::NoExcept {
-                    self.write_reg(rd, reg_data & 0xffffffff);
+                match self.read_bus_word(addr as Addr64T) {
+                    Ok(reg_data) => {
+                        self.write_reg(rd, reg_data & 0xffffffff);
+                    }
+                    Err(_result) => {
+                        panic!("Read Memory Error Access Occurred.");
+                    }
                 }
             }
             RiscvInstId::ADDI => {

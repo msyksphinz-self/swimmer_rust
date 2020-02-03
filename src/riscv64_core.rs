@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::riscv_csr::CsrAddr;
 use crate::riscv_csr::RiscvCsr;
 
@@ -15,10 +17,9 @@ use crate::riscv_tracer::Tracer;
 
 use crate::riscv32_core::InstT;
 use crate::riscv32_core::RegAddrT;
-use crate::riscv32_core::XlenT;
 
 use crate::riscv32_core::DRAM_BASE;
-use crate::riscv32_core::DRAM_SIZE;
+// use crate::riscv32_core::DRAM_SIZE;
 
 use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_MSB;
@@ -32,7 +33,7 @@ pub struct Riscv64Env {
     pub m_pc: Addr64T,
     m_previous_pc: Addr64T,
     m_regs: [Xlen64T; 32],
-    pub m_memory: [u8; DRAM_SIZE], // memory
+    pub m_memory: HashMap<Addr64T, u8>, // memory
     pub m_csr: RiscvCsr<Xlen64T>,
 
     pub m_priv: PrivMode,
@@ -56,7 +57,7 @@ impl Riscv64Env {
         Riscv64Env {
             // m_bitmode: RiscvBitMode::Bit32,
             m_pc: DRAM_BASE as Addr64T,
-            m_memory: [0; DRAM_SIZE],
+            m_memory: HashMap::new(),
             m_regs: [0; 32],
             m_maxpriv: PrivMode::Machine,
             m_previous_pc: 0,
@@ -155,20 +156,20 @@ pub trait Riscv64Core {
     fn get_pc(&mut self) -> Addr64T;
     fn get_previous_pc(&mut self) -> Addr64T;
 
-    fn read_memory_dword(&mut self, phy_addr: Addr64T) -> Xlen64T;
-    fn read_memory_word(&mut self, phy_addr: Addr64T) -> Xlen64T;
-    fn read_memory_hword(&mut self, phy_addr: Addr64T) -> Xlen64T;
-    fn read_memory_byte(&mut self, phy_addr: Addr64T) -> Xlen64T;
+    fn read_memory_dword(&mut self, phy_addr: Addr64T) -> Result<u64, MemResult>;
+    fn read_memory_word(&mut self, phy_addr: Addr64T) -> Result<u32, MemResult>;
+    fn read_memory_hword(&mut self, phy_addr: Addr64T) -> Result<u16, MemResult>;
+    fn read_memory_byte(&mut self, phy_addr: Addr64T) -> Result<u8, MemResult>;
     fn write_memory_dword(&mut self, phy_addr: Addr64T, data: Xlen64T) -> Xlen64T;
     fn write_memory_word(&mut self, phy_addr: Addr64T, data: Xlen64T) -> Xlen64T;
     fn write_memory_hword(&mut self, phy_addr: Addr64T, data: Xlen64T) -> Xlen64T;
     fn write_memory_byte(&mut self, phy_addr: Addr64T, data: Xlen64T) -> Xlen64T;
 
-    fn fetch_bus(&mut self) -> (MemResult, InstT);
-    fn read_bus_dword(&mut self, addr: Addr64T) -> (MemResult, Xlen64T);
-    fn read_bus_word(&mut self, addr: Addr64T) -> (MemResult, Xlen64T);
-    fn read_bus_hword(&mut self, addr: Addr64T) -> (MemResult, Xlen64T);
-    fn read_bus_byte(&mut self, addr: Addr64T) -> (MemResult, Xlen64T);
+    fn fetch_bus(&mut self) -> Result<InstT, MemResult>;
+    fn read_bus_dword(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult>;
+    fn read_bus_word(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult>;
+    fn read_bus_hword(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult>;
+    fn read_bus_byte(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult>;
     fn write_bus_dword(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult;
     fn write_bus_word(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult;
     fn write_bus_hword(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult;
@@ -277,42 +278,54 @@ impl Riscv64Core for Riscv64Env {
         self.m_vmmode = vmmode;
     }
 
-    fn read_memory_dword(&mut self, phy_addr: Addr64T) -> Xlen64T {
-        let dword_val: Xlen64T = (self.read_memory_byte(phy_addr + 7) << 56)
-            | (self.read_memory_byte(phy_addr + 6) << 48)
-            | (self.read_memory_byte(phy_addr + 5) << 40)
-            | (self.read_memory_byte(phy_addr + 4) << 32)
-            | (self.read_memory_byte(phy_addr + 3) << 24)
-            | (self.read_memory_byte(phy_addr + 2) << 16)
-            | (self.read_memory_byte(phy_addr + 1) << 8)
-            | (self.read_memory_byte(phy_addr + 0) << 0);
-        return dword_val;
+    fn read_memory_dword(&mut self, phy_addr: Addr64T) -> Result<u64, MemResult> {
+        let mut ret_val: u64 = 0;
+        for idx in 0..8 {
+            match self.read_memory_byte(phy_addr+idx) {
+                Ok(val) => { ret_val = ret_val | (val as u64).wrapping_shl(idx as u32 * 8) },
+                Err(result) => { println!("dword error {:016x}", phy_addr+idx); return Err(result) },
+            }
+        }
+        Ok(ret_val)
     }
 
-    fn read_memory_word(&mut self, phy_addr: Addr64T) -> Xlen64T {
+    fn read_memory_word(&mut self, phy_addr: Addr64T) -> Result<u32, MemResult> {
         if phy_addr == self.m_tohost_addr {
-            return self.m_tohost;
+            return Ok(self.m_tohost as u32);
         } else if phy_addr == self.m_fromhost_addr {
-            return self.m_fromhost;
+            return Ok(self.m_fromhost as u32);
         } else {
-            let word_val: XlenT = ((self.read_memory_byte(phy_addr + 3) << 24) as XlenT)
-                | ((self.read_memory_byte(phy_addr + 2) << 16) as XlenT)
-                | ((self.read_memory_byte(phy_addr + 1) << 8) as XlenT)
-                | ((self.read_memory_byte(phy_addr + 0) << 0) as XlenT);
-            return word_val as Xlen64T;
+            let mut ret_val: u32 = 0;
+            for idx in 0..4 {
+                match self.read_memory_byte(phy_addr+idx) {
+                    Ok(val) => ret_val = ret_val | (val as u32).wrapping_shl(idx as u32 * 8),
+                    Err(result) => return Err(result),
+                }
+            }
+            Ok(ret_val)
         }
     }
 
-    fn read_memory_hword(&mut self, phy_addr: Addr64T) -> Xlen64T {
-        return (self.read_memory_byte(phy_addr + 1) << 8)
-            | (self.read_memory_byte(phy_addr + 0) << 0);
+    fn read_memory_hword(&mut self, phy_addr: Addr64T) -> Result<u16, MemResult> {
+        let mut ret_val: u16 = 0;
+        for idx in 0..2 {
+            match self.read_memory_byte(phy_addr+idx) {
+                Ok(val) => ret_val = ret_val | (val as u16).wrapping_shl(idx as u32 * 8),
+                Err(result) => return Err(result),
+            }
+        }
+        Ok(ret_val)
     }
 
-    fn read_memory_byte(&mut self, phy_addr: Addr64T) -> Xlen64T {
+    fn read_memory_byte(&mut self, phy_addr: Addr64T) -> Result<u8, MemResult> {
         assert!(phy_addr >= (DRAM_BASE as Addr64T));
         let base_addr: Addr64T = phy_addr - (DRAM_BASE as Addr64T);
 
-        return self.m_memory[base_addr as usize + 0] as Xlen64T;
+        match self.m_memory.get(&base_addr) {
+            Some(value) => Ok(*value),
+            None => Ok(0),
+            // None => Err(MemResult::NotDefined),
+        }
     }
 
     fn write_memory_dword(&mut self, phy_addr: Addr64T, data: Xlen64T) -> Xlen64T {
@@ -362,29 +375,34 @@ impl Riscv64Core for Riscv64Env {
         assert!(phy_addr >= (DRAM_BASE as Addr64T));
         let base_addr: Addr64T = phy_addr - (DRAM_BASE as Addr64T);
 
-        self.m_memory[base_addr as usize] = (data & 0xff) as u8;
+        self.m_memory.insert(base_addr, data as u8);
         return 0;
     }
 
-    fn fetch_bus(&mut self) -> (MemResult, InstT) {
-        // let result: MemResult;
-        // let phy_addr: Addr64T;
+    fn fetch_bus(&mut self) -> Result<InstT, MemResult> {
         let (result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
 
         if result != MemResult::NoExcept {
-            return (result, 0);
+            return Err(result);
         }
-        return (result, self.read_memory_word(phy_addr) as InstT);
+        return match self.read_memory_word(phy_addr) {
+            Ok(val) => Ok(val as InstT),
+            Err(result) => Err(result),
+        }
     }
 
-    fn read_bus_dword(&mut self, addr: Addr64T) -> (MemResult, Xlen64T) {
+    fn read_bus_dword(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult> {
         let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
 
         if result != MemResult::NoExcept {
-            return (result, 0);
+            return Err(result);
         }
 
-        let ret_val = self.read_memory_dword(phy_addr);
+        let ret_val: Xlen64T;
+        match self.read_memory_dword(phy_addr) {
+            Ok(ret_value) => { ret_val = ret_value as Xlen64T; },
+            Err(result) => { return Err(result) },
+        }
 
         let mut read_mem_trace = TraceInfo::new();
 
@@ -395,47 +413,56 @@ impl Riscv64Core for Riscv64Env {
 
         self.m_trace.m_trace_info.push(read_mem_trace);
 
-        return (result, ret_val);
+        return Ok(ret_val);
     }
 
-    fn read_bus_word(&mut self, addr: Addr64T) -> (MemResult, Xlen64T) {
+    fn read_bus_word(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult> {
         let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
 
         if result != MemResult::NoExcept {
-            return (result, 0);
+            return Err(result);
         }
 
-        let ret_val = self.read_memory_word(phy_addr);
+        let ret_val: u32;
+        match self.read_memory_word(phy_addr) {
+            Ok(value) => { ret_val = value; },
+            Err(result) => return Err(result),
+        }
 
         let mut read_mem_trace = TraceInfo::new();
 
         read_mem_trace.m_trace_type = TraceType::MemRead;
         read_mem_trace.m_trace_addr = addr;
-        read_mem_trace.m_trace_value = ret_val;
+        read_mem_trace.m_trace_value = ret_val as Xlen64T;
         read_mem_trace.m_trace_memresult = MemResult::NoExcept;
 
         self.m_trace.m_trace_info.push(read_mem_trace);
 
-        return (result, ret_val);
+        return Ok(ret_val as Xlen64T);
     }
 
-    fn read_bus_hword(&mut self, addr: Addr64T) -> (MemResult, Xlen64T) {
+    fn read_bus_hword(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult> {
         let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
 
         if result != MemResult::NoExcept {
-            return (result, 0);
+            return Err(result);
         }
-
-        return (result, self.read_memory_hword(phy_addr));
+        return match self.read_memory_hword(phy_addr) {
+            Ok(val) => Ok(val as i64),
+            Err(result) => Err(result),
+        }
     }
 
-    fn read_bus_byte(&mut self, addr: Addr64T) -> (MemResult, Xlen64T) {
+    fn read_bus_byte(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult> {
         let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
 
         if result != MemResult::NoExcept {
-            return (result, 0);
+            return Err(result);
         }
-        return (result, self.read_memory_byte(phy_addr));
+        return match self.read_memory_byte(phy_addr) {
+            Ok(val) => Ok(val as i64),
+            Err(result) => Err(result),
+        }
     }
 
     fn write_bus_dword(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult {
@@ -511,13 +538,17 @@ impl Riscv64Core for Riscv64Env {
     fn get_vm_mode(&mut self) -> VMMode {
         let satp_val = self.m_csr.csrrs(CsrAddr::Satp, 0) as Xlen64T; // SATP;
         let mode = Self::extract_bit_field(satp_val, SYSREG_SATP_MODE_MSB, SYSREG_SATP_MODE_LSB);
-        return match mode {
-            0 => VMMode::Mbare,
-            8 => VMMode::Sv39,
-            9 => VMMode::Sv48,
-            10 => VMMode::Sv57,
-            11 => VMMode::Sv64,
-            _ => panic!("Error: illegal VM Mode in SATP"),
+        return if self.m_priv == PrivMode::Machine {
+            VMMode::Mbare
+        } else {
+            match mode {
+                0 => VMMode::Mbare,
+                8 => VMMode::Sv39,
+                9 => VMMode::Sv48,
+                10 => VMMode::Sv57,
+                11 => VMMode::Sv64,
+                _ => panic!("Error: illegal VM Mode in SATP"),
+            }
         };
     }
 

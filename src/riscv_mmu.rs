@@ -191,7 +191,7 @@ impl Riscv32Mmu for Riscv32Env {
         {
             // 6. If i > 0 and pa:ppn[i−1:0] != 0, this is a misaligned superpage
             // stop and raise a page-fault exception.
-            // println! ("<Page Access Failed. Last PTE != 0>");
+            println! ("<Page Access Failed. Last PTE != 0>");
             return (MemResult::TlbError, 0);
         }
 
@@ -251,7 +251,7 @@ impl Riscv32Mmu for Riscv32Env {
         // m_tlb_tag [vaddr_tag] = vaddr_vpn;
         // m_tlb_addr[vaddr_tag] = (*paddr & !0x0fff) | (pte_val & 0x0ff);
 
-        // println!("<Converted Virtual Address = {:08x}>", phy_addr);
+        println!("<Converted Virtual Address = {:08x}>", phy_addr);
         return (MemResult::NoExcept, phy_addr);
     }
 
@@ -419,12 +419,19 @@ impl Riscv64Mmu for Riscv64Env {
             let va_vpn_i: Addr64T =
                 (vaddr >> vpn_idx[level as usize]) & ((1 << vpn_len[level as usize]) - 1);
             pte_addr += (va_vpn_i * (ptesize as Addr64T)) as Addr64T;
-            pte_val = self.read_memory_word(pte_addr);
 
-            // println!(
-            //     "<Info: VAddr = 0x{:016x} PTEAddr = 0x{:016x} : PPTE = 0x{:08x}>",
-            //     vaddr, pte_addr, pte_val
-            // );
+            match self.read_memory_word(pte_addr) {
+                Ok(pte_value) => { pte_val = pte_value as Xlen64T; }
+                Err(result) => match result {
+                    MemResult::NotDefined => { pte_val = 0; },
+                    _ => { panic!("Illegal PTE Access Detectd."); },
+                }
+            }
+
+            println!(
+                "<Info: VAddr = 0x{:016x} PTEAddr = 0x{:016x} : PPTE = 0x{:08x}>",
+                vaddr, pte_addr, pte_val
+            );
 
             // 3. If pte:v = 0, or if pte:r = 0 and pte:w = 1, stop and raise a page-fault exception.
             if (pte_val & 0x01) == 0 || (((pte_val & 0x02) == 0) && ((pte_val & 0x04) == 0x04)) {
@@ -562,7 +569,7 @@ impl Riscv64Mmu for Riscv64Env {
         // m_tlb_tag [vaddr_tag] = vaddr_vpn;
         // m_tlb_addr[vaddr_tag] = (*paddr & !0x0fff) | (pte_val & 0x0ff);
 
-        // println!("<Converted Virtual Address = {:08x}>", phy_addr);
+        println!("<Converted Virtual Address = {:08x}>", phy_addr);
         return (MemResult::NoExcept, phy_addr);
     }
 
@@ -592,7 +599,7 @@ impl Riscv64Mmu for Riscv64Env {
             self.m_priv
         };
 
-        // println!("<Convert Virtual Addres. vaddr={:016x} : vm_mode = {}, priv_mode = {}>",
+        // println!("<Convert_Virtual_Address. vaddr={:016x} : vm_mode = {}, priv_mode = {}>",
         //          vaddr, self.get_vm_mode() as u32, priv_mode as u32);
 
         if self.get_vm_mode() == VMMode::Sv39
