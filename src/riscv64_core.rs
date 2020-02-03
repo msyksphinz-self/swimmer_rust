@@ -380,159 +380,138 @@ impl Riscv64Core for Riscv64Env {
     }
 
     fn fetch_bus(&mut self) -> Result<InstT, MemResult> {
-        let (result, phy_addr) = self.convert_virtual_address(self.m_pc, MemAccType::Fetch);
-
-        if result != MemResult::NoExcept {
-            return Err(result);
-        }
-        return match self.read_memory_word(phy_addr) {
-            Ok(val) => Ok(val as InstT),
+        return match self.convert_virtual_address(self.m_pc, MemAccType::Fetch) {
+            Ok(phy_addr) => match self.read_memory_word(phy_addr) {
+                Ok(val) => Ok(val as InstT),
+                Err(result) => Err(result),
+            },
             Err(result) => Err(result),
         }
     }
 
     fn read_bus_dword(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult> {
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
+        return match self.convert_virtual_address(addr, MemAccType::Read) {
+            Ok(phy_addr) => match self.read_memory_dword(phy_addr) {
+                Ok(ret_value) => {
+                    let ret_val: Xlen64T = ret_value as Xlen64T;
+                    let mut read_mem_trace = TraceInfo::new();
 
-        if result != MemResult::NoExcept {
-            return Err(result);
+                    read_mem_trace.m_trace_type = TraceType::MemRead;
+                    read_mem_trace.m_trace_addr = addr;
+                    read_mem_trace.m_trace_value = ret_val;
+                    read_mem_trace.m_trace_memresult = MemResult::NoExcept;
+
+                    self.m_trace.m_trace_info.push(read_mem_trace);
+
+                    Ok(ret_val as Xlen64T)
+                },
+                Err(result) => { return Err(result) },
+            },
+            Err(result) => Err(result),
         }
-
-        let ret_val: Xlen64T;
-        match self.read_memory_dword(phy_addr) {
-            Ok(ret_value) => { ret_val = ret_value as Xlen64T; },
-            Err(result) => { return Err(result) },
-        }
-
-        let mut read_mem_trace = TraceInfo::new();
-
-        read_mem_trace.m_trace_type = TraceType::MemRead;
-        read_mem_trace.m_trace_addr = addr;
-        read_mem_trace.m_trace_value = ret_val;
-        read_mem_trace.m_trace_memresult = MemResult::NoExcept;
-
-        self.m_trace.m_trace_info.push(read_mem_trace);
-
-        return Ok(ret_val);
     }
 
     fn read_bus_word(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult> {
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
+        return match self.convert_virtual_address(addr, MemAccType::Read) {
+            Ok(phy_addr) => match self.read_memory_word(phy_addr) {
+                Ok(value) => {
+                    let ret_val: u32 = value;
 
-        if result != MemResult::NoExcept {
-            return Err(result);
+                    let mut read_mem_trace = TraceInfo::new();
+
+                    read_mem_trace.m_trace_type = TraceType::MemRead;
+                    read_mem_trace.m_trace_addr = addr;
+                    read_mem_trace.m_trace_value = ret_val as Xlen64T;
+                    read_mem_trace.m_trace_memresult = MemResult::NoExcept;
+
+                    self.m_trace.m_trace_info.push(read_mem_trace);
+
+                    Ok(ret_val as Xlen64T)
+                },
+                Err(result) => Err(result),
+            },
+            Err(result) => Err(result),
         }
-
-        let ret_val: u32;
-        match self.read_memory_word(phy_addr) {
-            Ok(value) => { ret_val = value; },
-            Err(result) => return Err(result),
-        }
-
-        let mut read_mem_trace = TraceInfo::new();
-
-        read_mem_trace.m_trace_type = TraceType::MemRead;
-        read_mem_trace.m_trace_addr = addr;
-        read_mem_trace.m_trace_value = ret_val as Xlen64T;
-        read_mem_trace.m_trace_memresult = MemResult::NoExcept;
-
-        self.m_trace.m_trace_info.push(read_mem_trace);
-
-        return Ok(ret_val as Xlen64T);
     }
 
     fn read_bus_hword(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult> {
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
-
-        if result != MemResult::NoExcept {
-            return Err(result);
-        }
-        return match self.read_memory_hword(phy_addr) {
-            Ok(val) => Ok(val as i64),
+        return match self.convert_virtual_address(addr, MemAccType::Read) {
+            Ok(phy_addr) => match self.read_memory_hword(phy_addr) {
+                Ok(val) => Ok(val as i64),
+                Err(result) => Err(result),
+            },
             Err(result) => Err(result),
         }
     }
 
     fn read_bus_byte(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult> {
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Read);
-
-        if result != MemResult::NoExcept {
-            return Err(result);
-        }
-        return match self.read_memory_byte(phy_addr) {
-            Ok(val) => Ok(val as i64),
+        return match self.convert_virtual_address(addr, MemAccType::Read) {
+            Ok(phy_addr) => match self.read_memory_byte(phy_addr) {
+                Ok(val) => Ok(val as i64),
+                Err(result) => Err(result),
+            },
             Err(result) => Err(result),
         }
     }
 
     fn write_bus_dword(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult {
-        // let result: MemResult;
-        // let phy_addr: Addr64T;
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Write);
+        return match self.convert_virtual_address(addr, MemAccType::Write) {
+            Ok(phy_addr) => {
+                let mut write_mem_trace = TraceInfo::new();
 
-        if result != MemResult::NoExcept {
-            return result;
+                write_mem_trace.m_trace_type = TraceType::MemWrite;
+                write_mem_trace.m_trace_addr = addr;
+                write_mem_trace.m_trace_value = data;
+                write_mem_trace.m_trace_memresult = MemResult::NoExcept;
+
+                self.m_trace.m_trace_info.push(write_mem_trace);
+                self.write_memory_dword(phy_addr, data);
+
+                MemResult::NoExcept
+            },
+            Err(result) => result,
         }
-
-        let mut write_mem_trace = TraceInfo::new();
-
-        write_mem_trace.m_trace_type = TraceType::MemWrite;
-        write_mem_trace.m_trace_addr = addr;
-        write_mem_trace.m_trace_value = data;
-        write_mem_trace.m_trace_memresult = MemResult::NoExcept;
-
-        self.m_trace.m_trace_info.push(write_mem_trace);
-
-        self.write_memory_dword(phy_addr, data);
-
-        return result;
     }
 
     fn write_bus_word(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult {
-        // let result: MemResult;
-        // let phy_addr: Addr64T;
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Write);
+        return match self.convert_virtual_address(addr, MemAccType::Write) {
+            Ok(phy_addr) => {
+                let mut write_mem_trace = TraceInfo::new();
 
-        if result != MemResult::NoExcept {
-            return result;
+                write_mem_trace.m_trace_type = TraceType::MemWrite;
+                write_mem_trace.m_trace_addr = addr;
+                write_mem_trace.m_trace_value = data;
+                write_mem_trace.m_trace_memresult = MemResult::NoExcept;
+
+                self.m_trace.m_trace_info.push(write_mem_trace);
+                self.write_memory_word(phy_addr, data);
+
+                MemResult::NoExcept
+            },
+            Err(result) => result,
         }
-
-        let mut write_mem_trace = TraceInfo::new();
-
-        write_mem_trace.m_trace_type = TraceType::MemWrite;
-        write_mem_trace.m_trace_addr = addr;
-        write_mem_trace.m_trace_value = data;
-        write_mem_trace.m_trace_memresult = MemResult::NoExcept;
-
-        self.m_trace.m_trace_info.push(write_mem_trace);
-
-        self.write_memory_word(phy_addr, data);
-
-        return result;
     }
 
     fn write_bus_hword(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult {
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Write);
+        return match self.convert_virtual_address(addr, MemAccType::Write) {
+            Ok(phy_addr) => {
 
-        if result != MemResult::NoExcept {
-            return result;
+                self.write_memory_hword(phy_addr, data);
+                MemResult::NoExcept
+            },
+            Err(result) => result,
         }
-
-        self.write_memory_hword(phy_addr, data);
-
-        return result;
     }
 
     fn write_bus_byte(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult {
-        let (result, phy_addr) = self.convert_virtual_address(addr, MemAccType::Write);
+        return match self.convert_virtual_address(addr, MemAccType::Write) {
+            Ok(phy_addr) => {
 
-        if result != MemResult::NoExcept {
-            return result;
+                self.write_memory_byte(phy_addr, data);
+                MemResult::NoExcept
+            },
+            Err(result) => result,
         }
-
-        self.write_memory_byte(phy_addr, data);
-
-        return result;
     }
 
     fn get_vm_mode(&mut self) -> VMMode {
