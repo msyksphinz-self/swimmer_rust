@@ -57,12 +57,29 @@ impl RiscvInsts for Riscv64Env {
                 0b000 => match funct7 {
                     0b0000000 => Some(RiscvInstId::ADDW),
                     0b0100000 => Some(RiscvInstId::SUBW),
+                    0b0000001 => Some(RiscvInstId::MULW),
                     _ => None,
                 },
-                0b001 => Some(RiscvInstId::SLLW),
+                0b001 => match funct7 {
+                    0b0000000 => Some(RiscvInstId::SLLW),
+                    _ => None,
+                },
+                0b100 => match funct7 {
+                    0b0000001 => Some(RiscvInstId::DIVW),
+                    _ => None,
+                },
                 0b101 => match funct7 {
                     0b0000000 => Some(RiscvInstId::SRLW),
                     0b0100000 => Some(RiscvInstId::SRAW),
+                    0b0000001 => Some(RiscvInstId::DIVUW),
+                    _ => None,
+                },
+                0b110 => match funct7 {
+                    0b0000001 => Some(RiscvInstId::REMW),
+                    _ => None,
+                },
+                0b111 => match funct7 {
+                    0b0000001 => Some(RiscvInstId::REMUW),
                     _ => None,
                 },
                 _ => None,
@@ -636,6 +653,62 @@ impl RiscvInsts for Riscv64Env {
                 let reg_data = rs1_data.wrapping_shr(shamt);
                 self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
             }
+
+            RiscvInstId::MULW => {
+                let rs1_data = self.read_reg(rs1) as XlenT;
+                let rs2_data = self.read_reg(rs2) as XlenT;
+                let reg_data: XlenT = rs1_data.wrapping_mul(rs2_data);
+                self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
+            }
+
+            RiscvInstId::DIVW => {
+                let rs1_data = self.read_reg(rs1) as XlenT;
+                let rs2_data = self.read_reg(rs2) as XlenT;
+                let reg_data: XlenT;
+                if rs2_data == 0 {
+                    reg_data = -1;
+                } else {
+                    reg_data = rs1_data.wrapping_div(rs2_data);
+                }
+                self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
+            }
+            RiscvInstId::DIVUW => {
+                let rs1_data: UXlenT = self.read_reg(rs1) as UXlenT;
+                let rs2_data: UXlenT = self.read_reg(rs2) as UXlenT;
+                let reg_data: UXlenT;
+                if rs2_data == 0 {
+                    reg_data = 0xffffffff;
+                } else {
+                    reg_data = rs1_data.wrapping_div(rs2_data);
+                }
+                self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
+            }
+
+            RiscvInstId::REMW => {
+                let rs1_data = self.read_reg(rs1) as XlenT;
+                let rs2_data = self.read_reg(rs2) as XlenT;
+                let reg_data: XlenT;
+                if rs2_data == 0 {
+                    reg_data = rs1_data;
+                } else if rs2_data == -1 {
+                    reg_data = 0;
+                } else {
+                    reg_data = rs1_data.wrapping_rem(rs2_data);
+                }
+                self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
+            }
+            RiscvInstId::REMUW => {
+                let rs1_data: UXlenT = self.read_reg(rs1) as UXlenT;
+                let rs2_data: UXlenT = self.read_reg(rs2) as UXlenT;
+                let reg_data: UXlenT;
+                if rs2_data == 0 {
+                    reg_data = rs1_data;
+                } else {
+                    reg_data = rs1_data.wrapping_rem(rs2_data);
+                }
+                self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
+            }
+
             _ => {}
         }
 

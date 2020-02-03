@@ -101,6 +101,11 @@ pub enum RiscvInstId {
     SLLW,  // for RV64
     SRLW,  // for RV64
     SRAW,  // for RV64
+    MULW,  // for RV64
+    DIVW,  // for RV64
+    DIVUW, // for RV64
+    REMW,  // for RV64
+    REMUW, // for RV64
 }
 
 pub trait RiscvInsts {
