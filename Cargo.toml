@@ -1,5 +1,5 @@
 [package]
-name = "swimmer_rust_origin"
+name = "swimmer_rust"
 version = "0.1.0"
 authors = ["msyksphinz <msyksphinz_dev.gmail.com>"]
 edition = "2018"

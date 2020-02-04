@@ -34,6 +34,10 @@ struct Args {
     rv_arch: Option<String>,
 }
 
+pub fn add_two(a: i32) -> i32 {
+    a + 2
+}
+
 #[allow(unused_variables)]
 fn print_usage(program: &str, opts: &Options) {
     writeln!(std::io::stderr(), "Usage: {} binfile", program).unwrap();
@@ -72,41 +76,13 @@ fn main() -> Result<(), Box<std::error::Error>> {
 
     println!("RISC-V Arch = {:?}", Some(args.rv_arch));
 
-    let filename = args.bin_file[0].clone();
-    let file = File::open(filename.clone()).unwrap();
-    let filebuf = BufReader::new(file);
-    let mut hex_addr = 0;
+    let ret = swimmer_rust::swimmer_rust_exec(args.bin_file[0].clone());
 
-    let mut riscv64_core = Riscv64Env::new();
-
-    for result in filebuf.bytes() {
-        let l = result?;
-        riscv64_core.write_memory_byte(hex_addr + DRAM_BASE as Addr64T, l as Xlen64T);
-        hex_addr = hex_addr + 1;
-    }
-
-    let mut count = 0;
-    while count < 65535 && !riscv64_core.get_is_finish_cpu() {
-        // println!("InstNo: {:10}", count);
-        let inst_data: InstT;
-        match riscv64_core.fetch_bus() {
-            Ok(v) => { inst_data = v; },
-            Err(_result) => { continue; },
-        }
-        riscv64_core.m_trace.format_operand();
-        match riscv64_core.decode_inst(inst_data) {
-            None => panic!("<Error: Unknown instruction : inst={:08x}>\n", inst_data),
-            Some(inst_decode) => riscv64_core.execute_inst(inst_decode, inst_data as InstT, count),
-        }
-
-        count += 1;
-    }
-
-    if riscv64_core.get_tohost() == 1 {
-        eprintln!("PASS : {}", filename.clone());
+    if ret == 1 {
+        eprintln!("PASS : {}", args.bin_file[0]);
+        Ok(())
     } else {
-        eprintln!("FAIL : {}", filename.clone());
+        eprintln!("FAIL : {}", args.bin_file[0]);
+        Ok(())
     }
-
-    Ok(())
 }
