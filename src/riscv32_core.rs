@@ -1,14 +1,14 @@
-use crate::riscv_csr::CsrAddr;
-use crate::riscv_csr::RiscvCsr;
+// use crate::riscv_csr::CsrAddr;
+// use crate::riscv_csr::RiscvCsr;
 
-use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_LSB;
-use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_MSB;
-
-use crate::riscv_tracer::TraceInfo;
-use crate::riscv_tracer::TraceType;
-use crate::riscv_tracer::Tracer;
-
-use crate::riscv_mmu::Riscv32Mmu;
+// use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_LSB;
+// use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_MSB;
+//
+// use crate::riscv_tracer::TraceInfo;
+// use crate::riscv_tracer::TraceType;
+// use crate::riscv_tracer::Tracer;
+//
+// use crate::riscv_mmu::Riscv32Mmu;
 
 pub type XlenT = i32;
 pub type UXlenT = u32;
@@ -16,11 +16,11 @@ pub type InstT = u32;
 pub type AddrT = u32;
 pub type RegAddrT = u8;
 
-use crate::riscv64_core::Addr64T;
-use crate::riscv64_core::Xlen64T;
+// use crate::riscv64_core::Addr64T;
+// use crate::riscv64_core::Xlen64T;
 
 pub const DRAM_BASE: AddrT = 0x8000_0000;
-pub const DRAM_SIZE: usize = 0x10_0000;
+// pub const DRAM_SIZE: usize = 0x10_0000;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum PrivMode {

@@ -4,7 +4,7 @@ use crate::riscv64_core::Riscv64Core;
 use crate::riscv64_core::Riscv64Env;
 
 use crate::riscv32_core::AddrT;
-use crate::riscv32_core::XlenT;
+// use crate::riscv32_core::XlenT;
 use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
