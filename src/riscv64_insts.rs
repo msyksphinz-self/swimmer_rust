@@ -255,10 +255,8 @@ impl RiscvInsts for Riscv64Env {
                 match self.read_bus_byte(addr as Addr64T) {
                     Ok(reg_data) => {
                         self.write_reg(rd, (reg_data as i8) as Xlen64T);
-                    }
-                    Err(_result) => {
-                        panic!("Read Memory Error Access Occurred.");
-                    }
+                    },
+                    Err(_result) => {},
                 }
             }
             RiscvInstId::LH => {
@@ -266,10 +264,8 @@ impl RiscvInsts for Riscv64Env {
                 match self.read_bus_hword(addr as Addr64T) {
                     Ok(reg_data) => {
                         self.write_reg(rd, (reg_data as i16) as Xlen64T);
-                    }
-                    Err(_result) => {
-                        panic!("Read Memory Error Access Occurred.");
-                    }
+                    },
+                    Err(_result) => {},
                 }
             }
             RiscvInstId::LW => {
@@ -277,10 +273,8 @@ impl RiscvInsts for Riscv64Env {
                 match self.read_bus_word(addr as Addr64T) {
                     Ok(reg_data) => {
                         self.write_reg(rd, (reg_data as XlenT) as Xlen64T);
-                    }
-                    Err(_result) => {
-                        panic!("Read Memory Error Access Occurred.");
-                    }
+                    },
+                    Err(_result) => {},
                 }
             }
             RiscvInstId::LD => {
@@ -288,10 +282,8 @@ impl RiscvInsts for Riscv64Env {
                 match self.read_bus_dword(addr as Addr64T) {
                     Ok(reg_data) => {
                         self.write_reg(rd, reg_data);
-                    }
-                    Err(_result) => {
-                        panic!("Read Memory Error Access Occurred.");
-                    }
+                    },
+                    Err(_result) => {},
                 }
             }
             RiscvInstId::LBU => {
@@ -299,10 +291,8 @@ impl RiscvInsts for Riscv64Env {
                 match self.read_bus_byte(addr as Addr64T) {
                     Ok(reg_data) => {
                         self.write_reg(rd, reg_data as Xlen64T);
-                    }
-                    Err(_result) => {
-                        panic!("Read Memory Error Access Occurred.");
-                    }
+                    },
+                    Err(_result) => {},
                 }
             }
             RiscvInstId::LHU => {
@@ -310,10 +300,8 @@ impl RiscvInsts for Riscv64Env {
                 match self.read_bus_hword(addr as Addr64T) {
                     Ok(reg_data) => {
                         self.write_reg(rd, reg_data as Xlen64T);
-                    }
-                    Err(_result) => {
-                        panic!("Read Memory Error Access Occurred.");
-                    }
+                    },
+                    Err(_result) => {},
                 }
             }
             RiscvInstId::LWU => {
@@ -321,10 +309,8 @@ impl RiscvInsts for Riscv64Env {
                 match self.read_bus_word(addr as Addr64T) {
                     Ok(reg_data) => {
                         self.write_reg(rd, reg_data & 0xffffffff);
-                    }
-                    Err(_result) => {
-                        panic!("Read Memory Error Access Occurred.");
-                    }
+                    },
+                    Err(_result) => {},
                 }
             }
             RiscvInstId::ADDI => {
