@@ -1,5 +1,4 @@
-use std::fs::File;
-use std::io::{BufReader, Read, Write};
+use std::io::{Write};
 use std::{env};
 
 extern crate getopts;
@@ -17,16 +16,6 @@ mod riscv_mmu;
 mod riscv_inst_mnemonic;
 mod riscv_tracer;
 mod riscv_inst_operand;
-
-use crate::riscv64_core::Riscv64Core;
-use crate::riscv64_core::Riscv64Env;
-
-use crate::riscv32_insts::RiscvInsts;
-
-use crate::riscv32_core::InstT;
-use crate::riscv32_core::DRAM_BASE;
-use crate::riscv64_core::Addr64T;
-use crate::riscv64_core::Xlen64T;
 
 #[derive(Debug)]
 struct Args {

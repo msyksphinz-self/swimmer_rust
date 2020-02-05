@@ -1,11 +1,7 @@
 /* lib.rs */
 
 use std::fs::File;
-use std::io::{BufReader, Read, Write};
-use std::{env};
-
-extern crate getopts;
-use getopts::Options;
+use std::io::{BufReader, Read};
 
 mod core_base;
 
@@ -18,6 +14,7 @@ use crate::riscv32_core::InstT;
 use crate::riscv32_core::DRAM_BASE;
 use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
+use crate::riscv64_decoder::RiscvDecoder;
 
 pub mod riscv32_core;
 pub mod riscv64_core;
@@ -26,16 +23,11 @@ pub mod riscv_csr_bitdef;
 pub mod riscv_exception;
 pub mod riscv32_insts;
 pub mod riscv64_insts;
+pub mod riscv64_decoder;
 pub mod riscv_mmu;
 pub mod riscv_inst_mnemonic;
 pub mod riscv_tracer;
 pub mod riscv_inst_operand;
-
-fn tests(filename: String) -> i64
-{
-    swimmer_rust_exec(filename)
-}
-
 
 pub fn swimmer_rust_exec(filename: String) -> i64
 {
@@ -51,7 +43,7 @@ pub fn swimmer_rust_exec(filename: String) -> i64
                 riscv64_core.write_memory_byte(hex_addr + DRAM_BASE as Addr64T, l as Xlen64T);
                 hex_addr = hex_addr + 1;
             },
-            Err(result) => { panic!("Exit"); }
+            Err(_result) => { panic!("Exit"); }
         }
     }
 

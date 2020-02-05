@@ -106,7 +106,6 @@ pub enum RiscvInstId {
 }
 
 pub trait RiscvInsts {
-    fn decode_inst(&mut self, inst: InstT) -> Option<RiscvInstId>;
     fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32);
 }
 
