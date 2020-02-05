@@ -22,10 +22,10 @@ use std::f32;
 pub enum TraceType {
     XRegWrite,
     XRegRead, // Integer
-    // FRegWrite,
-    // FRegRead,    // Single-Precision Float
-    // DRegWrite,
-    // DRegRead,    // Double-Precision Float
+    FRegWrite,
+    FRegRead,    // Single-Precision Float
+    DRegWrite,
+    DRegRead,    // Double-Precision Float
     MemRead,
     MemWrite, // Memory Write
     // CsrWrite,
@@ -33,7 +33,8 @@ pub enum TraceType {
     None,
 }
 
-pub struct TraceInfo {
+
+struct TraceInfo {
     pub m_trace_type: TraceType,
     pub m_trace_size: u32,
     pub m_trace_addr: Addr64T,
@@ -198,20 +199,34 @@ impl RiscvTracer for Tracer {
                 }
                 TraceType::MemWrite => {
                     print!(
-                        "({:08x})<={:08x} ",
+                        "({:016x})<={:016x} ",
                         self.m_trace_info[trace_idx].m_trace_addr,
                         self.m_trace_info[trace_idx].m_trace_value
                     );
                 }
                 TraceType::MemRead => {
                     print!(
-                        "({:08x})=>{:08x} ",
+                        "({:016x})=>{:016x} ",
+                        self.m_trace_info[trace_idx].m_trace_addr,
+                        self.m_trace_info[trace_idx].m_trace_value
+                    );
+                }
+                TraceType::FRegWrite => {
+                    print!(
+                        "f{:02}<={:016x} ",
+                        self.m_trace_info[trace_idx].m_trace_addr,
+                        self.m_trace_info[trace_idx].m_trace_value
+                    );
+                }
+                TraceType::FRegRead => {
+                    print!(
+                        "f{:02}=>{:016x} ",
                         self.m_trace_info[trace_idx].m_trace_addr,
                         self.m_trace_info[trace_idx].m_trace_value
                     );
                 }
                 _ => {
-                    print!(
+                    panic!(
                         "[{:} is not supported] ",
                         self.m_trace_info[trace_idx].m_trace_type as u32
                     );

@@ -560,7 +560,29 @@ impl RiscvInsts for Riscv64Env {
                 self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
             }
 
-            _ => {}
+            RiscvInstId::FLW => {
+                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
+                match self.read_bus_word(addr as Addr64T) {
+                    Ok(reg_data) => {
+                        self.write_freg(rd, (reg_data as XlenT) as Xlen64T);
+                    },
+                    Err(_result) => {},
+                }
+            }
+
+            RiscvInstId::FADD_S => {
+                let rs1_data = self.read_freg(rs1);
+                let rs2_data = self.read_freg(rs2);
+                let reg_data: Xlen64T = rs1_data.wrapping_add(rs2_data);
+                self.write_freg(rd, reg_data);
+            }
+
+            RiscvInstId::FMV_X_W => {
+                let rs1_data = self.read_freg(rs1);
+                self.write_reg(rd, rs1_data);
+            }
+
+            _ => { panic!("Unimplemneted instruction. Stop."); }
         }
 
         if self.is_update_pc() == false {

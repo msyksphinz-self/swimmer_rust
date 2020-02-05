@@ -1186,1749 +1186,2066 @@ impl Tracer {
 
 	        self.m_inst_operand_map.insert(RiscvInstId::REMU, inst_operand);
         }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_LR_W
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::LR_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_SC_W
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[19:15]", "r[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[19:15]", "r[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[19:15]", "r[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::SC_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOSWAP_W
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOSWAP_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOADD_W
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOADD_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOXOR_W
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOXOR_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOAND_W
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOAND_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOOR_W
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOOR_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOMIN_W
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOMIN_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOMAX_W
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOMAX_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOMINU_W
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOMINU_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOMAXU_W
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOMAXU_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FLW
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "h[31:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeHex;
-        //     inst_operand.m_msb_lst[1] = 31;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "h[31:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "h[31:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FLW, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSW
-        //     inst_operand.m_size = 4;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 24;
-        //     inst_operand.m_lsb_lst[0] = 20;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeHex;
-        //     inst_operand.m_msb_lst[1] = 31;
-        //     inst_operand.m_lsb_lst[1] = 25;
-        //     inst_operand.m_connect[1] = true;
-        //     // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeHex;
-        //     inst_operand.m_msb_lst[2] = 11;
-        //     inst_operand.m_lsb_lst[2] = 7;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[3] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[3] = 19;
-        //     inst_operand.m_lsb_lst[3] = 15;
-        //     inst_operand.m_connect[3] = false;
-        //     // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSW, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMADD_S
-        //     inst_operand.m_size = 4;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[3] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[3] = 31;
-        //     inst_operand.m_lsb_lst[3] = 27;
-        //     inst_operand.m_connect[3] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMADD_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMSUB_S
-        //     inst_operand.m_size = 4;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[3] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[3] = 31;
-        //     inst_operand.m_lsb_lst[3] = 27;
-        //     inst_operand.m_connect[3] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMSUB_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FNMSUB_S
-        //     inst_operand.m_size = 4;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[3] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[3] = 31;
-        //     inst_operand.m_lsb_lst[3] = 27;
-        //     inst_operand.m_connect[3] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FNMSUB_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FNMADD_S
-        //     inst_operand.m_size = 4;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[3] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[3] = 31;
-        //     inst_operand.m_lsb_lst[3] = 27;
-        //     inst_operand.m_connect[3] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FNMADD_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FADD_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FADD_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSUB_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSUB_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMUL_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMUL_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FDIV_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FDIV_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSQRT_S
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSQRT_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSGNJ_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSGNJ_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSGNJN_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSGNJN_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSGNJX_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSGNJX_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMIN_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMIN_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMAX_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMAX_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_W_S
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_W_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_WU_S
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_WU_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMV_X_W
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMV_X_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FEQ_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FEQ_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FLT_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FLT_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FLE_S
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FLE_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCLASS_S
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCLASS_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_S_W
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_S_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_S_WU
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_S_WU, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMV_W_X
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMV_W_X, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FLD
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "r[19:15]", "h[31:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "r[19:15]", "h[31:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeHex;
-        //     inst_operand.m_msb_lst[2] = 31;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "r[19:15]", "h[31:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FLD, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSD
-        //     inst_operand.m_size = 4;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 24;
-        //     inst_operand.m_lsb_lst[0] = 20;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeHex;
-        //     inst_operand.m_msb_lst[1] = 31;
-        //     inst_operand.m_lsb_lst[1] = 25;
-        //     inst_operand.m_connect[1] = true;
-        //     // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeHex;
-        //     inst_operand.m_msb_lst[2] = 11;
-        //     inst_operand.m_lsb_lst[2] = 7;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[3] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[3] = 19;
-        //     inst_operand.m_lsb_lst[3] = 15;
-        //     inst_operand.m_connect[3] = false;
-        //     // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSD, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMADD_D
-        //     inst_operand.m_size = 4;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[3] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[3] = 31;
-        //     inst_operand.m_lsb_lst[3] = 27;
-        //     inst_operand.m_connect[3] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMADD_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMSUB_D
-        //     inst_operand.m_size = 4;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[3] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[3] = 31;
-        //     inst_operand.m_lsb_lst[3] = 27;
-        //     inst_operand.m_connect[3] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMSUB_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FNMSUB_D
-        //     inst_operand.m_size = 4;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[3] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[3] = 31;
-        //     inst_operand.m_lsb_lst[3] = 27;
-        //     inst_operand.m_connect[3] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FNMSUB_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FNMADD_D
-        //     inst_operand.m_size = 4;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //     inst_operand.m_type_lst[3] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[3] = 31;
-        //     inst_operand.m_lsb_lst[3] = 27;
-        //     inst_operand.m_connect[3] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FNMADD_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FADD_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FADD_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSUB_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSUB_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMUL_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMUL_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FDIV_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FDIV_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSQRT_D
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSQRT_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSGNJ_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSGNJ_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSGNJN_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSGNJN_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FSGNJX_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FSGNJX_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMIN_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMIN_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMAX_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["f[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMAX_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_S_D
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_S_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_D_S
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_D_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FEQ_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FEQ_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FLT_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FLT_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FLE_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "f[19:15]", "f[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FLE_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCLASS_D
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCLASS_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_W_D
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_W_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_WU_D
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_WU_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_D_W
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_D_W, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_D_WU
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_D_WU, inst_operand);
-        // }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_CSRRW
-            inst_operand.m_size = 3;
-            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[0] = 11;
-            inst_operand.m_lsb_lst[0] = 7;
-            inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
-            inst_operand.m_type_lst[1] = OperandType::TypeHex;
-            inst_operand.m_msb_lst[1] = 31;
-            inst_operand.m_lsb_lst[1] = 20;
-            inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
-            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 19;
-            inst_operand.m_lsb_lst[2] = 15;
-            inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
-
-	        self.m_inst_operand_map.insert(RiscvInstId::CSRRW, inst_operand);
-        }
-        {
-	        let mut inst_operand = OperandInfo::new();
-
-            // InstId_t::INST_ID_CSRRS
-            inst_operand.m_size = 3;
-            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[0] = 11;
-            inst_operand.m_lsb_lst[0] = 7;
-            inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
-            inst_operand.m_type_lst[1] = OperandType::TypeHex;
-            inst_operand.m_msb_lst[1] = 31;
-            inst_operand.m_lsb_lst[1] = 20;
-            inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
-            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 19;
-            inst_operand.m_lsb_lst[2] = 15;
-            inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
-
-	        self.m_inst_operand_map.insert(RiscvInstId::CSRRS, inst_operand);
-        }
-        {
-	        let mut inst_operand = OperandInfo::new();
-
-            // InstId_t::INST_ID_CSRRC
-            inst_operand.m_size = 3;
-            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[0] = 11;
-            inst_operand.m_lsb_lst[0] = 7;
-            inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
-            inst_operand.m_type_lst[1] = OperandType::TypeHex;
-            inst_operand.m_msb_lst[1] = 31;
-            inst_operand.m_lsb_lst[1] = 20;
-            inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
-            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 19;
-            inst_operand.m_lsb_lst[2] = 15;
-            inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
-
-	        self.m_inst_operand_map.insert(RiscvInstId::CSRRC, inst_operand);
-        }
-        {
-	        let mut inst_operand = OperandInfo::new();
-
-            // InstId_t::INST_ID_CSRRWI
-            inst_operand.m_size = 3;
-            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[0] = 11;
-            inst_operand.m_lsb_lst[0] = 7;
-            inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "h[31:20]", "h[19:15]"]
-            inst_operand.m_type_lst[1] = OperandType::TypeHex;
-            inst_operand.m_msb_lst[1] = 31;
-            inst_operand.m_lsb_lst[1] = 20;
-            inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "h[31:20]", "h[19:15]"]
-            inst_operand.m_type_lst[2] = OperandType::TypeHex;
-            inst_operand.m_msb_lst[2] = 19;
-            inst_operand.m_lsb_lst[2] = 15;
-            inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "h[31:20]", "h[19:15]"]
-
-	        self.m_inst_operand_map.insert(RiscvInstId::CSRRWI, inst_operand);
-        }
-        {
-	        let mut inst_operand = OperandInfo::new();
-
-            // InstId_t::INST_ID_CSRRSI
-            inst_operand.m_size = 3;
-            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[0] = 11;
-            inst_operand.m_lsb_lst[0] = 7;
-            inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "h[31:20]", "h[19:15]"]
-            inst_operand.m_type_lst[1] = OperandType::TypeHex;
-            inst_operand.m_msb_lst[1] = 31;
-            inst_operand.m_lsb_lst[1] = 20;
-            inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "h[31:20]", "h[19:15]"]
-            inst_operand.m_type_lst[2] = OperandType::TypeHex;
-            inst_operand.m_msb_lst[2] = 19;
-            inst_operand.m_lsb_lst[2] = 15;
-            inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "h[31:20]", "h[19:15]"]
-
-	        self.m_inst_operand_map.insert(RiscvInstId::CSRRSI, inst_operand);
-        }
-        {
-	        let mut inst_operand = OperandInfo::new();
-
-            // InstId_t::INST_ID_CSRRCI
-            inst_operand.m_size = 3;
-            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[0] = 11;
-            inst_operand.m_lsb_lst[0] = 7;
-            inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "h[31:20]", "h[19:15]"]
-            inst_operand.m_type_lst[1] = OperandType::TypeHex;
-            inst_operand.m_msb_lst[1] = 31;
-            inst_operand.m_lsb_lst[1] = 20;
-            inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "h[31:20]", "h[19:15]"]
-            inst_operand.m_type_lst[2] = OperandType::TypeHex;
-            inst_operand.m_msb_lst[2] = 19;
-            inst_operand.m_lsb_lst[2] = 15;
-            inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "h[31:20]", "h[19:15]"]
-
-	        self.m_inst_operand_map.insert(RiscvInstId::CSRRCI, inst_operand);
-        }
-        {
-	        let mut inst_operand = OperandInfo::new();
-
-            // InstId_t::INST_ID_ECALL
-            inst_operand.m_size = 0;
-
-	        self.m_inst_operand_map.insert(RiscvInstId::ECALL, inst_operand);
-        }
-        {
-	        let mut inst_operand = OperandInfo::new();
-
-            // InstId_t::INST_ID_EBREAK
-            inst_operand.m_size = 0;
-
-	        self.m_inst_operand_map.insert(RiscvInstId::EBREAK, inst_operand);
-        }
-        {
-	        let mut inst_operand = OperandInfo::new();
-
-            // InstId_t::INST_ID_URET
-            inst_operand.m_size = 0;
-
-	        self.m_inst_operand_map.insert(RiscvInstId::URET, inst_operand);
-        }
-        {
-	        let mut inst_operand = OperandInfo::new();
-
-            // InstId_t::INST_ID_SRET
-            inst_operand.m_size = 0;
-
-	        self.m_inst_operand_map.insert(RiscvInstId::SRET, inst_operand);
-        }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_HRET
-        //     inst_operand.m_size = 0;
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::HRET, inst_operand);
-        // }
-        {
-	        let mut inst_operand = OperandInfo::new();
-
-            // InstId_t::INST_ID_MRET
-            inst_operand.m_size = 0;
-
-	        self.m_inst_operand_map.insert(RiscvInstId::MRET, inst_operand);
-        }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_MRTS
-        //     inst_operand.m_size = 0;
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::MRTS, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_MRTH
-        //     inst_operand.m_size = 0;
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::MRTH, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_WFI
-        //     inst_operand.m_size = 0;
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::WFI, inst_operand);
-        // }
-        {
-	        let mut inst_operand = OperandInfo::new();
-
-            // InstId_t::INST_ID_SFENCE_VMA
+            // InstId_t::INST_ID_LR_W
             inst_operand.m_size = 2;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[0] = 19;
-            inst_operand.m_lsb_lst[0] = 15;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::LR_W, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_SC_W
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::SC_W, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_AMOSWAP_W
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[1] = 24;
             inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::SFENCE_VMA, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOSWAP_W, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_LWU
+            // InstId_t::INST_ID_AMOADD_W
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
-            inst_operand.m_type_lst[1] = OperandType::TypeHex;
-            inst_operand.m_msb_lst[1] = 31;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 24;
             inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[2] = 19;
             inst_operand.m_lsb_lst[2] = 15;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::LWU, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOADD_W, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_LD
+            // InstId_t::INST_ID_AMOXOR_W
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
-            inst_operand.m_type_lst[1] = OperandType::TypeHex;
-            inst_operand.m_msb_lst[1] = 31;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 24;
             inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[2] = 19;
             inst_operand.m_lsb_lst[2] = 15;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "h[31:20]", "r[19:15]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::LD, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOXOR_W, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_SD
+            // InstId_t::INST_ID_AMOAND_W
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOAND_W, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_AMOOR_W
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOOR_W, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_AMOMIN_W
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOMIN_W, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_AMOMAX_W
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOMAX_W, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_AMOMINU_W
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOMINU_W, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_AMOMAXU_W
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOMAXU_W, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FLW
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "h[31:20]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeHex;
+            inst_operand.m_msb_lst[1] = 31;
+            inst_operand.m_lsb_lst[1] = 20;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "h[31:20]", "r[19:15]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "h[31:20]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FLW, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FSW
             inst_operand.m_size = 4;
-            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
             inst_operand.m_msb_lst[0] = 24;
             inst_operand.m_lsb_lst[0] = 20;
             inst_operand.m_connect[0] = false;
-            // ["r[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+            // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeHex;
             inst_operand.m_msb_lst[1] = 31;
             inst_operand.m_lsb_lst[1] = 25;
             inst_operand.m_connect[1] = true;
-            // ["r[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+            // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeHex;
             inst_operand.m_msb_lst[2] = 11;
             inst_operand.m_lsb_lst[2] = 7;
             inst_operand.m_connect[2] = false;
-            // ["r[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+            // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
             inst_operand.m_type_lst[3] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[3] = 19;
             inst_operand.m_lsb_lst[3] = 15;
             inst_operand.m_connect[3] = false;
-            // ["r[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+            // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::SD, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::FSW, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_ADDIW
+            // InstId_t::INST_ID_FMADD_S
+            inst_operand.m_size = 4;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[3] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[3] = 31;
+            inst_operand.m_lsb_lst[3] = 27;
+            inst_operand.m_connect[3] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMADD_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMSUB_S
+            inst_operand.m_size = 4;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[3] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[3] = 31;
+            inst_operand.m_lsb_lst[3] = 27;
+            inst_operand.m_connect[3] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMSUB_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FNMSUB_S
+            inst_operand.m_size = 4;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[3] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[3] = 31;
+            inst_operand.m_lsb_lst[3] = 27;
+            inst_operand.m_connect[3] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FNMSUB_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FNMADD_S
+            inst_operand.m_size = 4;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[3] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[3] = 31;
+            inst_operand.m_lsb_lst[3] = 27;
+            inst_operand.m_connect[3] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FNMADD_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FADD_S
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FADD_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FSUB_S
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FSUB_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMUL_S
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMUL_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FDIV_S
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FDIV_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FSQRT_S
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FSQRT_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FSGNJ_S
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FSGNJ_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FSGNJN_S
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FSGNJN_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FSGNJX_S
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FSGNJX_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMIN_S
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMIN_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMAX_S
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMAX_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_W_S
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_W_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_WU_S
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_WU_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMV_X_W
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMV_X_W, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FEQ_S
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "h[31:20]"]
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FEQ_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FLT_S
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FLT_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FLE_S
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FLE_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCLASS_S
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCLASS_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_S_W
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[1] = 19;
             inst_operand.m_lsb_lst[1] = 15;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "h[31:20]"]
+            // ["f[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_S_W, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_S_WU
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_S_WU, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMV_W_X
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMV_W_X, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FLD
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "r[19:15]", "h[31:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "r[19:15]", "h[31:20]"]
             inst_operand.m_type_lst[2] = OperandType::TypeHex;
             inst_operand.m_msb_lst[2] = 31;
             inst_operand.m_lsb_lst[2] = 20;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "h[31:20]"]
+            // ["f[11:7]", "r[19:15]", "h[31:20]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::ADDIW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::FLD, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_SLLIW
+            // InstId_t::INST_ID_FSD
+            inst_operand.m_size = 4;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 24;
+            inst_operand.m_lsb_lst[0] = 20;
+            inst_operand.m_connect[0] = false;
+            // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeHex;
+            inst_operand.m_msb_lst[1] = 31;
+            inst_operand.m_lsb_lst[1] = 25;
+            inst_operand.m_connect[1] = true;
+            // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeHex;
+            inst_operand.m_msb_lst[2] = 11;
+            inst_operand.m_lsb_lst[2] = 7;
+            inst_operand.m_connect[2] = false;
+            // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[3] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[3] = 19;
+            inst_operand.m_lsb_lst[3] = 15;
+            inst_operand.m_connect[3] = false;
+            // ["f[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FSD, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMADD_D
+            inst_operand.m_size = 4;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[3] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[3] = 31;
+            inst_operand.m_lsb_lst[3] = 27;
+            inst_operand.m_connect[3] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMADD_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMSUB_D
+            inst_operand.m_size = 4;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[3] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[3] = 31;
+            inst_operand.m_lsb_lst[3] = 27;
+            inst_operand.m_connect[3] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMSUB_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FNMSUB_D
+            inst_operand.m_size = 4;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[3] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[3] = 31;
+            inst_operand.m_lsb_lst[3] = 27;
+            inst_operand.m_connect[3] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FNMSUB_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FNMADD_D
+            inst_operand.m_size = 4;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+            inst_operand.m_type_lst[3] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[3] = 31;
+            inst_operand.m_lsb_lst[3] = 27;
+            inst_operand.m_connect[3] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]", "f[31:27]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FNMADD_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FADD_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FADD_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FSUB_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FSUB_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMUL_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMUL_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FDIV_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FDIV_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FSQRT_D
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FSQRT_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FSGNJ_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FSGNJ_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FSGNJN_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FSGNJN_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FSGNJX_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FSGNJX_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMIN_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMIN_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMAX_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["f[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMAX_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_S_D
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_S_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_D_S
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_D_S, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FEQ_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FEQ_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FLT_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FLT_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FLE_D
+            inst_operand.m_size = 3;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+            inst_operand.m_type_lst[2] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[2] = 24;
+            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_connect[2] = false;
+            // ["r[11:7]", "f[19:15]", "f[24:20]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FLE_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCLASS_D
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCLASS_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_W_D
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_W_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_WU_D
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_WU_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_D_W
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_D_W, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_D_WU
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_D_WU, inst_operand);
+        }
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_CSRRW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[1] = 31;
+         inst_operand.m_lsb_lst[1] = 20;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 19;
+         inst_operand.m_lsb_lst[2] = 15;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::CSRRW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_CSRRS
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[1] = 31;
+         inst_operand.m_lsb_lst[1] = 20;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 19;
+         inst_operand.m_lsb_lst[2] = 15;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::CSRRS, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_CSRRC
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[1] = 31;
+         inst_operand.m_lsb_lst[1] = 20;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 19;
+         inst_operand.m_lsb_lst[2] = 15;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::CSRRC, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_CSRRWI
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "h[31:20]", "h[19:15]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[1] = 31;
+         inst_operand.m_lsb_lst[1] = 20;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "h[31:20]", "h[19:15]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[2] = 19;
+         inst_operand.m_lsb_lst[2] = 15;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "h[31:20]", "h[19:15]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::CSRRWI, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_CSRRSI
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "h[31:20]", "h[19:15]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[1] = 31;
+         inst_operand.m_lsb_lst[1] = 20;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "h[31:20]", "h[19:15]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[2] = 19;
+         inst_operand.m_lsb_lst[2] = 15;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "h[31:20]", "h[19:15]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::CSRRSI, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_CSRRCI
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "h[31:20]", "h[19:15]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[1] = 31;
+         inst_operand.m_lsb_lst[1] = 20;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "h[31:20]", "h[19:15]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[2] = 19;
+         inst_operand.m_lsb_lst[2] = 15;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "h[31:20]", "h[19:15]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::CSRRCI, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_ECALL
+         inst_operand.m_size = 0;
+
+	     self.m_inst_operand_map.insert(RiscvInstId::ECALL, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_EBREAK
+         inst_operand.m_size = 0;
+
+	     self.m_inst_operand_map.insert(RiscvInstId::EBREAK, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_URET
+         inst_operand.m_size = 0;
+
+	     self.m_inst_operand_map.insert(RiscvInstId::URET, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_SRET
+         inst_operand.m_size = 0;
+
+	     self.m_inst_operand_map.insert(RiscvInstId::SRET, inst_operand);
+
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_HRET
+            inst_operand.m_size = 0;
+
+	        self.m_inst_operand_map.insert(RiscvInstId::HRET, inst_operand);
+        }
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_MRET
+         inst_operand.m_size = 0;
+
+	     self.m_inst_operand_map.insert(RiscvInstId::MRET, inst_operand);
+
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_MRTS
+            inst_operand.m_size = 0;
+
+	        self.m_inst_operand_map.insert(RiscvInstId::MRTS, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_MRTH
+            inst_operand.m_size = 0;
+
+	        self.m_inst_operand_map.insert(RiscvInstId::MRTH, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_WFI
+            inst_operand.m_size = 0;
+
+	        self.m_inst_operand_map.insert(RiscvInstId::WFI, inst_operand);
+        }
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_SFENCE_VMA
+         inst_operand.m_size = 2;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 19;
+         inst_operand.m_lsb_lst[0] = 15;
+         inst_operand.m_connect[0] = false;
+         // ["r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 24;
+         inst_operand.m_lsb_lst[1] = 20;
+         inst_operand.m_connect[1] = false;
+         // ["r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::SFENCE_VMA, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_LWU
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[1] = 31;
+         inst_operand.m_lsb_lst[1] = 20;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 19;
+         inst_operand.m_lsb_lst[2] = 15;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::LWU, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_LD
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[1] = 31;
+         inst_operand.m_lsb_lst[1] = 20;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 19;
+         inst_operand.m_lsb_lst[2] = 15;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "h[31:20]", "r[19:15]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::LD, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_SD
+         inst_operand.m_size = 4;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 24;
+         inst_operand.m_lsb_lst[0] = 20;
+         inst_operand.m_connect[0] = false;
+         // ["r[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[1] = 31;
+         inst_operand.m_lsb_lst[1] = 25;
+         inst_operand.m_connect[1] = true;
+         // ["r[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[2] = 11;
+         inst_operand.m_lsb_lst[2] = 7;
+         inst_operand.m_connect[2] = false;
+         // ["r[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+         inst_operand.m_type_lst[3] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[3] = 19;
+         inst_operand.m_lsb_lst[3] = 15;
+         inst_operand.m_connect[3] = false;
+         // ["r[24:20]", "h[31:25]|", "h[11:7]", "r[19:15]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::SD, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_ADDIW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "h[31:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "h[31:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeHex;
+         inst_operand.m_msb_lst[2] = 31;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "h[31:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::ADDIW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_SLLIW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::SLLIW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_SRLIW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::SRLIW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_SRAIW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::SRAIW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_ADDW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::ADDW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_SUBW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::SUBW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_SLLW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::SLLW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_SRLW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::SRLW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_SRAW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::SRAW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_MULW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::MULW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_DIVW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::DIVW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_DIVUW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::DIVUW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_REMW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::REMW, inst_operand);
+
+
+	     let mut inst_operand = OperandInfo::new();
+
+         // InstId_t::INST_ID_REMUW
+         inst_operand.m_size = 3;
+         inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[0] = 11;
+         inst_operand.m_lsb_lst[0] = 7;
+         inst_operand.m_connect[0] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[1] = 19;
+         inst_operand.m_lsb_lst[1] = 15;
+         inst_operand.m_connect[1] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+         inst_operand.m_type_lst[2] = OperandType::TypeXReg;
+         inst_operand.m_msb_lst[2] = 24;
+         inst_operand.m_lsb_lst[2] = 20;
+         inst_operand.m_connect[2] = false;
+         // ["r[11:7]", "r[19:15]", "r[24:20]"]
+
+	     self.m_inst_operand_map.insert(RiscvInstId::REMUW, inst_operand);
+
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_LR_D
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::LR_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_SC_D
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
@@ -2946,712 +3263,395 @@ impl Tracer {
             inst_operand.m_connect[2] = false;
             // ["r[11:7]", "r[19:15]", "r[24:20]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::SLLIW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::SC_D, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_SRLIW
+            // InstId_t::INST_ID_AMOSWAP_D
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[1] = 19;
-            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::SRLIW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOSWAP_D, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_SRAIW
+            // InstId_t::INST_ID_AMOADD_D
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[1] = 19;
-            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::SRAIW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOADD_D, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_ADDW
+            // InstId_t::INST_ID_AMOXOR_D
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[1] = 19;
-            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::ADDW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOXOR_D, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_SUBW
+            // InstId_t::INST_ID_AMOAND_D
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[1] = 19;
-            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::SUBW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOAND_D, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_SLLW
+            // InstId_t::INST_ID_AMOOR_D
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[1] = 19;
-            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::SLLW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOOR_D, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_SRLW
+            // InstId_t::INST_ID_AMOMIN_D
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[1] = 19;
-            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::SRLW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOMIN_D, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_SRAW
+            // InstId_t::INST_ID_AMOMAX_D
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[1] = 19;
-            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::SRAW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOMAX_D, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_MULW
+            // InstId_t::INST_ID_AMOMINU_D
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[1] = 19;
-            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::MULW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOMINU_D, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_DIVW
+            // InstId_t::INST_ID_AMOMAXU_D
             inst_operand.m_size = 3;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[1] = 19;
-            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_msb_lst[1] = 24;
+            inst_operand.m_lsb_lst[1] = 20;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
             inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
+            inst_operand.m_msb_lst[2] = 19;
+            inst_operand.m_lsb_lst[2] = 15;
             inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "r[24:20]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::DIVW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::AMOMAXU_D, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_DIVUW
-            inst_operand.m_size = 3;
+            // InstId_t::INST_ID_FCVT_L_S
+            inst_operand.m_size = 2;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
-            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            // ["r[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
             inst_operand.m_msb_lst[1] = 19;
             inst_operand.m_lsb_lst[1] = 15;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
-            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
-            inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "f[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::DIVUW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_L_S, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_REMW
-            inst_operand.m_size = 3;
+            // InstId_t::INST_ID_FCVT_LU_S
+            inst_operand.m_size = 2;
             inst_operand.m_type_lst[0] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
-            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            // ["r[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
             inst_operand.m_msb_lst[1] = 19;
             inst_operand.m_lsb_lst[1] = 15;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
-            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
-            inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["r[11:7]", "f[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::REMW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_LU_S, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
 
-            // InstId_t::INST_ID_REMUW
-            inst_operand.m_size = 3;
-            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            // InstId_t::INST_ID_FCVT_S_L
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
             inst_operand.m_msb_lst[0] = 11;
             inst_operand.m_lsb_lst[0] = 7;
             inst_operand.m_connect[0] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["f[11:7]", "r[19:15]"]
             inst_operand.m_type_lst[1] = OperandType::TypeXReg;
             inst_operand.m_msb_lst[1] = 19;
             inst_operand.m_lsb_lst[1] = 15;
             inst_operand.m_connect[1] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
-            inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-            inst_operand.m_msb_lst[2] = 24;
-            inst_operand.m_lsb_lst[2] = 20;
-            inst_operand.m_connect[2] = false;
-            // ["r[11:7]", "r[19:15]", "r[24:20]"]
+            // ["f[11:7]", "r[19:15]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::REMUW, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_S_L, inst_operand);
         }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_LR_D
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::LR_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_SC_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[19:15]", "r[24:20]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[19:15]", "r[24:20]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 24;
-        //     inst_operand.m_lsb_lst[2] = 20;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[19:15]", "r[24:20]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::SC_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOSWAP_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOSWAP_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOADD_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOADD_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOXOR_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOXOR_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOAND_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOAND_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOOR_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOOR_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOMIN_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOMIN_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOMAX_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOMAX_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOMINU_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOMINU_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_AMOMAXU_D
-        //     inst_operand.m_size = 3;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 24;
-        //     inst_operand.m_lsb_lst[1] = 20;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //     inst_operand.m_type_lst[2] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[2] = 19;
-        //     inst_operand.m_lsb_lst[2] = 15;
-        //     inst_operand.m_connect[2] = false;
-        //     // ["r[11:7]", "r[24:20]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::AMOMAXU_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_L_S
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_L_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_LU_S
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_LU_S, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_S_L
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_S_L, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_S_LU
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_S_LU, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_L_D
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_L_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_LU_D
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_LU_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMV_X_D
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["r[11:7]", "f[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMV_X_D, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_D_L
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_D_L, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FCVT_D_LU
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FCVT_D_LU, inst_operand);
-        // }
-        // {
-	    //     let mut inst_operand = OperandInfo::new();
-        //
-        //     // InstId_t::INST_ID_FMV_D_X
-        //     inst_operand.m_size = 2;
-        //     inst_operand.m_type_lst[0] = OperandType::TypeFreg;
-        //     inst_operand.m_msb_lst[0] = 11;
-        //     inst_operand.m_lsb_lst[0] = 7;
-        //     inst_operand.m_connect[0] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //     inst_operand.m_type_lst[1] = OperandType::TypeXReg;
-        //     inst_operand.m_msb_lst[1] = 19;
-        //     inst_operand.m_lsb_lst[1] = 15;
-        //     inst_operand.m_connect[1] = false;
-        //     // ["f[11:7]", "r[19:15]"]
-        //
-	    //     self.m_inst_operand_map.insert(RiscvInstId::FMV_D_X, inst_operand);
-        // }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_S_LU
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_S_LU, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_L_D
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_L_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_LU_D
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_LU_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMV_X_D
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["r[11:7]", "f[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["r[11:7]", "f[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMV_X_D, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_D_L
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_D_L, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FCVT_D_LU
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FCVT_D_LU, inst_operand);
+        }
+        {
+	        let mut inst_operand = OperandInfo::new();
+
+            // InstId_t::INST_ID_FMV_D_X
+            inst_operand.m_size = 2;
+            inst_operand.m_type_lst[0] = OperandType::TypeFreg;
+            inst_operand.m_msb_lst[0] = 11;
+            inst_operand.m_lsb_lst[0] = 7;
+            inst_operand.m_connect[0] = false;
+            // ["f[11:7]", "r[19:15]"]
+            inst_operand.m_type_lst[1] = OperandType::TypeXReg;
+            inst_operand.m_msb_lst[1] = 19;
+            inst_operand.m_lsb_lst[1] = 15;
+            inst_operand.m_connect[1] = false;
+            // ["f[11:7]", "r[19:15]"]
+
+	        self.m_inst_operand_map.insert(RiscvInstId::FMV_D_X, inst_operand);
+        }
         // {
 	    //     let mut inst_operand = OperandInfo::new();
         //

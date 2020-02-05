@@ -33,6 +33,7 @@ pub struct Riscv64Env {
     pub m_pc: Addr64T,
     m_previous_pc: Addr64T,
     m_regs: [Xlen64T; 32],
+    m_fregs: [Xlen64T; 32],
     pub m_memory: HashMap<Addr64T, u8>, // memory
     pub m_csr: RiscvCsr<Xlen64T>,
 
@@ -59,6 +60,7 @@ impl Riscv64Env {
             m_pc: DRAM_BASE as Addr64T,
             m_memory: HashMap::new(),
             m_regs: [0; 32],
+            m_fregs: [0; 32],
             m_maxpriv: PrivMode::Machine,
             m_previous_pc: 0,
             m_vmmode: VMMode::Mbare,
@@ -178,6 +180,9 @@ pub trait Riscv64Core {
     fn read_reg(&mut self, reg_addr: RegAddrT) -> Xlen64T;
     fn write_reg(&mut self, reg_addr: RegAddrT, data: Xlen64T);
 
+    fn read_freg(&mut self, reg_addr: RegAddrT) -> Xlen64T;
+    fn write_freg(&mut self, reg_addr: RegAddrT, data: Xlen64T);
+
     // fn decode_inst(&mut self, inst: InstT) -> RiscvInstId;
     // fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32);
 
@@ -241,9 +246,36 @@ impl Riscv64Core for Riscv64Env {
             self.m_trace.m_trace_info.push(write_reg_trace);
 
             self.m_regs[reg_addr as usize] = data;
-            // println!("     x{:02} <= {:08x}", reg_addr, data);
         }
     }
+
+    fn read_freg(&mut self, reg_addr: RegAddrT) -> Xlen64T {
+        let ret_val: Xlen64T = self.m_fregs[reg_addr as usize];
+
+        let mut read_reg_trace = TraceInfo::new();
+        read_reg_trace.m_trace_type = TraceType::FRegRead;
+        read_reg_trace.m_trace_addr = reg_addr as Addr64T;
+        read_reg_trace.m_trace_value = ret_val;
+        read_reg_trace.m_trace_memresult = MemResult::NoExcept;
+
+        self.m_trace.m_trace_info.push(read_reg_trace);
+
+        return ret_val;
+    }
+
+    fn write_freg(&mut self, reg_addr: RegAddrT, data: Xlen64T) {
+        let mut write_reg_trace = TraceInfo::new();
+
+        write_reg_trace.m_trace_type  = TraceType::FRegWrite;
+        write_reg_trace.m_trace_addr  = reg_addr as Addr64T;
+        write_reg_trace.m_trace_value = data;
+        write_reg_trace.m_trace_memresult = MemResult::NoExcept;
+
+        self.m_trace.m_trace_info.push(write_reg_trace);
+
+        self.m_fregs[reg_addr as usize] = data;
+    }
+
 
     fn set_pc(&mut self, addr: Addr64T) {
         self.m_previous_pc = self.m_pc;
