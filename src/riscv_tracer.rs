@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::riscv32_core::PrivMode;
+nuse crate::riscv32_core::PrivMode;
 use crate::riscv32_core::VMMode;
 
 use crate::riscv32_core::MemResult;
@@ -33,9 +33,8 @@ pub enum TraceType {
     None,
 }
 
-pub struct TraceInfo {
+struct TraceInfo {
     pub m_trace_type: TraceType,
-    pub m_trace_size: u32,
     pub m_trace_addr: Addr64T,
     pub m_trace_value: Xlen64T,
     pub m_trace_memresult: MemResult, /* Memory Access Result */
@@ -45,7 +44,6 @@ impl TraceInfo {
     pub fn new() -> TraceInfo {
         TraceInfo {
             m_trace_type: TraceType::None,
-            m_trace_size: 0,
             m_trace_addr: 0,
             m_trace_value: 0,
             m_trace_memresult: MemResult::NoExcept, /* Memory Access Result */
