@@ -1000,7 +1000,7 @@ impl Tracer {
             // InstId_t::INST_ID_FENCE_I
             inst_operand.m_size = 0;
 
-	        self.m_inst_operand_map.insert(RiscvInstId::FENCEI, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::FENCE_I, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();
@@ -2826,7 +2826,7 @@ impl Tracer {
             inst_operand.m_connect[1] = false;
             // ["r[19:15]", "r[24:20]"]
 
-	        self.m_inst_operand_map.insert(RiscvInstId::SFENCEVMA, inst_operand);
+	        self.m_inst_operand_map.insert(RiscvInstId::SFENCE_VMA, inst_operand);
         }
         {
 	        let mut inst_operand = OperandInfo::new();

@@ -385,8 +385,8 @@ impl RiscvInsts for Riscv64Env {
                 self.set_update_pc(true);
             }
             RiscvInstId::FENCE => {}
-            RiscvInstId::FENCEI => {}
-            RiscvInstId::SFENCEVMA => {}
+            RiscvInstId::FENCE_I => {}
+            RiscvInstId::SFENCE_VMA => {}
             RiscvInstId::ECALL => {
                 self.m_csr.csrrw(CsrAddr::Mepc, self.m_pc as Xlen64T); // MEPC
 
