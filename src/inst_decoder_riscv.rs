@@ -1,10 +1,6 @@
 /* CAUTION! THIS SOURCE CODE IS GENERATED AUTOMATICALLY. DON'T MODIFY BY HAND. */
 
 
-pub trait RiscvDecoder {
-    fn decode_inst(&mut self, inst: InstT) -> Option<RiscvInstId>;
-}
-
 impl RiscvDecoder for Riscv64Env {
   fn decode_inst (&mut self, inst: InstT) -> Option<RiscvInstId> {
     let field_LD = ExtractLDField (inst);
