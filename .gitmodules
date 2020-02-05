@@ -1,3 +1,6 @@
 [submodule "riscv-tests"]
 	path = riscv-tests
 	url = https://github.com/riscv/riscv-tests.git
+[submodule "vendor/softfloat"]
+	path = vendor/softfloat
+	url = git@github.com:ucb-bar/berkeley-softfloat-3.git

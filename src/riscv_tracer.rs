@@ -5,6 +5,7 @@ use crate::riscv32_core::VMMode;
 
 use crate::riscv32_core::MemResult;
 
+use crate::riscv32_core::RegAddrT;
 use crate::riscv32_core::InstT;
 use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
@@ -18,40 +19,18 @@ use crate::riscv_inst_operand::OperandInfo;
 
 use std::f32;
 
-#[derive(PartialEq, Eq, Copy, Clone)]
-pub enum TraceType {
-    XRegWrite,
-    XRegRead, // Integer
-    FRegWrite,
-    FRegRead,    // Single-Precision Float
-    DRegWrite,
-    DRegRead,    // Double-Precision Float
-    MemRead,
-    MemWrite, // Memory Write
+#[derive(PartialEq, Eq)]
+pub enum TraceInfo {
+    XRegWrite { addr: RegAddrT, value: Xlen64T },
+    XRegRead { addr: RegAddrT, value: Xlen64T },
+    // FRegWrite,
+    // FRegRead,    // Single-Precision Float
+    // DRegWrite,
+    // DRegRead,    // Double-Precision Float
+    MemRead { addr: Addr64T, value: Xlen64T, memresult: MemResult },
+    MemWrite { addr: Addr64T, value: Xlen64T, memresult: MemResult },
     // CsrWrite,
     // CsrRead,
-    None,
-}
-
-
-struct TraceInfo {
-    pub m_trace_type: TraceType,
-    pub m_trace_size: u32,
-    pub m_trace_addr: Addr64T,
-    pub m_trace_value: Xlen64T,
-    pub m_trace_memresult: MemResult, /* Memory Access Result */
-}
-
-impl TraceInfo {
-    pub fn new() -> TraceInfo {
-        TraceInfo {
-            m_trace_type: TraceType::None,
-            m_trace_size: 0,
-            m_trace_addr: 0,
-            m_trace_value: 0,
-            m_trace_memresult: MemResult::NoExcept, /* Memory Access Result */
-        }
-    }
 }
 
 pub struct Tracer {
@@ -181,55 +160,23 @@ impl RiscvTracer for Tracer {
             _ => {}
         }
 
-        for trace_idx in 0..self.m_trace_info.len() {
-            match self.m_trace_info[trace_idx].m_trace_type {
-                TraceType::XRegWrite => {
+        for trace_info in &self.m_trace_info {
+            match trace_info {
+                TraceInfo::XRegWrite{addr, value} => {
                     print!(
-                        "x{:02}<={:016x} ",
-                        self.m_trace_info[trace_idx].m_trace_addr,
-                        self.m_trace_info[trace_idx].m_trace_value
-                    );
+                        "x{:02}<={:016x} ", addr, value);
                 }
-                TraceType::XRegRead => {
+                TraceInfo::XRegRead{addr, value} => {
                     print!(
-                        "x{:02}=>{:016x} ",
-                        self.m_trace_info[trace_idx].m_trace_addr,
-                        self.m_trace_info[trace_idx].m_trace_value
-                    );
+                        "x{:02}=>{:016x} ", addr, value);
                 }
-                TraceType::MemWrite => {
+                TraceInfo::MemWrite{addr, value, memresult} => {
                     print!(
-                        "({:016x})<={:016x} ",
-                        self.m_trace_info[trace_idx].m_trace_addr,
-                        self.m_trace_info[trace_idx].m_trace_value
-                    );
+                        "({:08x})<={:08x} ", addr, value);
                 }
-                TraceType::MemRead => {
+                TraceInfo::MemRead{addr, value, memresult} => {
                     print!(
-                        "({:016x})=>{:016x} ",
-                        self.m_trace_info[trace_idx].m_trace_addr,
-                        self.m_trace_info[trace_idx].m_trace_value
-                    );
-                }
-                TraceType::FRegWrite => {
-                    print!(
-                        "f{:02}<={:016x} ",
-                        self.m_trace_info[trace_idx].m_trace_addr,
-                        self.m_trace_info[trace_idx].m_trace_value
-                    );
-                }
-                TraceType::FRegRead => {
-                    print!(
-                        "f{:02}=>{:016x} ",
-                        self.m_trace_info[trace_idx].m_trace_addr,
-                        self.m_trace_info[trace_idx].m_trace_value
-                    );
-                }
-                _ => {
-                    panic!(
-                        "[{:} is not supported] ",
-                        self.m_trace_info[trace_idx].m_trace_type as u32
-                    );
+                        "({:08x})=>{:08x} ", addr, value);
                 }
             }
         }

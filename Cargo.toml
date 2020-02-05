@@ -3,7 +3,13 @@ name = "swimmer_rust"
 version = "0.1.0"
 authors = ["msyksphinz <msyksphinz_dev.gmail.com>"]
 edition = "2018"
+build = "build.rs"
+links = "softfloat"
 
 [dependencies]
 num = "*"
 getopts = "0.2"
+libc = "0.2.0"
+
+[build-dependencies]
+cc = "1.0"
