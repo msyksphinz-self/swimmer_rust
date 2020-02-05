@@ -9,7 +9,7 @@ use crate::riscv32_core::InstT;
 use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
-use crate::riscv32_insts::RiscvInstId;
+use crate::riscv_inst_id::RiscvInstId;
 
 use crate::riscv_inst_mnemonic::*;
 

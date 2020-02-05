@@ -15,6 +15,7 @@ use crate::riscv32_core::DRAM_BASE;
 use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 use crate::riscv64_decoder::RiscvDecoder;
+use crate::riscv_inst_id::RiscvInstId;
 
 pub mod riscv32_core;
 pub mod riscv64_core;
@@ -28,6 +29,7 @@ pub mod riscv_mmu;
 pub mod riscv_inst_mnemonic;
 pub mod riscv_tracer;
 pub mod riscv_inst_operand;
+pub mod riscv_inst_id;
 
 pub fn swimmer_rust_exec(filename: String) -> i64
 {

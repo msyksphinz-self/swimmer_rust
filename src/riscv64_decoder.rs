@@ -1,4 +1,4 @@
-use crate::riscv32_insts::RiscvInstId;
+use crate::riscv_inst_id::RiscvInstId;
 use crate::riscv64_core::Riscv64Env;
 
 use crate::riscv32_core::InstT;

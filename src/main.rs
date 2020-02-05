@@ -16,6 +16,7 @@ mod riscv_mmu;
 mod riscv_inst_mnemonic;
 mod riscv_tracer;
 mod riscv_inst_operand;
+mod riscv_inst_id;
 
 #[derive(Debug)]
 struct Args {

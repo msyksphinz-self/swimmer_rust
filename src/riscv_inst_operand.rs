@@ -1,5 +1,5 @@
 use crate::riscv_tracer::Tracer;
-use crate::riscv32_insts::RiscvInstId;
+use crate::riscv_inst_id::RiscvInstId;
 
 #[derive(Clone, Copy)]
 #[allow(dead_code)]

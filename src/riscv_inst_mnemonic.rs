@@ -1,4 +1,4 @@
-use crate::riscv32_insts::RiscvInstId;
+use crate::riscv_inst_id::RiscvInstId;
 
 pub fn get_riscv_inst_mnemonic(dec_inst: RiscvInstId) -> String {
     match dec_inst {
