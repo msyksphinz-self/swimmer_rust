@@ -35,6 +35,10 @@ extern {
     fn f32_add(a: u32, b: u32) -> u32;
     fn f32_sub(a: u32, b: u32) -> u32;
     fn f32_mul(a: u32, b: u32) -> u32;
+
+    fn f64_add(a: u64, b: u64) -> u64;
+    fn f64_sub(a: u64, b: u64) -> u64;
+    fn f64_mul(a: u64, b: u64) -> u64;
 }
 
 impl RiscvInsts for Riscv64Env {
@@ -573,44 +577,100 @@ impl RiscvInsts for Riscv64Env {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
                 match self.read_bus_word(addr as Addr64T) {
                     Ok(reg_data) => {
-                        self.write_freg(rd, (reg_data as XlenT) as Xlen64T);
+                        self.write_freg32(rd, (reg_data as XlenT) as Xlen64T);
                     },
                     Err(_result) => {},
                 }
             }
+            RiscvInstId::FSW => {
+                let rs2_data = self.read_freg32(rs2);
+                let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
+                self.write_bus_word(addr as Addr64T, rs2_data);
+            }
 
             RiscvInstId::FADD_S => {
-                let rs1_data = self.read_freg(rs1);
-                let rs2_data = self.read_freg(rs2);
+                let rs1_data = self.read_freg32(rs1);
+                let rs2_data = self.read_freg32(rs2);
                 unsafe { softfloat_exceptionFlags = 0; }
 
                 let reg_data: Xlen64T = (unsafe { f32_add(rs1_data as u32, rs2_data as u32) } as XlenT) as Xlen64T;
                 self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
-                self.write_freg(rd, reg_data);
+                self.write_freg32(rd, reg_data);
             }
 
             RiscvInstId::FSUB_S => {
-                let rs1_data = self.read_freg(rs1);
-                let rs2_data = self.read_freg(rs2);
+                let rs1_data = self.read_freg32(rs1);
+                let rs2_data = self.read_freg32(rs2);
                 unsafe { softfloat_exceptionFlags = 0; }
 
                 let reg_data: Xlen64T = (unsafe { f32_sub(rs1_data as u32, rs2_data as u32) } as XlenT) as Xlen64T;
                 self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
-                self.write_freg(rd, reg_data);
+                self.write_freg32(rd, reg_data);
             }
 
             RiscvInstId::FMUL_S => {
-                let rs1_data = self.read_freg(rs1);
-                let rs2_data = self.read_freg(rs2);
+                let rs1_data = self.read_freg32(rs1);
+                let rs2_data = self.read_freg32(rs2);
                 unsafe { softfloat_exceptionFlags = 0; }
 
                 let reg_data: Xlen64T = (unsafe { f32_mul(rs1_data as u32, rs2_data as u32) } as XlenT) as Xlen64T;
                 self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
-                self.write_freg(rd, reg_data);
+                self.write_freg32(rd, reg_data);
             }
 
             RiscvInstId::FMV_X_W => {
-                let rs1_data = self.read_freg(rs1);
+                let rs1_data = self.read_freg32(rs1);
+                self.write_reg(rd, rs1_data);
+            }
+
+
+            RiscvInstId::FLD => {
+                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
+                match self.read_bus_dword(addr as Addr64T) {
+                    Ok(reg_data) => {
+                        self.write_freg64(rd, (reg_data));
+                    },
+                    Err(_result) => {},
+                }
+            }
+            RiscvInstId::FSD => {
+                let rs2_data = self.read_freg64(rs2);
+                let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
+                self.write_bus_dword(addr as Addr64T, rs2_data);
+            }
+
+            RiscvInstId::FADD_D => {
+                let rs1_data = self.read_freg64(rs1);
+                let rs2_data = self.read_freg64(rs2);
+                unsafe { softfloat_exceptionFlags = 0; }
+
+                let reg_data: Xlen64T = unsafe { f64_add(rs1_data as u64, rs2_data as u64) } as Xlen64T;
+                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
+                self.write_freg64(rd, reg_data);
+            }
+
+            RiscvInstId::FSUB_D => {
+                let rs1_data = self.read_freg64(rs1);
+                let rs2_data = self.read_freg64(rs2);
+                unsafe { softfloat_exceptionFlags = 0; }
+
+                let reg_data: Xlen64T = unsafe { f64_sub(rs1_data as u64, rs2_data as u64) } as Xlen64T;
+                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
+                self.write_freg64(rd, reg_data);
+            }
+
+            RiscvInstId::FMUL_D => {
+                let rs1_data = self.read_freg64(rs1);
+                let rs2_data = self.read_freg64(rs2);
+                unsafe { softfloat_exceptionFlags = 0; }
+
+                let reg_data: Xlen64T = unsafe { f64_mul(rs1_data as u64, rs2_data as u64) } as Xlen64T;
+                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
+                self.write_freg64(rd, reg_data);
+            }
+
+            RiscvInstId::FMV_X_D => {
+                let rs1_data = self.read_freg64(rs1);
                 self.write_reg(rd, rs1_data);
             }
 

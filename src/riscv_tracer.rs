@@ -24,10 +24,10 @@ use std::f32;
 pub enum TraceInfo {
     XRegWrite { addr: RegAddrT, value: Xlen64T },
     XRegRead { addr: RegAddrT, value: Xlen64T },
-    FRegWrite { addr: RegAddrT, value: XlenT },
-    FRegRead { addr: RegAddrT, value: XlenT },
-    // DRegWrite,
-    // DRegRead,    // Double-Precision Float
+    F32RegWrite { addr: RegAddrT, value: XlenT },
+    F32RegRead { addr: RegAddrT, value: XlenT },
+    F64RegWrite { addr: RegAddrT, value: Xlen64T },
+    F64RegRead { addr: RegAddrT, value: Xlen64T },
     MemRead { addr: Addr64T, value: Xlen64T, memresult: MemResult },
     MemWrite { addr: Addr64T, value: Xlen64T, memresult: MemResult },
     // CsrWrite,
@@ -179,13 +179,21 @@ impl RiscvTracer for Tracer {
                     print!(
                         "({:08x})=>{:08x} ", addr, value);
                 }
-                TraceInfo::FRegWrite{addr, value} => {
+                TraceInfo::F32RegWrite{addr, value} => {
                     print!(
                         "f{:02}<={:08x} ", addr, value);
                 }
-                TraceInfo::FRegRead{addr, value} => {
+                TraceInfo::F32RegRead{addr, value} => {
                     print!(
                         "f{:02}=>{:08x} ", addr, value);
+                }
+                TraceInfo::F64RegWrite{addr, value} => {
+                    print!(
+                        "f{:02}<={:016x} ", addr, value);
+                }
+                TraceInfo::F64RegRead{addr, value} => {
+                    print!(
+                        "f{:02}=>{:016x} ", addr, value);
                 }
             }
         }

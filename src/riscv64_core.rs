@@ -180,8 +180,11 @@ pub trait Riscv64Core {
     fn read_reg(&mut self, reg_addr: RegAddrT) -> Xlen64T;
     fn write_reg(&mut self, reg_addr: RegAddrT, data: Xlen64T);
 
-    fn read_freg(&mut self, reg_addr: RegAddrT) -> Xlen64T;
-    fn write_freg(&mut self, reg_addr: RegAddrT, data: Xlen64T);
+    fn read_freg32(&mut self, reg_addr: RegAddrT) -> Xlen64T;
+    fn write_freg32(&mut self, reg_addr: RegAddrT, data: Xlen64T);
+
+    fn read_freg64(&mut self, reg_addr: RegAddrT) -> Xlen64T;
+    fn write_freg64(&mut self, reg_addr: RegAddrT, data: Xlen64T);
 
     // fn decode_inst(&mut self, inst: InstT) -> RiscvInstId;
     // fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32);
@@ -240,26 +243,45 @@ impl Riscv64Core for Riscv64Env {
         }
     }
 
-    fn read_freg(&mut self, reg_addr: RegAddrT) -> Xlen64T {
+    fn read_freg32(&mut self, reg_addr: RegAddrT) -> Xlen64T {
         let ret_val: Xlen64T = self.m_fregs[reg_addr as usize];
 
-        let mut read_reg_trace = TraceInfo::FRegRead { addr: reg_addr,
-                                                       value: ret_val as XlenT};
+        let mut read_reg_trace = TraceInfo::F32RegRead { addr: reg_addr,
+                                                         value: ret_val as XlenT};
 
         self.m_trace.m_trace_info.push(read_reg_trace);
 
         return ret_val;
     }
 
-    fn write_freg(&mut self, reg_addr: RegAddrT, data: Xlen64T) {
-        let mut write_reg_trace = TraceInfo::FRegWrite { addr: reg_addr,
-                                                         value: data as XlenT };
+    fn write_freg32(&mut self, reg_addr: RegAddrT, data: Xlen64T) {
+        let mut write_reg_trace = TraceInfo::F32RegWrite { addr: reg_addr,
+                                                           value: data as XlenT };
 
         self.m_trace.m_trace_info.push(write_reg_trace);
 
         self.m_fregs[reg_addr as usize] = data;
     }
 
+    fn read_freg64(&mut self, reg_addr: RegAddrT) -> Xlen64T {
+        let ret_val: Xlen64T = self.m_fregs[reg_addr as usize];
+
+        let mut read_reg_trace = TraceInfo::F64RegRead { addr: reg_addr,
+                                                         value: ret_val};
+
+        self.m_trace.m_trace_info.push(read_reg_trace);
+
+        return ret_val;
+    }
+
+    fn write_freg64(&mut self, reg_addr: RegAddrT, data: Xlen64T) {
+        let mut write_reg_trace = TraceInfo::F64RegWrite { addr: reg_addr,
+                                                           value: data };
+
+        self.m_trace.m_trace_info.push(write_reg_trace);
+
+        self.m_fregs[reg_addr as usize] = data;
+    }
 
     fn set_pc(&mut self, addr: Addr64T) {
         self.m_previous_pc = self.m_pc;
