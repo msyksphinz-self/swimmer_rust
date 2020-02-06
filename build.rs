@@ -313,5 +313,5 @@ fn main() {
         .define("SOFTFLOAT_FAST_DIV32TO16", None)
         .define("SOFTFLOAT_FAST_DIV64TO32", None)
         .flag("-O2")
-        .compile("softfloat.a")
+        .compile("softfloat")
 }

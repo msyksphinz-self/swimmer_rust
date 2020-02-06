@@ -3,6 +3,7 @@ use crate::riscv64_core::Xlen64T;
 
 pub enum CsrAddr {
     None = 0x000,
+    FFlags = 0x001,
     // Cycle          = 0xc00,
     // Instret        = 0xc02,
     // Hpmcounter3    = 0xc03,
@@ -197,6 +198,7 @@ pub enum CsrAddr {
 impl CsrAddr {
     pub fn from_u64(n: u64) -> CsrAddr {
         match n {
+            0x001 => CsrAddr::FFlags ,
             // 0xc00 => CsrAddr::Cycle        ,
             // 0xc02 => CsrAddr::Instret      ,
             // 0xc03 => CsrAddr::Hpmcounter3  ,
@@ -444,6 +446,7 @@ impl RiscvCsrBase<i64> {
 }
 
 pub struct RiscvCsr<W> {
+    pub m_fflags: RiscvCsrBase<W>,
     pub m_mcycle: RiscvCsrBase<W>,
     pub m_minstret: RiscvCsrBase<W>,
     pub m_mimpid: RiscvCsrBase<W>,
@@ -634,6 +637,7 @@ pub struct RiscvCsr<W> {
 impl RiscvCsr<i64> {
     pub fn new() -> RiscvCsr<i64> {
         RiscvCsr {
+            m_fflags: RiscvCsrBase::<i64>::new(),
             m_mcycle: RiscvCsrBase::<i64>::new(),
             m_minstret: RiscvCsrBase::<i64>::new(),
             m_mimpid: RiscvCsrBase::<i64>::new(),
@@ -671,6 +675,7 @@ impl RiscvCsr<i64> {
 
     pub fn csrrw(&mut self, addr: CsrAddr, data: Xlen64T) -> Xlen64T {
         match addr {
+            CsrAddr::FFlags => return self.m_fflags.csrrw(data),
             CsrAddr::Mcycle => return self.m_mcycle.csrrw(data),
             CsrAddr::Minstret => return self.m_minstret.csrrw(data),
             CsrAddr::Mimpid => return self.m_mimpid.csrrw(data),
@@ -709,6 +714,7 @@ impl RiscvCsr<i64> {
 
     pub fn csrrs(&mut self, addr: CsrAddr, data: Xlen64T) -> Xlen64T {
         match addr {
+            CsrAddr::FFlags => return self.m_fflags.csrrs(data),
             CsrAddr::Mcycle => return self.m_mcycle.csrrs(data),
             CsrAddr::Minstret => return self.m_minstret.csrrs(data),
             CsrAddr::Mimpid => return self.m_mimpid.csrrs(data),
@@ -747,6 +753,7 @@ impl RiscvCsr<i64> {
 
     pub fn csrrc(&mut self, addr: CsrAddr, data: Xlen64T) -> Xlen64T {
         match addr {
+            CsrAddr::FFlags => return self.m_fflags.csrrc(data),
             CsrAddr::Mcycle => return self.m_mcycle.csrrc(data),
             CsrAddr::Minstret => return self.m_minstret.csrrc(data),
             CsrAddr::Mimpid => return self.m_mimpid.csrrc(data),

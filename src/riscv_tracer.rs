@@ -6,6 +6,7 @@ use crate::riscv32_core::VMMode;
 use crate::riscv32_core::MemResult;
 
 use crate::riscv32_core::RegAddrT;
+use crate::riscv32_core::XlenT;
 use crate::riscv32_core::InstT;
 use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
@@ -23,8 +24,8 @@ use std::f32;
 pub enum TraceInfo {
     XRegWrite { addr: RegAddrT, value: Xlen64T },
     XRegRead { addr: RegAddrT, value: Xlen64T },
-    // FRegWrite,
-    // FRegRead,    // Single-Precision Float
+    FRegWrite { addr: RegAddrT, value: XlenT },
+    FRegRead { addr: RegAddrT, value: XlenT },
     // DRegWrite,
     // DRegRead,    // Double-Precision Float
     MemRead { addr: Addr64T, value: Xlen64T, memresult: MemResult },
@@ -177,6 +178,14 @@ impl RiscvTracer for Tracer {
                 TraceInfo::MemRead{addr, value, memresult} => {
                     print!(
                         "({:08x})=>{:08x} ", addr, value);
+                }
+                TraceInfo::FRegWrite{addr, value} => {
+                    print!(
+                        "f{:02}<={:08x} ", addr, value);
+                }
+                TraceInfo::FRegRead{addr, value} => {
+                    print!(
+                        "f{:02}=>{:08x} ", addr, value);
                 }
             }
         }

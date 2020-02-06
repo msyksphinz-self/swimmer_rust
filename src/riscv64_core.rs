@@ -15,6 +15,7 @@ use crate::riscv_tracer::TraceInfo;
 use crate::riscv_tracer::Tracer;
 
 use crate::riscv32_core::InstT;
+use crate::riscv32_core::XlenT;
 use crate::riscv32_core::RegAddrT;
 
 use crate::riscv32_core::DRAM_BASE;
@@ -242,11 +243,8 @@ impl Riscv64Core for Riscv64Env {
     fn read_freg(&mut self, reg_addr: RegAddrT) -> Xlen64T {
         let ret_val: Xlen64T = self.m_fregs[reg_addr as usize];
 
-        let mut read_reg_trace = TraceInfo::new();
-        read_reg_trace.m_trace_type = TraceType::FRegRead;
-        read_reg_trace.m_trace_addr = reg_addr as Addr64T;
-        read_reg_trace.m_trace_value = ret_val;
-        read_reg_trace.m_trace_memresult = MemResult::NoExcept;
+        let mut read_reg_trace = TraceInfo::FRegRead { addr: reg_addr,
+                                                       value: ret_val as XlenT};
 
         self.m_trace.m_trace_info.push(read_reg_trace);
 
@@ -254,12 +252,8 @@ impl Riscv64Core for Riscv64Env {
     }
 
     fn write_freg(&mut self, reg_addr: RegAddrT, data: Xlen64T) {
-        let mut write_reg_trace = TraceInfo::new();
-
-        write_reg_trace.m_trace_type  = TraceType::FRegWrite;
-        write_reg_trace.m_trace_addr  = reg_addr as Addr64T;
-        write_reg_trace.m_trace_value = data;
-        write_reg_trace.m_trace_memresult = MemResult::NoExcept;
+        let mut write_reg_trace = TraceInfo::FRegWrite { addr: reg_addr,
+                                                         value: data as XlenT };
 
         self.m_trace.m_trace_info.push(write_reg_trace);
 

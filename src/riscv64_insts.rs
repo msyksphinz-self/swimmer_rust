@@ -28,6 +28,15 @@ use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPIE_MSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_MSB;
 
+#[link(name = "softfloat", kind="static")]
+extern {
+    static mut softfloat_exceptionFlags: u8;
+    static mut softfloat_roundingMode: u8;
+    fn f32_add(a: u32, b: u32) -> u32;
+    fn f32_sub(a: u32, b: u32) -> u32;
+    fn f32_mul(a: u32, b: u32) -> u32;
+}
+
 impl RiscvInsts for Riscv64Env {
     fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32) {
         self.m_trace.m_executed_pc = self.m_pc;
@@ -573,7 +582,30 @@ impl RiscvInsts for Riscv64Env {
             RiscvInstId::FADD_S => {
                 let rs1_data = self.read_freg(rs1);
                 let rs2_data = self.read_freg(rs2);
-                let reg_data: Xlen64T = rs1_data.wrapping_add(rs2_data);
+                unsafe { softfloat_exceptionFlags = 0; }
+
+                let reg_data: Xlen64T = (unsafe { f32_add(rs1_data as u32, rs2_data as u32) } as XlenT) as Xlen64T;
+                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
+                self.write_freg(rd, reg_data);
+            }
+
+            RiscvInstId::FSUB_S => {
+                let rs1_data = self.read_freg(rs1);
+                let rs2_data = self.read_freg(rs2);
+                unsafe { softfloat_exceptionFlags = 0; }
+
+                let reg_data: Xlen64T = (unsafe { f32_sub(rs1_data as u32, rs2_data as u32) } as XlenT) as Xlen64T;
+                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
+                self.write_freg(rd, reg_data);
+            }
+
+            RiscvInstId::FMUL_S => {
+                let rs1_data = self.read_freg(rs1);
+                let rs2_data = self.read_freg(rs2);
+                unsafe { softfloat_exceptionFlags = 0; }
+
+                let reg_data: Xlen64T = (unsafe { f32_mul(rs1_data as u32, rs2_data as u32) } as XlenT) as Xlen64T;
+                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
                 self.write_freg(rd, reg_data);
             }
 
