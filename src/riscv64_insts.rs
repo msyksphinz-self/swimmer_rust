@@ -21,25 +21,14 @@ use crate::riscv_exception::RiscvException;
 use crate::riscv_inst_id::RiscvInstId;
 use crate::riscv32_insts::RiscvInsts;
 
+use crate::riscv64_insts_fpu::Riscv64InstsFpu;
+
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_MSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPIE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPIE_MSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_MSB;
-
-#[link(name = "softfloat", kind="static")]
-extern {
-    static mut softfloat_exceptionFlags: u8;
-    static mut softfloat_roundingMode: u8;
-    fn f32_add(a: u32, b: u32) -> u32;
-    fn f32_sub(a: u32, b: u32) -> u32;
-    fn f32_mul(a: u32, b: u32) -> u32;
-
-    fn f64_add(a: u64, b: u64) -> u64;
-    fn f64_sub(a: u64, b: u64) -> u64;
-    fn f64_mul(a: u64, b: u64) -> u64;
-}
 
 impl RiscvInsts for Riscv64Env {
     fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32) {
@@ -573,106 +562,19 @@ impl RiscvInsts for Riscv64Env {
                 self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
             }
 
-            RiscvInstId::FLW => {
-                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                match self.read_bus_word(addr as Addr64T) {
-                    Ok(reg_data) => {
-                        self.write_freg32(rd, (reg_data as XlenT) as Xlen64T);
-                    },
-                    Err(_result) => {},
-                }
-            }
-            RiscvInstId::FSW => {
-                let rs2_data = self.read_freg32(rs2);
-                let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
-                self.write_bus_word(addr as Addr64T, rs2_data);
-            }
+            RiscvInstId::FLW => self.execute_flw(inst),
+            RiscvInstId::FSW => self.execute_fsw(inst),
+            RiscvInstId::FADD_S  => self.execute_fadd_s(inst),
+            RiscvInstId::FSUB_S  => self.execute_fsub_s(inst),
+            RiscvInstId::FMUL_S  => self.execute_fmul_s(inst),
+            RiscvInstId::FMV_X_W => self.execute_fmv_x_w(inst),
 
-            RiscvInstId::FADD_S => {
-                let rs1_data = self.read_freg32(rs1);
-                let rs2_data = self.read_freg32(rs2);
-                unsafe { softfloat_exceptionFlags = 0; }
-
-                let reg_data: Xlen64T = (unsafe { f32_add(rs1_data as u32, rs2_data as u32) } as XlenT) as Xlen64T;
-                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
-                self.write_freg32(rd, reg_data);
-            }
-
-            RiscvInstId::FSUB_S => {
-                let rs1_data = self.read_freg32(rs1);
-                let rs2_data = self.read_freg32(rs2);
-                unsafe { softfloat_exceptionFlags = 0; }
-
-                let reg_data: Xlen64T = (unsafe { f32_sub(rs1_data as u32, rs2_data as u32) } as XlenT) as Xlen64T;
-                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
-                self.write_freg32(rd, reg_data);
-            }
-
-            RiscvInstId::FMUL_S => {
-                let rs1_data = self.read_freg32(rs1);
-                let rs2_data = self.read_freg32(rs2);
-                unsafe { softfloat_exceptionFlags = 0; }
-
-                let reg_data: Xlen64T = (unsafe { f32_mul(rs1_data as u32, rs2_data as u32) } as XlenT) as Xlen64T;
-                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
-                self.write_freg32(rd, reg_data);
-            }
-
-            RiscvInstId::FMV_X_W => {
-                let rs1_data = self.read_freg32(rs1);
-                self.write_reg(rd, rs1_data);
-            }
-
-
-            RiscvInstId::FLD => {
-                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                match self.read_bus_dword(addr as Addr64T) {
-                    Ok(reg_data) => {
-                        self.write_freg64(rd, (reg_data));
-                    },
-                    Err(_result) => {},
-                }
-            }
-            RiscvInstId::FSD => {
-                let rs2_data = self.read_freg64(rs2);
-                let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
-                self.write_bus_dword(addr as Addr64T, rs2_data);
-            }
-
-            RiscvInstId::FADD_D => {
-                let rs1_data = self.read_freg64(rs1);
-                let rs2_data = self.read_freg64(rs2);
-                unsafe { softfloat_exceptionFlags = 0; }
-
-                let reg_data: Xlen64T = unsafe { f64_add(rs1_data as u64, rs2_data as u64) } as Xlen64T;
-                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
-                self.write_freg64(rd, reg_data);
-            }
-
-            RiscvInstId::FSUB_D => {
-                let rs1_data = self.read_freg64(rs1);
-                let rs2_data = self.read_freg64(rs2);
-                unsafe { softfloat_exceptionFlags = 0; }
-
-                let reg_data: Xlen64T = unsafe { f64_sub(rs1_data as u64, rs2_data as u64) } as Xlen64T;
-                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
-                self.write_freg64(rd, reg_data);
-            }
-
-            RiscvInstId::FMUL_D => {
-                let rs1_data = self.read_freg64(rs1);
-                let rs2_data = self.read_freg64(rs2);
-                unsafe { softfloat_exceptionFlags = 0; }
-
-                let reg_data: Xlen64T = unsafe { f64_mul(rs1_data as u64, rs2_data as u64) } as Xlen64T;
-                self.m_csr.csrrw(CsrAddr::FFlags, unsafe { softfloat_exceptionFlags as i64 });
-                self.write_freg64(rd, reg_data);
-            }
-
-            RiscvInstId::FMV_X_D => {
-                let rs1_data = self.read_freg64(rs1);
-                self.write_reg(rd, rs1_data);
-            }
+            RiscvInstId::FLD => self.execute_fld(inst),
+            RiscvInstId::FSD => self.execute_fsd(inst),
+            RiscvInstId::FADD_D => self.execute_fadd_d(inst),
+            RiscvInstId::FSUB_D => self.execute_fsub_d(inst),
+            RiscvInstId::FMUL_D => self.execute_fmul_d(inst),
+            RiscvInstId::FMV_X_D => self.execute_fmv_x_d(inst),
 
             _ => { panic!("Unimplemneted instruction. Stop."); }
         }

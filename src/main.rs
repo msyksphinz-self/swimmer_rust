@@ -9,6 +9,7 @@ mod riscv32_core;
 mod riscv32_insts;
 mod riscv64_core;
 mod riscv64_insts;
+mod riscv64_insts_fpu;
 mod riscv_csr;
 mod riscv_csr_bitdef;
 mod riscv_exception;

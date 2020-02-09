@@ -24,6 +24,7 @@ pub mod riscv_csr_bitdef;
 pub mod riscv_exception;
 pub mod riscv32_insts;
 pub mod riscv64_insts;
+pub mod riscv64_insts_fpu;
 pub mod riscv64_decoder;
 pub mod riscv_mmu;
 pub mod riscv_inst_mnemonic;
