@@ -152,6 +152,7 @@ impl Riscv64Env {
 pub trait Riscv64Core {
     fn get_rs1_addr(inst: InstT) -> RegAddrT;
     fn get_rs2_addr(inst: InstT) -> RegAddrT;
+    fn get_rs3_addr(inst: InstT) -> RegAddrT;
     fn get_rd_addr(inst: InstT) -> RegAddrT;
 
     fn set_pc(&mut self, addr: Addr64T);
@@ -212,6 +213,9 @@ impl Riscv64Core for Riscv64Env {
     }
     fn get_rs2_addr(inst: InstT) -> RegAddrT {
         return ((inst >> 20) & 0x1f) as RegAddrT;
+    }
+    fn get_rs3_addr(inst: InstT) -> RegAddrT {
+        return ((inst >> 27) & 0x1f) as RegAddrT;
     }
     fn get_rd_addr(inst: InstT) -> RegAddrT {
         return ((inst >> 7) & 0x1f) as RegAddrT;

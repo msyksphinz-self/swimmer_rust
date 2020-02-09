@@ -576,6 +576,16 @@ impl RiscvInsts for Riscv64Env {
             RiscvInstId::FMUL_D => self.execute_fmul_d(inst),
             RiscvInstId::FMV_X_D => self.execute_fmv_x_d(inst),
 
+            RiscvInstId::FMADD_S  => self.execute_fmadd_s(inst),
+            RiscvInstId::FMSUB_S  => self.execute_fmsub_s(inst),
+            RiscvInstId::FNMSUB_S => self.execute_fnmsub_s(inst),
+            RiscvInstId::FNMADD_S => self.execute_fnmadd_s(inst),
+
+            RiscvInstId::FMADD_D  => self.execute_fmadd_d(inst),
+            RiscvInstId::FMSUB_D  => self.execute_fmsub_d(inst),
+            RiscvInstId::FNMSUB_D => self.execute_fnmsub_d(inst),
+            RiscvInstId::FNMADD_D => self.execute_fnmadd_d(inst),
+
             _ => { panic!("Unimplemneted instruction. Stop."); }
         }
 
