@@ -1,3 +1,4 @@
+use std::cmp;
 use std::collections::HashMap;
 
 use crate::riscv32_core::PrivMode;
@@ -120,23 +121,55 @@ impl RiscvTracer for Tracer {
                     Some(operand_info) => {
                         let mut at_index = 0;
                         let mut consume_idx = 0;
-                        for c in inst_str.chars() {
-                            if c == '@' {
-                                let msb = operand_info.m_msb_lst[at_index];
-                                let lsb = operand_info.m_lsb_lst[at_index];
+                        let mut idx = 0;
+                        while idx < inst_str.len() {
+                            if inst_str.chars().nth(idx) == Some('@') {
+                                let mut opr_val = 0;
+                                let mut max_msb = 0;
+                                let mut min_lsb = 32;
+                                while (true) {
+                                    let msb = operand_info.m_msb_lst[at_index];
+                                    let lsb = operand_info.m_lsb_lst[at_index];
+                                    max_msb = cmp::max(max_msb, msb);
+                                    min_lsb = cmp::min(min_lsb, lsb);
 
-                                let mask = (1 << (msb - lsb + 1)) - 1;
-                                let opr_val = (self.m_inst_hex >> lsb) & mask;
+                                    let mask = (1 << (msb - lsb + 1)) - 1;
+                                    opr_val = opr_val << (msb-lsb+1) | (self.m_inst_hex >> lsb) & mask;
+                                    if (!operand_info.m_connect[at_index]) {
+                                        break;
+                                    }
+                                    at_index += 1;
+                                }
+                                let mut shift_val = 0;
+                                if (inst_str.chars().nth(idx+1) == Some('<') &&
+                                    inst_str.chars().nth(idx+2) == Some('<')) {
+                                    idx += 3;
+                                    while (match inst_str.chars().nth(idx) {
+                                        Some(c) => c.is_digit(10),
+                                        _ => false,
+                                    }) {
+                                        shift_val <<= 10;
+                                        shift_val += match inst_str.chars().nth(idx) {
+                                            Some(c) => match c.to_digit(10) {
+                                                Some(d) => d,
+                                                None => 0,
+                                            },
+                                            None => 0,
+                                        };
+                                        idx += 1;
+                                    }
+                                }
+                                opr_val <<= shift_val;
 
                                 match operand_info.m_type_lst[at_index] {
                                     OperandType::TypeXReg    => { print!("x{:02}", opr_val); consume_idx = consume_idx + 3; },
                                     OperandType::TypeFreg    => { print!("f{:02}", opr_val); consume_idx = consume_idx + 3; },
                                     OperandType::TypeSign    => { print!("{:}",  opr_val);   consume_idx = consume_idx + ((opr_val as f32).log10() as u32); },
-                                    OperandType::TypeBit     => { print!("0b{:b}", opr_val); consume_idx = consume_idx + (msb - lsb + 1); },
+                                    OperandType::TypeBit     => { print!("0b{:b}", opr_val); consume_idx = consume_idx + (max_msb - min_lsb + 1); },
                                     OperandType::TypeUnSign  => { print!("0x{:x}", opr_val); consume_idx = consume_idx + 2 + ((opr_val as f32).log10() as u32); },
                                     OperandType::TypeUnSignJ => { print!("0x{:x}", opr_val); consume_idx = consume_idx + 2 + ((opr_val as f32).log10() as u32); },
-                                    OperandType::TypeSignBit => { print!("0b{:b}", opr_val); consume_idx = consume_idx + 2 + (msb - lsb + 1); },
-                                    OperandType::TypeHex     => { let bit_width = ((msb as f32 - lsb as f32 + 1.0) / 4.0).ceil() as u32;
+                                    OperandType::TypeSignBit => { print!("0b{:b}", opr_val); consume_idx = consume_idx + 2 + (max_msb - min_lsb + 1); },
+                                    OperandType::TypeHex     => { let bit_width = ((max_msb as f32 - min_lsb as f32 + 1.0) / 4.0).ceil() as u32;
                                                                   print!("0x{:0>width$x}", opr_val, width = bit_width as usize);
                                                                   consume_idx = consume_idx + 2 + bit_width; }
                                     OperandType::TypeRoundMode => panic!("TypeRoundMode is currently not supported"),
@@ -145,8 +178,13 @@ impl RiscvTracer for Tracer {
                                     _ => panic!("Unknown operand type {:?}", operand_info.m_type_lst[at_index] as u32),
                                 }
                                 at_index = at_index + 1;
+                                idx += 1;
                             } else {
-                                print!("{:}", c);
+                                match inst_str.chars().nth(idx) {
+                                    Some(c) => { print!("{:}", c); },
+                                    _ => {},
+                                }
+                                idx += 1;
                                 consume_idx = consume_idx + 1
                             }
                         }
