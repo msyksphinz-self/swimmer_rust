@@ -211,19 +211,19 @@ impl RiscvTracer for Tracer {
                 }
                 TraceInfo::MemWrite{addr, value, memresult: _} => {
                     print!(
-                        "({:08x})<={:08x} ", addr, value);
+                        "({:016x})<={:08x} ", addr, value);
                 }
                 TraceInfo::MemRead{addr, value, memresult: _} => {
                     print!(
-                        "({:08x})=>{:08x} ", addr, value);
+                        "({:016x})=>{:08x} ", addr, value);
                 }
                 TraceInfo::F32RegWrite{addr, value} => {
                     print!(
-                        "f{:02}<={:08x} ", addr, value);
+                        "f{:02}<={:016x} ", addr, value);
                 }
                 TraceInfo::F32RegRead{addr, value} => {
                     print!(
-                        "f{:02}=>{:08x} ", addr, value);
+                        "f{:02}=>{:016x} ", addr, value);
                 }
                 TraceInfo::F64RegWrite{addr, value} => {
                     print!(
