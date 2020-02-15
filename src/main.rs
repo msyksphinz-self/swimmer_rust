@@ -25,10 +25,6 @@ struct Args {
     rv_arch: Option<String>,
 }
 
-pub fn add_two(a: i32) -> i32 {
-    a + 2
-}
-
 #[allow(unused_variables)]
 fn print_usage(program: &str, opts: &Options) {
     writeln!(std::io::stderr(), "Usage: {} binfile", program).unwrap();
@@ -65,9 +61,18 @@ fn parse_args() -> Args {
 fn main() -> Result<(), Box<std::error::Error>> {
     let args = parse_args();
 
-    println!("RISC-V Arch = {:?}", Some(args.rv_arch));
+    let rv32_str = "rv32".to_string();
+    let rv64_str = "rv64".to_string();
+    let xlen = match args.rv_arch {
+        Some(rv_arch_str) => match rv_arch_str {
+            rv32_str => 32,
+            rv64_str => 64,
+            _ => panic!("Unknown XLEN! Should specify rv32 or rv64"),
+        },
+        None => 64  // Default XLEN=64
+    };
 
-    let ret = swimmer_rust::swimmer_rust_exec(args.bin_file[0].clone());
+    let ret = swimmer_rust::swimmer_rust_exec(xlen, args.bin_file[0].clone());
 
     if ret == 1 {
         eprintln!("PASS : {}", args.bin_file[0]);

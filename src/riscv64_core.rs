@@ -18,18 +18,15 @@ use crate::riscv32_core::InstT;
 use crate::riscv32_core::XlenT;
 use crate::riscv32_core::RegAddrT;
 
-use crate::riscv32_core::DRAM_BASE;
-// use crate::riscv32_core::DRAM_SIZE;
-
-use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_LSB;
-use crate::riscv_csr_bitdef::SYSREG_SATP_MODE_MSB;
-
 pub type Xlen64T = i64;
 pub type UXlen64T = u64;
 pub type Addr64T = u64;
 
+pub const DRAM_BASE: Addr64T = 0x08000_0000;
+
 pub struct Riscv64Env {
-    // m_bitmode: RiscvBitMode,
+    pub m_xlen: i32,
+
     pub m_pc: Addr64T,
     m_previous_pc: Addr64T,
     m_regs: [Xlen64T; 32],
@@ -54,9 +51,9 @@ pub struct Riscv64Env {
 }
 
 impl Riscv64Env {
-    pub fn new() -> Riscv64Env {
+    pub fn new(xlen: i32) -> Riscv64Env {
         Riscv64Env {
-            // m_bitmode: RiscvBitMode::Bit32,
+            m_xlen: xlen,
             m_pc: DRAM_BASE as Addr64T,
             m_memory: HashMap::new(),
             m_regs: [0; 32],
@@ -132,9 +129,8 @@ impl Riscv64Env {
         return Self::extend_sign(u_res, 11);
     }
 
-    #[allow(dead_code)]
-    fn sext_xlen(hex: InstT) -> Xlen64T {
-        return hex as Xlen64T;
+    pub fn sext_xlen(&mut self, hex: Xlen64T) -> Xlen64T {
+        return (hex << (64-self.m_xlen)) >> (64-self.m_xlen)
     }
     #[allow(dead_code)]
     fn uext_xlen(hex: InstT) -> UXlen64T {
@@ -230,8 +226,8 @@ impl Riscv64Core for Riscv64Env {
             ret_val = self.m_regs[reg_addr as usize];
         }
 
-        let mut read_reg_trace = TraceInfo::XRegRead { addr: reg_addr,
-                                                       value: ret_val };
+        let read_reg_trace = TraceInfo::XRegRead { addr: reg_addr,
+                                                   value: ret_val };
         self.m_trace.m_trace_info.push(read_reg_trace);
 
         return ret_val;
@@ -239,8 +235,8 @@ impl Riscv64Core for Riscv64Env {
 
     fn write_reg(&mut self, reg_addr: RegAddrT, data: Xlen64T) {
         if reg_addr != 0 {
-            let mut write_reg_trace = TraceInfo::XRegWrite { addr: reg_addr,
-                                                             value: data };
+            let write_reg_trace = TraceInfo::XRegWrite { addr: reg_addr,
+                                                         value: data };
             self.m_trace.m_trace_info.push(write_reg_trace);
 
             self.m_regs[reg_addr as usize] = data;
@@ -250,8 +246,8 @@ impl Riscv64Core for Riscv64Env {
     fn read_freg32(&mut self, reg_addr: RegAddrT) -> Xlen64T {
         let ret_val: Xlen64T = self.m_fregs[reg_addr as usize];
 
-        let mut read_reg_trace = TraceInfo::F32RegRead { addr: reg_addr,
-                                                         value: ret_val as XlenT};
+        let read_reg_trace = TraceInfo::F32RegRead { addr: reg_addr,
+                                                     value: ret_val as XlenT};
 
         self.m_trace.m_trace_info.push(read_reg_trace);
 
@@ -259,8 +255,8 @@ impl Riscv64Core for Riscv64Env {
     }
 
     fn write_freg32(&mut self, reg_addr: RegAddrT, data: Xlen64T) {
-        let mut write_reg_trace = TraceInfo::F32RegWrite { addr: reg_addr,
-                                                           value: data as XlenT };
+        let write_reg_trace = TraceInfo::F32RegWrite { addr: reg_addr,
+                                                       value: data as XlenT };
 
         self.m_trace.m_trace_info.push(write_reg_trace);
 
@@ -270,8 +266,8 @@ impl Riscv64Core for Riscv64Env {
     fn read_freg64(&mut self, reg_addr: RegAddrT) -> Xlen64T {
         let ret_val: Xlen64T = self.m_fregs[reg_addr as usize];
 
-        let mut read_reg_trace = TraceInfo::F64RegRead { addr: reg_addr,
-                                                         value: ret_val};
+        let read_reg_trace = TraceInfo::F64RegRead { addr: reg_addr,
+                                                     value: ret_val};
 
         self.m_trace.m_trace_info.push(read_reg_trace);
 
@@ -279,8 +275,8 @@ impl Riscv64Core for Riscv64Env {
     }
 
     fn write_freg64(&mut self, reg_addr: RegAddrT, data: Xlen64T) {
-        let mut write_reg_trace = TraceInfo::F64RegWrite { addr: reg_addr,
-                                                           value: data };
+        let write_reg_trace = TraceInfo::F64RegWrite { addr: reg_addr,
+                                                       value: data };
 
         self.m_trace.m_trace_info.push(write_reg_trace);
 
@@ -360,6 +356,9 @@ impl Riscv64Core for Riscv64Env {
     }
 
     fn read_memory_byte(&mut self, phy_addr: Addr64T) -> Result<u8, MemResult> {
+        if phy_addr < DRAM_BASE {
+            println!("phys_addr = {:x}", phy_addr);
+        }
         assert!(phy_addr >= (DRAM_BASE as Addr64T));
         let base_addr: Addr64T = phy_addr - (DRAM_BASE as Addr64T);
 
@@ -436,9 +435,9 @@ impl Riscv64Core for Riscv64Env {
             Ok(phy_addr) => match self.read_memory_dword(phy_addr) {
                 Ok(ret_value) => {
                     let ret_val: Xlen64T = ret_value as Xlen64T;
-                    let mut read_mem_trace = TraceInfo::MemRead { addr: addr,
-                                                                  value: ret_val,
-                                                                  memresult: MemResult::NoExcept };
+                    let read_mem_trace = TraceInfo::MemRead { addr: addr,
+                                                              value: ret_val,
+                                                              memresult: MemResult::NoExcept };
                     self.m_trace.m_trace_info.push(read_mem_trace);
 
                     Ok(ret_val as Xlen64T)
@@ -455,9 +454,9 @@ impl Riscv64Core for Riscv64Env {
                 Ok(value) => {
                     let ret_val: u32 = value;
 
-                    let mut read_mem_trace = TraceInfo::MemRead { addr: addr,
-                                                                  value: ret_val as Xlen64T,
-                                                                  memresult: MemResult::NoExcept };
+                    let read_mem_trace = TraceInfo::MemRead { addr: addr,
+                                                              value: ret_val as Xlen64T,
+                                                              memresult: MemResult::NoExcept };
                     self.m_trace.m_trace_info.push(read_mem_trace);
 
                     Ok(ret_val as Xlen64T)
@@ -491,9 +490,9 @@ impl Riscv64Core for Riscv64Env {
     fn write_bus_dword(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult {
         return match self.convert_virtual_address(addr, MemAccType::Write) {
             Ok(phy_addr) => {
-                let mut write_mem_trace = TraceInfo::MemWrite { addr: addr,
-                                                                value: data,
-                                                                memresult: MemResult::NoExcept };
+                let write_mem_trace = TraceInfo::MemWrite { addr: addr,
+                                                            value: data,
+                                                            memresult: MemResult::NoExcept };
                 self.m_trace.m_trace_info.push(write_mem_trace);
                 self.write_memory_dword(phy_addr, data);
 
@@ -506,9 +505,9 @@ impl Riscv64Core for Riscv64Env {
     fn write_bus_word(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult {
         return match self.convert_virtual_address(addr, MemAccType::Write) {
             Ok(phy_addr) => {
-                let mut write_mem_trace = TraceInfo::MemWrite { addr: addr,
-                                                                value: data,
-                                                                memresult: MemResult::NoExcept };
+                let write_mem_trace = TraceInfo::MemWrite { addr: addr,
+                                                            value: data,
+                                                            memresult: MemResult::NoExcept };
                 self.m_trace.m_trace_info.push(write_mem_trace);
                 self.write_memory_word(phy_addr, data);
 
@@ -541,18 +540,21 @@ impl Riscv64Core for Riscv64Env {
     }
 
     fn get_vm_mode(&mut self) -> VMMode {
-        let satp_val = self.m_csr.csrrs(CsrAddr::Satp, 0) as Xlen64T; // SATP;
-        let mode = Self::extract_bit_field(satp_val, SYSREG_SATP_MODE_MSB, SYSREG_SATP_MODE_LSB);
+        let satp_val = self.m_csr.csrrs(CsrAddr::Satp, 0) as Xlen64T; // SATP
+        let mode = match self.m_xlen {
+            32 => Self::extract_bit_field(satp_val, 31, 31),
+            64 => Self::extract_bit_field(satp_val, 63, 60),
+            _ => panic!("Internal Error: XLEN should either 32 or 64"),
+        };
         return if self.m_priv == PrivMode::Machine {
             VMMode::Mbare
         } else {
-            match mode {
-                0 => VMMode::Mbare,
-                8 => VMMode::Sv39,
-                9 => VMMode::Sv48,
-                10 => VMMode::Sv57,
-                11 => VMMode::Sv64,
-                _ => panic!("Error: illegal VM Mode in SATP"),
+            let v_mode = VMMode::from(mode);
+            if v_mode == VMMode::Mbare || v_mode == VMMode::Sv32 ||
+                v_mode == VMMode::Sv39 || v_mode == VMMode::Sv48 || v_mode == VMMode::Sv57 || v_mode == VMMode::Sv64 {
+                return v_mode
+            } else {
+                panic!("Error: illegal VM Mode in SATP {:}", mode)
             }
         };
     }

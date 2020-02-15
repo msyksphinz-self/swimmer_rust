@@ -11,11 +11,10 @@ use crate::riscv64_core::Riscv64Env;
 use crate::riscv32_insts::RiscvInsts;
 
 use crate::riscv32_core::InstT;
-use crate::riscv32_core::DRAM_BASE;
-use crate::riscv64_core::Addr64T;
+use crate::riscv64_core::DRAM_BASE;
 use crate::riscv64_core::Xlen64T;
+use crate::riscv64_core::Addr64T;
 use crate::riscv64_decoder::RiscvDecoder;
-use crate::riscv_inst_id::RiscvInstId;
 
 pub mod riscv32_core;
 pub mod riscv64_core;
@@ -32,13 +31,13 @@ pub mod riscv_tracer;
 pub mod riscv_inst_operand;
 pub mod riscv_inst_id;
 
-pub fn swimmer_rust_exec(filename: String) -> i64
+pub fn swimmer_rust_exec(xlen: i32, filename: String) -> i64
 {
     let file = File::open(filename.clone()).unwrap();
     let filebuf = BufReader::new(file);
     let mut hex_addr = 0;
 
-    let mut riscv64_core = Riscv64Env::new();
+    let mut riscv64_core = Riscv64Env::new(xlen);
 
     for result in filebuf.bytes() {
         match result {

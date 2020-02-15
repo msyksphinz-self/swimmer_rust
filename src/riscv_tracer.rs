@@ -127,7 +127,7 @@ impl RiscvTracer for Tracer {
                                 let mut opr_val = 0;
                                 let mut max_msb = 0;
                                 let mut min_lsb = 32;
-                                while (true) {
+                                loop {
                                     let msb = operand_info.m_msb_lst[at_index];
                                     let lsb = operand_info.m_lsb_lst[at_index];
                                     max_msb = cmp::max(max_msb, msb);
@@ -135,19 +135,19 @@ impl RiscvTracer for Tracer {
 
                                     let mask = (1 << (msb - lsb + 1)) - 1;
                                     opr_val = opr_val << (msb-lsb+1) | (self.m_inst_hex >> lsb) & mask;
-                                    if (!operand_info.m_connect[at_index]) {
+                                    if !operand_info.m_connect[at_index] {
                                         break;
                                     }
                                     at_index += 1;
                                 }
                                 let mut shift_val = 0;
-                                if (inst_str.chars().nth(idx+1) == Some('<') &&
-                                    inst_str.chars().nth(idx+2) == Some('<')) {
-                                    idx += 3;
-                                    while (match inst_str.chars().nth(idx) {
+                                if inst_str.chars().nth(idx+1) == Some('<') &&
+                                   inst_str.chars().nth(idx+2) == Some('<') {
+                                   idx += 3;
+                                    while match inst_str.chars().nth(idx) {
                                         Some(c) => c.is_digit(10),
                                         _ => false,
-                                    }) {
+                                    } {
                                         shift_val <<= 10;
                                         shift_val += match inst_str.chars().nth(idx) {
                                             Some(c) => match c.to_digit(10) {
@@ -209,11 +209,11 @@ impl RiscvTracer for Tracer {
                     print!(
                         "x{:02}=>{:016x} ", addr, value);
                 }
-                TraceInfo::MemWrite{addr, value, memresult} => {
+                TraceInfo::MemWrite{addr, value, memresult: _} => {
                     print!(
                         "({:08x})<={:08x} ", addr, value);
                 }
-                TraceInfo::MemRead{addr, value, memresult} => {
+                TraceInfo::MemRead{addr, value, memresult: _} => {
                     print!(
                         "({:08x})=>{:08x} ", addr, value);
                 }

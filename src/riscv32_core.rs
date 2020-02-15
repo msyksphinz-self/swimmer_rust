@@ -69,3 +69,16 @@ pub enum VMMode {
     Sv57 = 10,
     Sv64 = 11,
 }
+impl VMMode {
+    pub fn from(x: i64) -> VMMode {
+        match x {
+            0 => VMMode::Mbare,
+            1 => VMMode::Sv32,
+            8 => VMMode::Sv39,
+            9 => VMMode::Sv48,
+            10 => VMMode::Sv57,
+            11 => VMMode::Sv64,
+            _ => panic!("Intelnal Error: Unknown VMMode = {:}", x),
+        }
+    }
+}

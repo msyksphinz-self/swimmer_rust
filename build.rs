@@ -1,6 +1,9 @@
 extern crate cc;
 
 fn main() {
+
+    println!("cargo:rerun-if-changed=build.rs");
+
     cc::Build::new()
         .file("vendor/softfloat/source/s_eq128.c")
         .file("vendor/softfloat/source/s_le128.c")
@@ -313,5 +316,9 @@ fn main() {
         .define("SOFTFLOAT_FAST_DIV32TO16", None)
         .define("SOFTFLOAT_FAST_DIV64TO32", None)
         .flag("-O2")
+        .flag("-Wno-unused-parameter")
+        .flag("-Wno-unused-variable")
+        .flag("-Wno-implicit-fallthrough")
+        .flag("-Wno-sign-compare")
         .compile("softfloat")
 }

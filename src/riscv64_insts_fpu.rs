@@ -12,7 +12,7 @@ use crate::riscv32_core::InstT;
 #[link(name = "softfloat", kind="static")]
 extern {
     static mut softfloat_exceptionFlags: u8;
-    static mut softfloat_roundingMode: u8;
+    // static mut softfloat_roundingMode: u8;
     fn f32_add(a: u32, b: u32) -> u32;
     fn f32_sub(a: u32, b: u32) -> u32;
     fn f32_mul(a: u32, b: u32) -> u32;
@@ -64,7 +64,6 @@ impl Riscv64InstsFpu for Riscv64Env {
 
     fn execute_flw (&mut self, inst: InstT) {
         let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
         let rd = Self::get_rd_addr(inst);
 
         let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
@@ -79,7 +78,6 @@ impl Riscv64InstsFpu for Riscv64Env {
     fn execute_fsw (&mut self, inst: InstT) {
         let rs1 = Self::get_rs1_addr(inst);
         let rs2 = Self::get_rs2_addr(inst);
-        let rd = Self::get_rd_addr(inst);
 
         let rs2_data = self.read_freg32(rs2);
         let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
@@ -130,7 +128,6 @@ impl Riscv64InstsFpu for Riscv64Env {
 
     fn execute_fmv_x_w (&mut self, inst: InstT) {
         let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
         let rd = Self::get_rd_addr(inst);
 
         let rs1_data = self.read_freg32(rs1);
@@ -201,13 +198,12 @@ impl Riscv64InstsFpu for Riscv64Env {
 
     fn execute_fld (&mut self, inst: InstT) {
         let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
         let rd = Self::get_rd_addr(inst);
 
         let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
         match self.read_bus_dword(addr as Addr64T) {
             Ok(reg_data) => {
-                self.write_freg64(rd, (reg_data));
+                self.write_freg64(rd, reg_data);
             },
             Err(_result) => {},
         }
@@ -216,7 +212,6 @@ impl Riscv64InstsFpu for Riscv64Env {
     fn execute_fsd (&mut self, inst: InstT) {
         let rs1 = Self::get_rs1_addr(inst);
         let rs2 = Self::get_rs2_addr(inst);
-        let rd = Self::get_rd_addr(inst);
 
         let rs2_data = self.read_freg64(rs2);
         let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
@@ -267,7 +262,6 @@ impl Riscv64InstsFpu for Riscv64Env {
 
     fn execute_fmv_x_d (&mut self, inst: InstT) {
         let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
         let rd = Self::get_rd_addr(inst);
 
         let rs1_data = self.read_freg64(rs1);

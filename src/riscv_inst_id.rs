@@ -2,6 +2,7 @@
 
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[allow(non_camel_case_types)]
 pub enum RiscvInstId {
     LUI,
     AUIPC,

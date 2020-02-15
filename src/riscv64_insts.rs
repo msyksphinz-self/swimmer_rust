@@ -158,7 +158,7 @@ impl RiscvInsts for Riscv64Env {
             RiscvInstId::ADDI => {
                 let rs1_data = self.read_reg(rs1);
                 let imm_data = Self::extract_ifield(inst);
-                let reg_data: Xlen64T = rs1_data.wrapping_add(imm_data);
+                let reg_data: Xlen64T = self.sext_xlen(rs1_data.wrapping_add(imm_data));
                 self.write_reg(rd, reg_data);
             }
             RiscvInstId::SLTI => {
@@ -201,13 +201,13 @@ impl RiscvInsts for Riscv64Env {
             RiscvInstId::ADD => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let reg_data: Xlen64T = rs1_data.wrapping_add(rs2_data);
+                let reg_data: Xlen64T = self.sext_xlen(rs1_data.wrapping_add(rs2_data));
                 self.write_reg(rd, reg_data);
             }
             RiscvInstId::SUB => {
                 let rs1_data = self.read_reg(rs1);
                 let rs2_data = self.read_reg(rs2);
-                let reg_data: Xlen64T = rs1_data.wrapping_sub(rs2_data);
+                let reg_data: Xlen64T = self.sext_xlen(rs1_data.wrapping_sub(rs2_data));
                 self.write_reg(rd, reg_data);
             }
             RiscvInstId::SLL => {
