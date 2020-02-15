@@ -182,7 +182,7 @@ impl RiscvException<Xlen64T> for Riscv64Env {
         // }
 
         println!(
-            "<Info: generate_exception Code={}, TVAL={:016x} PC={:016x}>",
+            "<Info: Generate Exception Code={}, TVAL={:016x} PC={:016x}>",
             code as u32, tval, self.m_pc
         );
 

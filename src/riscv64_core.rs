@@ -132,9 +132,9 @@ impl Riscv64Env {
     pub fn sext_xlen(&mut self, hex: Xlen64T) -> Xlen64T {
         return (hex << (64-self.m_xlen)) >> (64-self.m_xlen)
     }
-    #[allow(dead_code)]
-    fn uext_xlen(hex: InstT) -> UXlen64T {
-        return hex as UXlen64T;
+
+    pub fn uext_xlen(&mut self, hex: Xlen64T) -> UXlen64T {
+        return ((hex as UXlen64T) << (64-self.m_xlen)) >> (64-self.m_xlen)
     }
 
     pub fn is_update_pc(&mut self) -> bool {
@@ -422,9 +422,12 @@ impl Riscv64Core for Riscv64Env {
 
     fn fetch_bus(&mut self) -> Result<InstT, MemResult> {
         return match self.convert_virtual_address(self.m_pc, MemAccType::Fetch) {
-            Ok(phy_addr) => match self.read_memory_word(phy_addr) {
-                Ok(val) => Ok(val as InstT),
-                Err(result) => Err(result),
+            Ok(phy_addr) => {
+                let uext_phy_addr = self.uext_xlen(phy_addr as Xlen64T);
+                match self.read_memory_word(uext_phy_addr) {
+                    Ok(val) => Ok(val as InstT),
+                    Err(result) => Err(result),
+                }
             },
             Err(result) => Err(result),
         }
@@ -505,11 +508,12 @@ impl Riscv64Core for Riscv64Env {
     fn write_bus_word(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult {
         return match self.convert_virtual_address(addr, MemAccType::Write) {
             Ok(phy_addr) => {
+                let uext_phy_addr = self.uext_xlen(phy_addr as Xlen64T);
                 let write_mem_trace = TraceInfo::MemWrite { addr: addr,
                                                             value: data,
                                                             memresult: MemResult::NoExcept };
                 self.m_trace.m_trace_info.push(write_mem_trace);
-                self.write_memory_word(phy_addr, data);
+                self.write_memory_word(uext_phy_addr, data);
 
                 MemResult::NoExcept
             },
