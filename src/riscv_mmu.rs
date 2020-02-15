@@ -1,17 +1,17 @@
 use num::iter::range;
 
-use crate::riscv64_core::Riscv64Core;
-use crate::riscv64_core::Riscv64Env;
+use crate::riscv_core::Riscv64Core;
+use crate::riscv_core::Riscv64Env;
 
-use crate::riscv64_core::Addr64T;
-use crate::riscv64_core::Xlen64T;
+use crate::riscv_core::Addr64T;
+use crate::riscv_core::Xlen64T;
 
-use crate::riscv64_core::MemAccType;
-use crate::riscv64_core::MemResult;
+use crate::riscv_core::MemAccType;
+use crate::riscv_core::MemResult;
 use crate::riscv_exception::ExceptCode;
 
-use crate::riscv64_core::PrivMode;
-use crate::riscv64_core::VMMode;
+use crate::riscv_core::PrivMode;
+use crate::riscv_core::VMMode;
 
 use crate::riscv_csr::CsrAddr;
 

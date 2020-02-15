@@ -1,8 +1,8 @@
 /* CAUTION! THIS SOURCE CODE IS GENERATED AUTOMATICALLY. DON'T MODIFY BY HAND. */
 
 
-use crate::riscv64_core::Riscv64Env;
-use crate::riscv64_core::InstT;
+use crate::riscv_core::Riscv64Env;
+use crate::riscv_core::InstT;
 use crate::riscv_inst_id::RiscvInstId;
 
 

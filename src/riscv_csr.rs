@@ -1,5 +1,5 @@
-// use crate::riscv64_core::XlenT;
-use crate::riscv64_core::Xlen64T;
+// use crate::riscv_core::XlenT;
+use crate::riscv_core::Xlen64T;
 
 pub enum CsrAddr {
     None = 0x000,

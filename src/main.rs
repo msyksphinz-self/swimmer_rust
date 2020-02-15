@@ -5,9 +5,9 @@ extern crate getopts;
 use getopts::Options;
 
 mod core_base;
-mod riscv64_core;
-mod riscv64_insts;
-mod riscv64_insts_fpu;
+mod riscv_core;
+mod riscv_insts;
+mod riscv_insts_fpu;
 mod riscv_csr;
 mod riscv_csr_bitdef;
 mod riscv_exception;

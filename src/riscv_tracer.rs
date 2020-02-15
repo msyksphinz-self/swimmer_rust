@@ -1,16 +1,16 @@
 use std::cmp;
 use std::collections::HashMap;
 
-use crate::riscv64_core::PrivMode;
-use crate::riscv64_core::VMMode;
+use crate::riscv_core::PrivMode;
+use crate::riscv_core::VMMode;
 
-use crate::riscv64_core::MemResult;
+use crate::riscv_core::MemResult;
 
-use crate::riscv64_core::RegAddrT;
-use crate::riscv64_core::XlenT;
-use crate::riscv64_core::InstT;
-use crate::riscv64_core::Addr64T;
-use crate::riscv64_core::Xlen64T;
+use crate::riscv_core::RegAddrT;
+use crate::riscv_core::XlenT;
+use crate::riscv_core::InstT;
+use crate::riscv_core::Addr64T;
+use crate::riscv_core::Xlen64T;
 
 use crate::riscv_inst_id::RiscvInstId;
 

@@ -1,14 +1,14 @@
-use crate::riscv64_core::Riscv64Core;
-use crate::riscv64_core::Riscv64Env;
+use crate::riscv_core::Riscv64Core;
+use crate::riscv_core::Riscv64Env;
 
-use crate::riscv64_core::PrivMode;
+use crate::riscv_core::PrivMode;
 
 use crate::riscv_csr::CsrAddr;
 
-// use crate::riscv64_core::AddrT;
-// use crate::riscv64_core::XlenT;
-use crate::riscv64_core::Addr64T;
-use crate::riscv64_core::Xlen64T;
+// use crate::riscv_core::AddrT;
+// use crate::riscv_core::XlenT;
+use crate::riscv_core::Addr64T;
+use crate::riscv_core::Xlen64T;
 
 use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SIE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_SSTATUS_SIE_MSB;

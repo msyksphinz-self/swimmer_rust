@@ -1,13 +1,13 @@
 use crate::riscv_csr::CsrAddr;
 
-use crate::riscv64_core::XlenT;
-use crate::riscv64_core::Xlen64T;
-use crate::riscv64_core::Addr64T;
+use crate::riscv_core::XlenT;
+use crate::riscv_core::Xlen64T;
+use crate::riscv_core::Addr64T;
 
-use crate::riscv64_core::Riscv64Core;
-use crate::riscv64_core::Riscv64Env;
+use crate::riscv_core::Riscv64Core;
+use crate::riscv_core::Riscv64Env;
 
-use crate::riscv64_core::InstT;
+use crate::riscv_core::InstT;
 
 #[link(name = "softfloat", kind="static")]
 extern {

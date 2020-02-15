@@ -2,25 +2,25 @@ use crate::riscv_csr::CsrAddr;
 
 use crate::riscv_tracer::RiscvTracer;
 
-use crate::riscv64_core::UXlenT;
-use crate::riscv64_core::XlenT;
-use crate::riscv64_core::UXlen64T;
-use crate::riscv64_core::Addr64T;
-use crate::riscv64_core::Xlen64T;
+use crate::riscv_core::UXlenT;
+use crate::riscv_core::XlenT;
+use crate::riscv_core::UXlen64T;
+use crate::riscv_core::Addr64T;
+use crate::riscv_core::Xlen64T;
 
-use crate::riscv64_core::PrivMode;
+use crate::riscv_core::PrivMode;
 
-use crate::riscv64_core::InstT;
+use crate::riscv_core::InstT;
 
-use crate::riscv64_core::Riscv64Core;
-use crate::riscv64_core::Riscv64Env;
+use crate::riscv_core::Riscv64Core;
+use crate::riscv_core::Riscv64Env;
 
 use crate::riscv_exception::ExceptCode;
 use crate::riscv_exception::RiscvException;
 
 use crate::riscv_inst_id::RiscvInstId;
 
-use crate::riscv64_insts_fpu::Riscv64InstsFpu;
+use crate::riscv_insts_fpu::Riscv64InstsFpu;
 
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_MSB;
