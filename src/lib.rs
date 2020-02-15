@@ -8,20 +8,18 @@ mod core_base;
 use crate::riscv64_core::Riscv64Core;
 use crate::riscv64_core::Riscv64Env;
 
-use crate::riscv32_insts::RiscvInsts;
+use crate::riscv64_insts::RiscvInsts;
 
-use crate::riscv32_core::InstT;
+use crate::riscv64_core::InstT;
 use crate::riscv64_core::DRAM_BASE;
 use crate::riscv64_core::Xlen64T;
 use crate::riscv64_core::Addr64T;
 use crate::riscv64_decoder::RiscvDecoder;
 
-pub mod riscv32_core;
 pub mod riscv64_core;
 pub mod riscv_csr;
 pub mod riscv_csr_bitdef;
 pub mod riscv_exception;
-pub mod riscv32_insts;
 pub mod riscv64_insts;
 pub mod riscv64_insts_fpu;
 pub mod riscv64_decoder;

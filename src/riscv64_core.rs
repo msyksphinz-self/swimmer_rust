@@ -5,24 +5,81 @@ use crate::riscv_csr::RiscvCsr;
 
 use crate::riscv_mmu::Riscv64Mmu;
 
-use crate::riscv32_core::PrivMode;
-use crate::riscv32_core::VMMode;
-
-use crate::riscv32_core::MemAccType;
-use crate::riscv32_core::MemResult;
-
 use crate::riscv_tracer::TraceInfo;
 use crate::riscv_tracer::Tracer;
 
-use crate::riscv32_core::InstT;
-use crate::riscv32_core::XlenT;
-use crate::riscv32_core::RegAddrT;
+pub type XlenT = i32;
+pub type UXlenT = u32;
+pub type InstT = u32;
+pub type AddrT = u32;
+pub type RegAddrT = u8;
 
 pub type Xlen64T = i64;
 pub type UXlen64T = u64;
 pub type Addr64T = u64;
 
 pub const DRAM_BASE: Addr64T = 0x08000_0000;
+
+#[derive(PartialEq, Eq, Copy, Clone)]
+pub enum PrivMode {
+    User,
+    Supervisor,
+    Hypervisor,
+    Machine,
+}
+
+impl PrivMode {
+    pub fn from_u8(n: u8) -> PrivMode {
+        match n {
+            0 => PrivMode::User,
+            1 => PrivMode::Supervisor,
+            2 => PrivMode::Hypervisor,
+            3 => PrivMode::Machine,
+            _ => PrivMode::Machine,
+        }
+    }
+}
+
+#[derive(Copy, Clone)]
+pub enum MemAccType {
+    Fetch,
+    Write,
+    Read,
+}
+
+#[derive(PartialEq, Eq)]
+#[allow(dead_code)]
+pub enum MemResult {
+    NoExcept = 0,
+    MisAlign = 1 << 0,
+    NotDefined = 1 << 1,
+    NewRegion = 1 << 2,
+    TlbError = 1 << 3,
+}
+
+#[derive(PartialEq, Eq)]
+#[allow(dead_code)]
+pub enum VMMode {
+    Mbare = 0,
+    Sv32 = 1,
+    Sv39 = 8,
+    Sv48 = 9,
+    Sv57 = 10,
+    Sv64 = 11,
+}
+impl VMMode {
+    pub fn from(x: i64) -> VMMode {
+        match x {
+            0 => VMMode::Mbare,
+            1 => VMMode::Sv32,
+            8 => VMMode::Sv39,
+            9 => VMMode::Sv48,
+            10 => VMMode::Sv57,
+            11 => VMMode::Sv64,
+            _ => panic!("Intelnal Error: Unknown VMMode = {:}", x),
+        }
+    }
+}
 
 pub struct Riscv64Env {
     pub m_xlen: i32,

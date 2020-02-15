@@ -2,7 +2,7 @@
 
 
 use crate::riscv64_core::Riscv64Env;
-use crate::riscv32_core::InstT;
+use crate::riscv64_core::InstT;
 use crate::riscv_inst_id::RiscvInstId;
 
 

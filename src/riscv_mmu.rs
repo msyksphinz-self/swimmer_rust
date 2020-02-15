@@ -6,12 +6,12 @@ use crate::riscv64_core::Riscv64Env;
 use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
-use crate::riscv32_core::MemAccType;
-use crate::riscv32_core::MemResult;
+use crate::riscv64_core::MemAccType;
+use crate::riscv64_core::MemResult;
 use crate::riscv_exception::ExceptCode;
 
-use crate::riscv32_core::PrivMode;
-use crate::riscv32_core::VMMode;
+use crate::riscv64_core::PrivMode;
+use crate::riscv64_core::VMMode;
 
 use crate::riscv_csr::CsrAddr;
 

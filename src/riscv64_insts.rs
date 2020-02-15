@@ -2,15 +2,15 @@ use crate::riscv_csr::CsrAddr;
 
 use crate::riscv_tracer::RiscvTracer;
 
-use crate::riscv32_core::UXlenT;
-use crate::riscv32_core::XlenT;
+use crate::riscv64_core::UXlenT;
+use crate::riscv64_core::XlenT;
 use crate::riscv64_core::UXlen64T;
 use crate::riscv64_core::Addr64T;
 use crate::riscv64_core::Xlen64T;
 
-use crate::riscv32_core::PrivMode;
+use crate::riscv64_core::PrivMode;
 
-use crate::riscv32_core::InstT;
+use crate::riscv64_core::InstT;
 
 use crate::riscv64_core::Riscv64Core;
 use crate::riscv64_core::Riscv64Env;
@@ -19,7 +19,6 @@ use crate::riscv_exception::ExceptCode;
 use crate::riscv_exception::RiscvException;
 
 use crate::riscv_inst_id::RiscvInstId;
-use crate::riscv32_insts::RiscvInsts;
 
 use crate::riscv64_insts_fpu::Riscv64InstsFpu;
 
@@ -29,6 +28,11 @@ use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPIE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPIE_MSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SPP_MSB;
+
+pub trait RiscvInsts {
+    fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32);
+}
+
 
 impl RiscvInsts for Riscv64Env {
     fn execute_inst(&mut self, dec_inst: RiscvInstId, inst: InstT, step: u32) {
