@@ -59,12 +59,10 @@ fn parse_args() -> Args {
 fn main() -> Result<(), Box<std::error::Error>> {
     let args = parse_args();
 
-    let rv32_str = "rv32".to_string();
-    let rv64_str = "rv64".to_string();
     let xlen = match args.rv_arch {
-        Some(rv_arch_str) => match rv_arch_str {
-            rv32_str => 32,
-            rv64_str => 64,
+        Some(rv_arch_str) => match rv_arch_str.as_str() {
+            "rv32" => 32,
+            "rv64" => 64,
             _ => panic!("Unknown XLEN! Should specify rv32 or rv64"),
         },
         None => 64  // Default XLEN=64
