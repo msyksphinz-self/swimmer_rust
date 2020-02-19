@@ -111,7 +111,7 @@ impl RiscvTracer for Tracer {
                 VMMode::Sv64 => "Sv64",
             }
         );
-        print!("{:08x}:{:08x}:", self.m_executed_pc, self.m_inst_hex,);
+        print!("{:012x}:{:08x}:", self.m_executed_pc & 0x0ffff_ffff_ffff, self.m_inst_hex,);
 
         match self.m_dec_inst {
             Some(id) => {
