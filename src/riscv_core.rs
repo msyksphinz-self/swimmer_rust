@@ -126,7 +126,7 @@ impl Riscv64Env {
             m_is_update_pc: false,
             m_csr: RiscvCsr::<i64>::new(),
             m_priv: PrivMode::Machine,
-            m_trace: Tracer::new(),
+            m_trace: Tracer::new(xlen),
         }
     }
 

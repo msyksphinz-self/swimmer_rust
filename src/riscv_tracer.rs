@@ -36,6 +36,8 @@ pub enum TraceInfo {
 }
 
 pub struct Tracer {
+    m_xlen: i32,
+
     pub m_priv: PrivMode,
     pub m_vmmode: VMMode,
     pub m_executed_pc: Addr64T,
@@ -50,8 +52,10 @@ pub struct Tracer {
 }
 
 impl Tracer {
-    pub fn new() -> Tracer {
+    pub fn new(xlen: i32) -> Tracer {
         Tracer {
+            m_xlen: xlen,
+
             m_priv: PrivMode::Machine,
             m_vmmode: VMMode::Mbare,
             m_executed_pc: 0,
@@ -203,27 +207,27 @@ impl RiscvTracer for Tracer {
             match trace_info {
                 TraceInfo::XRegWrite{addr, value} => {
                     print!(
-                        "x{:02}<={:016x} ", addr, value);
+                        "x{:02}<={:0>width$x} ", addr, (value & (1 << (self.m_xlen / 4))), width = (self.m_xlen / 4) as usize);
                 }
                 TraceInfo::XRegRead{addr, value} => {
                     print!(
-                        "x{:02}=>{:016x} ", addr, value);
+                        "x{:02}=>{:0>width$x} ", addr, (value & (1 << (self.m_xlen / 4))), width = (self.m_xlen / 4) as usize);
                 }
                 TraceInfo::MemWrite{addr, value, memresult: _} => {
                     print!(
-                        "({:016x})<={:08x} ", addr, value);
+                        "({:012x})<={:0>width$x} ", addr & 0x0ffff_ffff_ffff, value & (1 << (self.m_xlen / 4)), width = (self.m_xlen / 4) as usize);
                 }
                 TraceInfo::MemRead{addr, value, memresult: _} => {
                     print!(
-                        "({:016x})=>{:08x} ", addr, value);
+                        "({:012x})=>{:0>width$x} ", addr & 0x0ffff_ffff_ffff, value & (1 << (self.m_xlen / 4)), width = (self.m_xlen / 4) as usize);
                 }
                 TraceInfo::F32RegWrite{addr, value} => {
                     print!(
-                        "f{:02}<={:016x} ", addr, value);
+                        "f{:02}<={:08x} ", addr, value);
                 }
                 TraceInfo::F32RegRead{addr, value} => {
                     print!(
-                        "f{:02}=>{:016x} ", addr, value);
+                        "f{:02}=>{:08x} ", addr, value);
                 }
                 TraceInfo::F64RegWrite{addr, value} => {
                     print!(
