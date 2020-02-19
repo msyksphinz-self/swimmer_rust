@@ -105,7 +105,8 @@ impl Riscv64Mmu for Riscv64Env {
                 (vaddr >> vpn_idx[level as usize]) & ((1 << vpn_len[level as usize]) - 1);
             pte_addr += (va_vpn_i * (ptesize as Addr64T)) as Addr64T;
 
-            match self.read_memory_word(pte_addr) {
+            let phy_pte_addr = self.uext_xlen(pte_addr as i64);
+            match self.read_memory_word(phy_pte_addr) {
                 Ok(pte_value) => { pte_val = pte_value as Xlen64T; }
                 Err(result) => match result {
                     MemResult::NotDefined => { pte_val = 0; },
@@ -113,10 +114,10 @@ impl Riscv64Mmu for Riscv64Env {
                 }
             }
 
-            println!(
-                "<Info: VAddr = 0x{:016x} PTEAddr = 0x{:016x} : PPTE = 0x{:08x}>",
-                vaddr, pte_addr, pte_val
-            );
+            // println!(
+            //     "<Info: VAddr = 0x{:016x} PTEAddr = 0x{:016x} : PPTE = 0x{:08x}>",
+            //     vaddr, pte_addr, pte_val
+            // );
 
             // 3. If pte:v = 0, or if pte:r = 0 and pte:w = 1, stop and raise a page-fault exception.
             if (pte_val & 0x01) == 0 || (((pte_val & 0x02) == 0) && ((pte_val & 0x04) == 0x04)) {
@@ -254,7 +255,7 @@ impl Riscv64Mmu for Riscv64Env {
         // m_tlb_tag [vaddr_tag] = vaddr_vpn;
         // m_tlb_addr[vaddr_tag] = (*paddr & !0x0fff) | (pte_val & 0x0ff);
 
-        println!("<Converted Virtual Address = {:08x}>", phy_addr);
+        // println!("<Converted Virtual Address = {:08x}>", phy_addr);
         return Ok(phy_addr);
     }
 

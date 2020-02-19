@@ -413,9 +413,6 @@ impl Riscv64Core for Riscv64Env {
     }
 
     fn read_memory_byte(&mut self, phy_addr: Addr64T) -> Result<u8, MemResult> {
-        if phy_addr < DRAM_BASE {
-            println!("phys_addr = {:x}", phy_addr);
-        }
         assert!(phy_addr >= (DRAM_BASE as Addr64T));
         let base_addr: Addr64T = phy_addr - (DRAM_BASE as Addr64T);
 
