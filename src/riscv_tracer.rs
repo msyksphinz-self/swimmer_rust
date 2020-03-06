@@ -207,19 +207,19 @@ impl RiscvTracer for Tracer {
             match trace_info {
                 TraceInfo::XRegWrite{addr, value} => {
                     print!(
-                        "x{:02}<={:0>width$x} ", addr, (value & (1 << (self.m_xlen / 4))), width = (self.m_xlen / 4) as usize);
+                        "x{:02}<={:0>width$x} ", addr, value & (((1 as u128) << self.m_xlen)-1) as i64, width = (self.m_xlen / 4) as usize);
                 }
                 TraceInfo::XRegRead{addr, value} => {
                     print!(
-                        "x{:02}=>{:0>width$x} ", addr, (value & (1 << (self.m_xlen / 4))), width = (self.m_xlen / 4) as usize);
+                        "x{:02}=>{:0>width$x} ", addr, value & (((1 as u128) << self.m_xlen)-1) as i64, width = (self.m_xlen / 4) as usize);
                 }
                 TraceInfo::MemWrite{addr, value, memresult: _} => {
                     print!(
-                        "({:012x})<={:0>width$x} ", addr & 0x0ffff_ffff_ffff, value & (1 << (self.m_xlen / 4)), width = (self.m_xlen / 4) as usize);
+                        "({:012x})<={:0>width$x} ", addr & 0x0ffff_ffff_ffff, value & (((1 as u128) << self.m_xlen)-1) as i64, width = (self.m_xlen / 4) as usize);
                 }
                 TraceInfo::MemRead{addr, value, memresult: _} => {
                     print!(
-                        "({:012x})=>{:0>width$x} ", addr & 0x0ffff_ffff_ffff, value & (1 << (self.m_xlen / 4)), width = (self.m_xlen / 4) as usize);
+                        "({:012x})=>{:0>width$x} ", addr & 0x0ffff_ffff_ffff, value & (((1 as u128) << self.m_xlen)-1) as i64, width = (self.m_xlen / 4) as usize);
                 }
                 TraceInfo::F32RegWrite{addr, value} => {
                     print!(

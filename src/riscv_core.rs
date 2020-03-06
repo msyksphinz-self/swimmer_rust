@@ -489,17 +489,20 @@ impl Riscv64Core for Riscv64Env {
 
     fn read_bus_dword(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult> {
         return match self.convert_virtual_address(addr, MemAccType::Read) {
-            Ok(phy_addr) => match self.read_memory_dword(phy_addr) {
-                Ok(ret_value) => {
-                    let ret_val: Xlen64T = ret_value as Xlen64T;
-                    let read_mem_trace = TraceInfo::MemRead { addr: addr,
-                                                              value: ret_val,
-                                                              memresult: MemResult::NoExcept };
-                    self.m_trace.m_trace_info.push(read_mem_trace);
+            Ok(phy_addr) => {
+                let uext_phy_addr = self.uext_xlen(phy_addr as Xlen64T);
+                match self.read_memory_dword(uext_phy_addr) {
+                    Ok(ret_value) => {
+                        let ret_val: Xlen64T = ret_value as Xlen64T;
+                        let read_mem_trace = TraceInfo::MemRead { addr: addr,
+                                                                  value: ret_val,
+                                                                  memresult: MemResult::NoExcept };
+                        self.m_trace.m_trace_info.push(read_mem_trace);
 
-                    Ok(ret_val as Xlen64T)
-                },
-                Err(result) => { return Err(result) },
+                        Ok(ret_val as Xlen64T)
+                    },
+                    Err(result) => { return Err(result) },
+                }
             },
             Err(result) => Err(result),
         }
@@ -529,9 +532,19 @@ impl Riscv64Core for Riscv64Env {
 
     fn read_bus_hword(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult> {
         return match self.convert_virtual_address(addr, MemAccType::Read) {
-            Ok(phy_addr) => match self.read_memory_hword(phy_addr) {
-                Ok(val) => Ok(val as i64),
-                Err(result) => Err(result),
+            Ok(phy_addr) => {
+                let uext_phy_addr = self.uext_xlen(phy_addr as Xlen64T);
+                match self.read_memory_hword(uext_phy_addr) {
+                    Ok(value) => {
+                        let ret_val: Xlen64T = value as Xlen64T;
+                        let read_mem_trace = TraceInfo::MemRead { addr: addr,
+                                                                  value: ret_val as Xlen64T,
+                                                                  memresult: MemResult::NoExcept };
+                        self.m_trace.m_trace_info.push(read_mem_trace);
+                        Ok(value as i64)
+                    }
+                    Err(result) => Err(result),
+                }
             },
             Err(result) => Err(result),
         }
@@ -539,9 +552,19 @@ impl Riscv64Core for Riscv64Env {
 
     fn read_bus_byte(&mut self, addr: Addr64T) -> Result<Xlen64T, MemResult> {
         return match self.convert_virtual_address(addr, MemAccType::Read) {
-            Ok(phy_addr) => match self.read_memory_byte(phy_addr) {
-                Ok(val) => Ok(val as i64),
-                Err(result) => Err(result),
+            Ok(phy_addr) => {
+                let uext_phy_addr = self.uext_xlen(phy_addr as Xlen64T);
+                match self.read_memory_byte(uext_phy_addr) {
+                    Ok(value) => {
+                        let ret_val: Xlen64T = value as Xlen64T;
+                        let read_mem_trace = TraceInfo::MemRead { addr: addr,
+                                                                  value: ret_val as Xlen64T,
+                                                                  memresult: MemResult::NoExcept };
+                        self.m_trace.m_trace_info.push(read_mem_trace);
+                        Ok(value as i64)
+                    }
+                    Err(result) => Err(result),
+                }
             },
             Err(result) => Err(result),
         }
@@ -581,7 +604,11 @@ impl Riscv64Core for Riscv64Env {
     fn write_bus_hword(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult {
         return match self.convert_virtual_address(addr, MemAccType::Write) {
             Ok(phy_addr) => {
-
+                let uext_phy_addr = self.uext_xlen(phy_addr as Xlen64T);
+                let write_mem_trace = TraceInfo::MemWrite { addr: addr,
+                                                            value: data,
+                                                            memresult: MemResult::NoExcept };
+                self.m_trace.m_trace_info.push(write_mem_trace);
                 self.write_memory_hword(phy_addr, data);
                 MemResult::NoExcept
             },
@@ -592,7 +619,11 @@ impl Riscv64Core for Riscv64Env {
     fn write_bus_byte(&mut self, addr: Addr64T, data: Xlen64T) -> MemResult {
         return match self.convert_virtual_address(addr, MemAccType::Write) {
             Ok(phy_addr) => {
-
+                let uext_phy_addr = self.uext_xlen(phy_addr as Xlen64T);
+                let write_mem_trace = TraceInfo::MemWrite { addr: addr,
+                                                            value: data,
+                                                            memresult: MemResult::NoExcept };
+                self.m_trace.m_trace_info.push(write_mem_trace);
                 self.write_memory_byte(phy_addr, data);
                 MemResult::NoExcept
             },
