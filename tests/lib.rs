@@ -277,26 +277,79 @@ extern crate swimmer_rust;
 #[test]fn rv64uf_v_move       () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64uf-v-move.bin"       .to_string()), 1); }
 #[test]fn rv64uf_v_recoding   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64uf-v-recoding.bin"   .to_string()), 1); }
 
+#[test]fn rv64ua_p_amoadd_d   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amoadd_d.bin"   .to_string()), 1); }
+#[test]fn rv64ua_p_amoadd_w   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amoadd_w.bin"   .to_string()), 1); }
+#[test]fn rv64ua_p_amoand_d   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amoand_d.bin"   .to_string()), 1); }
+#[test]fn rv64ua_p_amoand_w   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amoand_w.bin"   .to_string()), 1); }
+#[test]fn rv64ua_p_amomax_d   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amomax_d.bin"   .to_string()), 1); }
+#[test]fn rv64ua_p_amomax_w   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amomax_w.bin"   .to_string()), 1); }
+#[test]fn rv64ua_p_amomaxu_d  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amomaxu_d.bin"  .to_string()), 1); }
+#[test]fn rv64ua_p_amomaxu_w  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amomaxu_w.bin"  .to_string()), 1); }
+#[test]fn rv64ua_p_amomin_d   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amomin_d.bin"   .to_string()), 1); }
+#[test]fn rv64ua_p_amomin_w   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amomin_w.bin"   .to_string()), 1); }
+#[test]fn rv64ua_p_amominu_d  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amominu_d.bin"  .to_string()), 1); }
+#[test]fn rv64ua_p_amominu_w  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amominu_w.bin"  .to_string()), 1); }
+#[test]fn rv64ua_p_amoor_d    () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amoor_d.bin"    .to_string()), 1); }
+#[test]fn rv64ua_p_amoor_w    () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amoor_w.bin"    .to_string()), 1); }
+#[test]fn rv64ua_p_amoswap_d  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amoswap_d.bin"  .to_string()), 1); }
+#[test]fn rv64ua_p_amoswap_w  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amoswap_w.bin"  .to_string()), 1); }
+#[test]fn rv64ua_p_amoxor_d   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amoxor_d.bin"   .to_string()), 1); }
+#[test]fn rv64ua_p_amoxor_w   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-amoxor_w.bin"   .to_string()), 1); }
+#[test]fn rv64ua_p_lrsc       () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-p-lrsc.bin"       .to_string()), 1); }
+
+#[test]fn rv64ua_v_amoadd_d   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amoadd_d.bin"   .to_string()), 1); }
+#[test]fn rv64ua_v_amoadd_w   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amoadd_w.bin"   .to_string()), 1); }
+#[test]fn rv64ua_v_amoand_d   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amoand_d.bin"   .to_string()), 1); }
+#[test]fn rv64ua_v_amoand_w   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amoand_w.bin"   .to_string()), 1); }
+#[test]fn rv64ua_v_amomax_d   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amomax_d.bin"   .to_string()), 1); }
+#[test]fn rv64ua_v_amomax_w   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amomax_w.bin"   .to_string()), 1); }
+#[test]fn rv64ua_v_amomaxu_d  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amomaxu_d.bin"  .to_string()), 1); }
+#[test]fn rv64ua_v_amomaxu_w  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amomaxu_w.bin"  .to_string()), 1); }
+#[test]fn rv64ua_v_amomin_d   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amomin_d.bin"   .to_string()), 1); }
+#[test]fn rv64ua_v_amomin_w   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amomin_w.bin"   .to_string()), 1); }
+#[test]fn rv64ua_v_amominu_d  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amominu_d.bin"  .to_string()), 1); }
+#[test]fn rv64ua_v_amominu_w  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amominu_w.bin"  .to_string()), 1); }
+#[test]fn rv64ua_v_amoor_d    () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amoor_d.bin"    .to_string()), 1); }
+#[test]fn rv64ua_v_amoor_w    () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amoor_w.bin"    .to_string()), 1); }
+#[test]fn rv64ua_v_amoswap_d  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amoswap_d.bin"  .to_string()), 1); }
+#[test]fn rv64ua_v_amoswap_w  () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amoswap_w.bin"  .to_string()), 1); }
+#[test]fn rv64ua_v_amoxor_d   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amoxor_d.bin"   .to_string()), 1); }
+#[test]fn rv64ua_v_amoxor_w   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-amoxor_w.bin"   .to_string()), 1); }
+#[test]fn rv64ua_v_lrsc       () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64ua-v-lrsc.bin"       .to_string()), 1); }
+
+#[test]fn rv64mi_p_access     () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64mi-p-access.bin"     .to_string()), 1); }
+#[test]fn rv64mi_p_breakpoint () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64mi-p-breakpoint.bin" .to_string()), 1); }
+#[test]fn rv64mi_p_csr        () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64mi-p-csr.bin"        .to_string()), 1); }
+#[test]fn rv64mi_p_illegal    () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64mi-p-illegal.bin"    .to_string()), 1); }
+#[test]fn rv64mi_p_ma_addr    () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64mi-p-ma_addr.bin"    .to_string()), 1); }
+#[test]fn rv64mi_p_ma_fetch   () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64mi-p-ma_fetch.bin"   .to_string()), 1); }
+#[test]fn rv64mi_p_mcsr       () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64mi-p-mcsr.bin"       .to_string()), 1); }
+#[test]fn rv64mi_p_sbreak     () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64mi-p-sbreak.bin"     .to_string()), 1); }
+#[test]fn rv64mi_p_scall      () { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64mi-p-scall.bin"      .to_string()), 1); }
+
+#[test]fn rv64uc_p_rvc       ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64uc-p-rvc.bin"        .to_string()), 1); }
+#[test]fn rv64uc_v_rvc       ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(64, "riscv-tests/isa/rv64uc-v-rvc.bin"        .to_string()), 1); }
+
 //
 // Unsupported RV32 Instruction Tests
 //
-// #[test]fn rv32mi_p_breakpoint()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-breakpoint.bin" .to_string()), 1); }
-// #[test]fn rv32mi_p_csr       ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-csr.bin"        .to_string()), 1); }
-// #[test]fn rv32mi_p_illegal   ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-illegal.bin"    .to_string()), 1); }
-// #[test]fn rv32mi_p_ma_addr   ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-ma_addr.bin"    .to_string()), 1); }
-// #[test]fn rv32mi_p_ma_fetch  ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-ma_fetch.bin"   .to_string()), 1); }
-// #[test]fn rv32mi_p_mcsr      ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-mcsr.bin"       .to_string()), 1); }
-// #[test]fn rv32mi_p_sbreak    ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-sbreak.bin"     .to_string()), 1); }
-// #[test]fn rv32mi_p_scall     ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-scall.bin"      .to_string()), 1); }
-// #[test]fn rv32mi_p_shamt     ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-shamt.bin"      .to_string()), 1); }
-//
-// #[test]fn rv32si_p_csr       ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-csr.bin"        .to_string()), 1); }
-// #[test]fn rv32si_p_dirty     ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-dirty.bin"      .to_string()), 1); }
-// #[test]fn rv32si_p_ma_fetch  ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-ma_fetch.bin"   .to_string()), 1); }
-// #[test]fn rv32si_p_sbreak    ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-sbreak.bin"     .to_string()), 1); }
-// #[test]fn rv32si_p_scall     ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-scall.bin"      .to_string()), 1); }
-// #[test]fn rv32si_p_wfi       ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-wfi.bin"        .to_string()), 1); }
-//
+#[test]fn rv32mi_p_breakpoint()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-breakpoint.bin" .to_string()), 1); }
+#[test]fn rv32mi_p_csr       ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-csr.bin"        .to_string()), 1); }
+#[test]fn rv32mi_p_illegal   ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-illegal.bin"    .to_string()), 1); }
+#[test]fn rv32mi_p_ma_addr   ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-ma_addr.bin"    .to_string()), 1); }
+#[test]fn rv32mi_p_ma_fetch  ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-ma_fetch.bin"   .to_string()), 1); }
+#[test]fn rv32mi_p_mcsr      ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-mcsr.bin"       .to_string()), 1); }
+#[test]fn rv32mi_p_sbreak    ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-sbreak.bin"     .to_string()), 1); }
+#[test]fn rv32mi_p_scall     ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-scall.bin"      .to_string()), 1); }
+#[test]fn rv32mi_p_shamt     ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32mi-p-shamt.bin"      .to_string()), 1); }
+
+#[test]fn rv32si_p_csr       ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-csr.bin"        .to_string()), 1); }
+#[test]fn rv32si_p_dirty     ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-dirty.bin"      .to_string()), 1); }
+#[test]fn rv32si_p_ma_fetch  ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-ma_fetch.bin"   .to_string()), 1); }
+#[test]fn rv32si_p_sbreak    ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-sbreak.bin"     .to_string()), 1); }
+#[test]fn rv32si_p_scall     ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-scall.bin"      .to_string()), 1); }
+#[test]fn rv32si_p_wfi       ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32si-p-wfi.bin"        .to_string()), 1); }
+
 // #[test]fn rv32ua_p_amoadd_w  ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32ua-p-amoadd_w.bin"   .to_string()), 1); }
 // #[test]fn rv32ua_p_amoand_w  ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32ua-p-amoand_w.bin"   .to_string()), 1); }
 // #[test]fn rv32ua_p_amomax_w  ()  { assert_eq!(swimmer_rust::swimmer_rust_exec(32, "riscv-tests/isa/rv32ua-p-amomax_w.bin"   .to_string()), 1); }
