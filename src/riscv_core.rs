@@ -609,7 +609,7 @@ impl Riscv64Core for Riscv64Env {
                                                             value: data,
                                                             memresult: MemResult::NoExcept };
                 self.m_trace.m_trace_info.push(write_mem_trace);
-                self.write_memory_hword(phy_addr, data);
+                self.write_memory_hword(uext_phy_addr, data);
                 MemResult::NoExcept
             },
             Err(result) => result,
@@ -624,7 +624,7 @@ impl Riscv64Core for Riscv64Env {
                                                             value: data,
                                                             memresult: MemResult::NoExcept };
                 self.m_trace.m_trace_info.push(write_mem_trace);
-                self.write_memory_byte(phy_addr, data);
+                self.write_memory_byte(uext_phy_addr, data);
                 MemResult::NoExcept
             },
             Err(result) => result,

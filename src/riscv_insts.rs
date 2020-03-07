@@ -192,21 +192,23 @@ impl RiscvInsts for Riscv64Env {
                 self.write_reg(rd, reg_data);
             }
             RiscvInstId::SLLI => {
-                let shamt_mask = self.m_xlen == 32 ? 0x1f : 0x3f;
+                let shamt_mask = if self.m_xlen == 32 { 0x1f } else { 0x3f };
                 let shamt: u32 = (Self::extract_shamt_field(inst) & shamt_mask) as u32;
                 let data = (self.read_reg(rs1) as UXlen64T).wrapping_shl(shamt) as Xlen64T;
                 let reg_data = self.sext_xlen(data);
                 self.write_reg(rd, reg_data as Xlen64T);
             }
             RiscvInstId::SRLI => {
-                let shamt_mask = self.m_xlen == 32 ? 0x1f : 0x3f;
+                let shamt_mask = if self.m_xlen == 32 { 0x1f } else { 0x3f };
                 let shamt: u32 = (Self::extract_shamt_field(inst) & shamt_mask) as u32;
-                let data = (self.read_reg(rs1) as UXlen64T).wrapping_shr(shamt) as Xlen64T;
+                let rs1_data_64 = self.read_reg(rs1) as UXlen64T;
+                let rs1_data = self.uext_xlen(rs1_data_64 as Xlen64T);
+                let data = rs1_data.wrapping_shr(shamt) as Xlen64T;
                 let reg_data = self.sext_xlen(data);
                 self.write_reg(rd, reg_data);
             }
             RiscvInstId::SRAI => {
-                let shamt_mask = self.m_xlen == 32 ? 0x1f : 0x3f;
+                let shamt_mask = if self.m_xlen == 32 { 0x1f } else { 0x3f };
                 let shamt: u32 = (Self::extract_shamt_field(inst) & shamt_mask) as u32;
                 let data = self.read_reg(rs1).wrapping_shr(shamt) as Xlen64T;
                 let reg_data = self.sext_xlen(data);
@@ -249,7 +251,8 @@ impl RiscvInsts for Riscv64Env {
                 self.write_reg(rd, reg_data);
             }
             RiscvInstId::SRL => {
-                let rs1_data = self.read_reg(rs1) as UXlen64T;
+                let rs1_data_64 = self.read_reg(rs1) as UXlen64T;
+                let rs1_data = self.uext_xlen(rs1_data_64 as Xlen64T);
                 let rs2_data = self.read_reg(rs2);
                 let data = rs1_data.wrapping_shr(rs2_data as u32) as Xlen64T;
                 let reg_data = self.sext_xlen(data);
@@ -271,25 +274,49 @@ impl RiscvInsts for Riscv64Env {
                 self.write_reg(rd, reg_data);
             }
             RiscvInstId::MULH => {
-                let rs1_data: i128 = (self.read_reg(rs1) as i64) as i128;
-                let rs2_data: i128 = (self.read_reg(rs2) as i64) as i128;
-                let mut reg_data: i128 = rs1_data.wrapping_mul(rs2_data);
-                reg_data = reg_data >> 64;
-                self.write_reg(rd, reg_data as Xlen64T);
+                if self.m_xlen == 32 {
+                    let rs1_data: i64 = (self.read_reg(rs1) as i32) as i64;
+                    let rs2_data: i64 = (self.read_reg(rs2) as i32) as i64;
+                    let mut reg_data: i64 = rs1_data.wrapping_mul(rs2_data);
+                    reg_data = reg_data >> 32;
+                    self.write_reg(rd, reg_data as Xlen64T);
+                } else {
+                    let rs1_data: i128 = (self.read_reg(rs1) as i64) as i128;
+                    let rs2_data: i128 = (self.read_reg(rs2) as i64) as i128;
+                    let mut reg_data: i128 = rs1_data.wrapping_mul(rs2_data);
+                    reg_data = reg_data >> 64;
+                    self.write_reg(rd, reg_data as Xlen64T);
+                }
             }
             RiscvInstId::MULHSU => {
-                let rs1_data: i128 = (self.read_reg(rs1) as i64) as i128;
-                let rs2_data: i128 = (self.read_reg(rs2) as u64) as i128;
-                let mut reg_data: i128 = rs1_data.wrapping_mul(rs2_data);
-                reg_data = reg_data >> 64;
-                self.write_reg(rd, reg_data as Xlen64T);
+                if self.m_xlen == 32 {
+                    let rs1_data: i64 = (self.read_reg(rs1) as i32) as i64;
+                    let rs2_data: i64 = (self.read_reg(rs2) as u32) as i64;
+                    let mut reg_data: i64 = rs1_data.wrapping_mul(rs2_data);
+                    reg_data = reg_data >> 32;
+                    self.write_reg(rd, reg_data as Xlen64T);
+                } else {
+                    let rs1_data: i128 = (self.read_reg(rs1) as i64) as i128;
+                    let rs2_data: i128 = (self.read_reg(rs2) as u64) as i128;
+                    let mut reg_data: i128 = rs1_data.wrapping_mul(rs2_data);
+                    reg_data = reg_data >> 64;
+                    self.write_reg(rd, reg_data as Xlen64T);
+                }
             }
             RiscvInstId::MULHU => {
-                let rs1_data: u128 = (self.read_reg(rs1) as u64) as u128;
-                let rs2_data: u128 = (self.read_reg(rs2) as u64) as u128;
-                let mut reg_data: u128 = rs1_data.wrapping_mul(rs2_data);
-                reg_data = reg_data >> 64;
-                self.write_reg(rd, reg_data as Xlen64T);
+                if self.m_xlen == 32 {
+                    let rs1_data: u64 = (self.read_reg(rs1) as u32) as u64;
+                    let rs2_data: u64 = (self.read_reg(rs2) as u32) as u64;
+                    let mut reg_data: u64 = rs1_data.wrapping_mul(rs2_data);
+                    reg_data = reg_data >> 32;
+                    self.write_reg(rd, reg_data as Xlen64T);
+                } else {
+                    let rs1_data: u128 = (self.read_reg(rs1) as u64) as u128;
+                    let rs2_data: u128 = (self.read_reg(rs2) as u64) as u128;
+                    let mut reg_data: u128 = rs1_data.wrapping_mul(rs2_data);
+                    reg_data = reg_data >> 64;
+                    self.write_reg(rd, reg_data as Xlen64T);
+                }
             }
 
             RiscvInstId::REM => {
@@ -329,8 +356,10 @@ impl RiscvInsts for Riscv64Env {
                 self.write_reg(rd, reg_data);
             }
             RiscvInstId::DIVU => {
-                let rs1_data: UXlen64T = self.read_reg(rs1) as UXlen64T;
-                let rs2_data: UXlen64T = self.read_reg(rs2) as UXlen64T;
+                let rs1_data_64: UXlen64T = self.read_reg(rs1) as UXlen64T;
+                let rs2_data_64: UXlen64T = self.read_reg(rs2) as UXlen64T;
+                let rs1_data: UXlen64T = self.uext_xlen(rs1_data_64 as Xlen64T) as UXlen64T;
+                let rs2_data: UXlen64T = self.uext_xlen(rs2_data_64 as Xlen64T) as UXlen64T;
                 let reg_data: UXlen64T;
                 if rs2_data == 0 {
                     reg_data = 0xffffffffffffffff as UXlen64T;
@@ -382,8 +411,10 @@ impl RiscvInsts for Riscv64Env {
             | RiscvInstId::BGE
             | RiscvInstId::BLTU
             | RiscvInstId::BGEU => {
-                let rs1_data: Xlen64T = self.read_reg(rs1);
-                let rs2_data: Xlen64T = self.read_reg(rs2);
+                let rs1_data_64: Xlen64T = self.read_reg(rs1);
+                let rs2_data_64: Xlen64T = self.read_reg(rs2);
+                let rs1_data: Xlen64T = self.sext_xlen(rs1_data_64);
+                let rs2_data: Xlen64T = self.sext_xlen(rs2_data_64);
                 let addr: Addr64T = Self::extract_sb_field(inst) as Addr64T;
                 let jump_en: bool;
                 match dec_inst {
