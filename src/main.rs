@@ -8,6 +8,7 @@ mod core_base;
 mod riscv_core;
 mod riscv_insts;
 mod riscv_insts_fpu;
+mod riscv_insts_amo;
 mod riscv_csr;
 mod riscv_csr_bitdef;
 mod riscv_exception;

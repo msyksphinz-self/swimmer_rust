@@ -21,6 +21,7 @@ use crate::riscv_exception::RiscvException;
 use crate::riscv_inst_id::RiscvInstId;
 
 use crate::riscv_insts_fpu::Riscv64InstsFpu;
+use crate::riscv_insts_amo::Riscv64InstsAmo;
 
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_MSB;
@@ -616,6 +617,26 @@ impl RiscvInsts for Riscv64Env {
                 }
                 self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
             }
+
+            RiscvInstId::AMOSWAP_W => self.execute_amoswap_w (inst),
+            RiscvInstId::AMOADD_W  => self.execute_amoadd_w  (inst),
+            RiscvInstId::AMOXOR_W  => self.execute_amoxor_w  (inst),
+            RiscvInstId::AMOAND_W  => self.execute_amoand_w  (inst),
+            RiscvInstId::AMOOR_W   => self.execute_amoor_w   (inst),
+            RiscvInstId::AMOMIN_W  => self.execute_amomin_w  (inst),
+            RiscvInstId::AMOMAX_W  => self.execute_amomax_w  (inst),
+            RiscvInstId::AMOMINU_W => self.execute_amominu_w (inst),
+            RiscvInstId::AMOMAXU_W => self.execute_amomaxu_w (inst),
+
+            RiscvInstId::AMOSWAP_D => self.execute_amoswap_d (inst),
+            RiscvInstId::AMOADD_D  => self.execute_amoadd_d  (inst),
+            RiscvInstId::AMOXOR_D  => self.execute_amoxor_d  (inst),
+            RiscvInstId::AMOAND_D  => self.execute_amoand_d  (inst),
+            RiscvInstId::AMOOR_D   => self.execute_amoor_d   (inst),
+            RiscvInstId::AMOMIN_D  => self.execute_amomin_d  (inst),
+            RiscvInstId::AMOMAX_D  => self.execute_amomax_d  (inst),
+            RiscvInstId::AMOMINU_D => self.execute_amominu_d (inst),
+            RiscvInstId::AMOMAXU_D => self.execute_amomaxu_d (inst),
 
             RiscvInstId::FLW => self.execute_flw(inst),
             RiscvInstId::FSW => self.execute_fsw(inst),
