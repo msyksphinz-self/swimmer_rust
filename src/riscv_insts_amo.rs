@@ -32,15 +32,24 @@ pub trait Riscv64InstsAmo {
 }
 
 
+macro_rules! get_rs1_rs2 {
+    ($self:ident, $inst:expr) => {
+        {
+            let rs1 = Self::get_rs1_addr($inst);
+            let rs2 = Self::get_rs2_addr($inst);
+            let rs1_data_64 = $self.read_reg(rs1);
+            let rs2_data_64 = $self.read_reg(rs2);
+            (rs1_data_64, rs2_data_64)
+        }
+    }
+}
+
+
 impl Riscv64InstsAmo for Riscv64Env {
     fn execute_amoswap_w (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
         let rs2_data = self.sext_xlen(rs2_data_64);
@@ -55,12 +64,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amoadd_w  (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
         let rs2_data = Self::extend_sign(rs2_data_64, 31);
@@ -77,12 +82,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amoxor_w  (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
         let rs2_data = Self::extend_sign(rs2_data_64, 31);
@@ -99,12 +100,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amoand_w  (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
         let rs2_data = Self::extend_sign(rs2_data_64, 31);
@@ -121,12 +118,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amoor_w   (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
         let rs2_data = Self::extend_sign(rs2_data_64, 31);
@@ -143,12 +136,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amomin_w  (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
         let rs2_data = Self::extend_sign(rs2_data_64, 31);
@@ -165,12 +154,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amomax_w  (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
         let rs2_data = Self::extend_sign(rs2_data_64, 31);
@@ -187,12 +172,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amominu_w (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
         let rs2_data = Self::extend_sign(rs2_data_64, 31);
@@ -209,12 +190,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amomaxu_w (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
         let rs2_data = Self::extend_sign(rs2_data_64, 31);
@@ -249,12 +226,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amoadd_d  (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
@@ -269,12 +242,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amoxor_d  (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
@@ -289,12 +258,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amoand_d  (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
@@ -309,12 +274,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amoor_d   (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
@@ -329,12 +290,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amomin_d  (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
@@ -349,12 +306,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amomax_d  (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
@@ -369,12 +322,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amominu_d (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
@@ -389,12 +338,8 @@ impl Riscv64InstsAmo for Riscv64Env {
     }
     fn execute_amomaxu_d (&mut self, inst: InstT)
     {
-        let rs1 = Self::get_rs1_addr(inst);
-        let rs2 = Self::get_rs2_addr(inst);
+        let (rs1_data_64, rs2_data_64) = get_rs1_rs2!(self, inst);
         let rd = Self::get_rd_addr(inst);
-
-        let rs1_data_64 = self.read_reg(rs1);
-        let rs2_data_64 = self.read_reg(rs2);
 
         let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
