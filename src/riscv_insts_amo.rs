@@ -39,12 +39,15 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs2 = Self::get_rs2_addr(inst);
         let rd = Self::get_rd_addr(inst);
 
-        let rs1_data = self.read_reg(rs1);
-        let rs2_data = self.read_reg(rs2);
+        let rs1_data_64 = self.read_reg(rs1);
+        let rs2_data_64 = self.read_reg(rs2);
 
-        match self.read_bus_word(rs1_data as Addr64T) {
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
+        let rs2_data = self.sext_xlen(rs2_data_64);
+
+        match self.read_bus_word(mem_addr) {
             Ok(reg_data) => {
-                self.write_bus_word(rs1_data as Addr64T, rs2_data);
+                self.write_bus_word(mem_addr, rs2_data);
                 self.write_reg(rd, (reg_data as XlenT) as Xlen64T);
             },
             Err(_result) => {},
@@ -59,15 +62,15 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
-        let rs2_data = self.uext_xlen(rs2_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
+        let rs2_data = Self::extend_sign(rs2_data_64, 31);
 
-        match self.read_bus_word(mem_addr as Addr64T) {
+        match self.read_bus_word(mem_addr) {
             Ok(mem_data_64) => {
-                let mem_data = self.uext_xlen(mem_data_64);
+                let mem_data = Self::extend_sign(mem_data_64, 31);
                 let ret = mem_data.wrapping_add(rs2_data);
-                self.write_bus_word(mem_addr as Addr64T, ret as Xlen64T);
-                self.write_reg(rd, (mem_data as XlenT) as Xlen64T);
+                self.write_bus_word(mem_addr, ret as Xlen64T);
+                self.write_reg(rd, mem_data);
             },
             Err(_result) => {},
         }
@@ -81,14 +84,14 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
-        let rs2_data = self.uext_xlen(rs2_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
+        let rs2_data = Self::extend_sign(rs2_data_64, 31);
 
-        match self.read_bus_word(mem_addr as Addr64T) {
+        match self.read_bus_word(mem_addr) {
             Ok(mem_data_64) => {
-                let mem_data = self.uext_xlen(mem_data_64);
+                let mem_data = Self::extend_sign(mem_data_64, 31);
                 let ret = mem_data ^ rs2_data;
-                self.write_bus_word(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_word(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, (mem_data as XlenT) as Xlen64T);
             },
             Err(_result) => {},
@@ -103,14 +106,14 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
-        let rs2_data = self.uext_xlen(rs2_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
+        let rs2_data = Self::extend_sign(rs2_data_64, 31);
 
-        match self.read_bus_word(mem_addr as Addr64T) {
+        match self.read_bus_word(mem_addr) {
             Ok(mem_data_64) => {
-                let mem_data = self.uext_xlen(mem_data_64);
+                let mem_data = Self::extend_sign(mem_data_64, 31);
                 let ret = mem_data & rs2_data;
-                self.write_bus_word(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_word(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, (mem_data as XlenT) as Xlen64T);
             },
             Err(_result) => {},
@@ -125,14 +128,14 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
-        let rs2_data = self.uext_xlen(rs2_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
+        let rs2_data = Self::extend_sign(rs2_data_64, 31);
 
-        match self.read_bus_word(mem_addr as Addr64T) {
+        match self.read_bus_word(mem_addr) {
             Ok(mem_data_64) => {
-                let mem_data = self.uext_xlen(mem_data_64);
+                let mem_data = Self::extend_sign(mem_data_64, 31);
                 let ret = mem_data | rs2_data;
-                self.write_bus_word(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_word(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, (mem_data as XlenT) as Xlen64T);
             },
             Err(_result) => {},
@@ -147,14 +150,14 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
         let rs2_data = Self::extend_sign(rs2_data_64, 31);
 
-        match self.read_bus_word(mem_addr as Addr64T) {
+        match self.read_bus_word(mem_addr) {
             Ok(mem_data_64) => {
                 let mem_data = Self::extend_sign(mem_data_64, 31);
                 let ret = std::cmp::min(mem_data, rs2_data);
-                self.write_bus_word(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_word(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, (mem_data as XlenT) as Xlen64T);
             },
             Err(_result) => {},
@@ -169,14 +172,14 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
         let rs2_data = Self::extend_sign(rs2_data_64, 31);
 
-        match self.read_bus_word(mem_addr as Addr64T) {
+        match self.read_bus_word(mem_addr) {
             Ok(mem_data_64) => {
                 let mem_data = Self::extend_sign(mem_data_64, 31);
                 let ret = std::cmp::max(mem_data, rs2_data);
-                self.write_bus_word(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_word(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, (mem_data as XlenT) as Xlen64T);
             },
             Err(_result) => {},
@@ -191,14 +194,14 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
-        let rs2_data = self.uext_xlen(rs2_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
+        let rs2_data = Self::extend_sign(rs2_data_64, 31);
 
-        match self.read_bus_word(mem_addr as Addr64T) {
+        match self.read_bus_word(mem_addr) {
             Ok(mem_data_64) => {
-                let mem_data = self.uext_xlen(mem_data_64);
+                let mem_data = Self::extend_sign(mem_data_64, 31);
                 let ret = std::cmp::min(mem_data as UXlenT, rs2_data as UXlenT);
-                self.write_bus_word(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_word(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, (mem_data as XlenT) as Xlen64T);
             },
             Err(_result) => {},
@@ -213,14 +216,14 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
-        let rs2_data = self.uext_xlen(rs2_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
+        let rs2_data = Self::extend_sign(rs2_data_64, 31);
 
-        match self.read_bus_word(mem_addr as Addr64T) {
+        match self.read_bus_word(mem_addr) {
             Ok(mem_data_64) => {
-                let mem_data = self.uext_xlen(mem_data_64);
+                let mem_data = Self::extend_sign(mem_data_64, 31);
                 let ret = std::cmp::max(mem_data as UXlenT, rs2_data as UXlenT);
-                self.write_bus_word(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_word(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, (mem_data as XlenT) as Xlen64T);
             },
             Err(_result) => {},
@@ -253,12 +256,12 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
-        match self.read_bus_dword(mem_addr as Addr64T) {
+        match self.read_bus_dword(mem_addr) {
             Ok(mem_data_64) => {
                 let ret = mem_data_64.wrapping_add(rs2_data_64);
-                self.write_bus_dword(mem_addr as Addr64T, ret);
+                self.write_bus_dword(mem_addr, ret);
                 self.write_reg(rd, mem_data_64);
             },
             Err(_result) => {},
@@ -273,12 +276,12 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
-        match self.read_bus_dword(mem_addr as Addr64T) {
+        match self.read_bus_dword(mem_addr) {
             Ok(mem_data_64) => {
                 let ret = mem_data_64 ^ rs2_data_64;
-                self.write_bus_dword(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_dword(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, mem_data_64);
             },
             Err(_result) => {},
@@ -293,12 +296,12 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
-        match self.read_bus_dword(mem_addr as Addr64T) {
+        match self.read_bus_dword(mem_addr) {
             Ok(mem_data_64) => {
                 let ret = mem_data_64 & rs2_data_64;
-                self.write_bus_dword(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_dword(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, mem_data_64);
             },
             Err(_result) => {},
@@ -313,12 +316,12 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
-        match self.read_bus_dword(mem_addr as Addr64T) {
+        match self.read_bus_dword(mem_addr) {
             Ok(mem_data_64) => {
                 let ret = mem_data_64 | rs2_data_64;
-                self.write_bus_dword(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_dword(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, mem_data_64);
             },
             Err(_result) => {},
@@ -333,12 +336,12 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
-        match self.read_bus_dword(mem_addr as Addr64T) {
+        match self.read_bus_dword(mem_addr) {
             Ok(mem_data_64) => {
                 let ret = std::cmp::min(mem_data_64, rs2_data_64);
-                self.write_bus_dword(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_dword(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, mem_data_64);
             },
             Err(_result) => {},
@@ -353,12 +356,12 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
-        match self.read_bus_dword(mem_addr as Addr64T) {
+        match self.read_bus_dword(mem_addr) {
             Ok(mem_data_64) => {
                 let ret = std::cmp::max(mem_data_64, rs2_data_64);
-                self.write_bus_dword(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_dword(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, mem_data_64);
             },
             Err(_result) => {},
@@ -373,12 +376,12 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
-        match self.read_bus_dword(mem_addr as Addr64T) {
+        match self.read_bus_dword(mem_addr) {
             Ok(mem_data_64) => {
                 let ret = std::cmp::min(mem_data_64 as UXlen64T, rs2_data_64 as UXlen64T);
-                self.write_bus_dword(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_dword(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, mem_data_64);
             },
             Err(_result) => {},
@@ -393,12 +396,12 @@ impl Riscv64InstsAmo for Riscv64Env {
         let rs1_data_64 = self.read_reg(rs1);
         let rs2_data_64 = self.read_reg(rs2);
 
-        let mem_addr = self.uext_xlen(rs1_data_64);
+        let mem_addr = self.uext_xlen(rs1_data_64) as Addr64T;
 
-        match self.read_bus_dword(mem_addr as Addr64T) {
+        match self.read_bus_dword(mem_addr) {
             Ok(mem_data_64) => {
                 let ret = std::cmp::max(mem_data_64 as UXlen64T, rs2_data_64 as UXlen64T);
-                self.write_bus_dword(mem_addr as Addr64T, ret as Xlen64T);
+                self.write_bus_dword(mem_addr, ret as Xlen64T);
                 self.write_reg(rd, mem_data_64);
             },
             Err(_result) => {},
