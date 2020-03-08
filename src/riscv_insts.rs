@@ -20,6 +20,7 @@ use crate::riscv_exception::RiscvException;
 
 use crate::riscv_inst_id::RiscvInstId;
 
+use crate::riscv_insts_int::Riscv64InstsInt;
 use crate::riscv_insts_fpu::Riscv64InstsFpu;
 use crate::riscv_insts_amo::Riscv64InstsAmo;
 
@@ -84,18 +85,6 @@ impl RiscvInsts for Riscv64Env {
                 let zimm: Xlen64T = ((inst >> 15) & 0x1f) as Xlen64T;
                 let reg_data: Xlen64T = self.m_csr.csrrc(csr_addr, zimm);
                 self.write_reg(rd, reg_data);
-            }
-            RiscvInstId::LUI => {
-                let mut imm: Xlen64T =
-                    Self::extend_sign(Self::extract_bit_field(inst as Xlen64T, 31, 12), 19);
-                imm = imm << 12;
-                self.write_reg(rd, imm);
-            }
-            RiscvInstId::AUIPC => {
-                let mut imm: Xlen64T =
-                    Self::extend_sign(Self::extract_bit_field(inst as Xlen64T, 31, 12), 19);
-                imm = (imm << 12).wrapping_add(self.uext_xlen(self.m_pc as Xlen64T) as Xlen64T);
-                self.write_reg(rd, imm);
             }
             RiscvInstId::LB => {
                 let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
@@ -162,110 +151,25 @@ impl RiscvInsts for Riscv64Env {
                     Err(_result) => {},
                 }
             }
-            RiscvInstId::ADDI => {
-                let rs1_data = self.read_reg(rs1);
-                let imm_data = Self::extract_ifield(inst);
-                let reg_data: Xlen64T = self.sext_xlen(rs1_data.wrapping_add(imm_data));
-                self.write_reg(rd, reg_data);
-            }
-            RiscvInstId::SLTI => {
-                let reg_data: bool = self.read_reg(rs1) < Self::extract_ifield(inst);
-                self.write_reg(rd, reg_data as Xlen64T);
-            }
-            RiscvInstId::SLTIU => {
-                let reg_data: bool =
-                    (self.read_reg(rs1) as UXlen64T) < (Self::extract_ifield(inst) as UXlen64T);
-                self.write_reg(rd, reg_data as Xlen64T);
-            }
-            RiscvInstId::XORI => {
-                let data = self.read_reg(rs1) ^ Self::extract_ifield(inst);
-                let reg_data: Xlen64T = self.sext_xlen(data);
-                self.write_reg(rd, reg_data);
-            }
-            RiscvInstId::ORI => {
-                let data = self.read_reg(rs1) | Self::extract_ifield(inst);
-                let reg_data: Xlen64T = self.sext_xlen(data);
-                self.write_reg(rd, reg_data);
-            }
-            RiscvInstId::ANDI => {
-                let data = self.read_reg(rs1) & Self::extract_ifield(inst);
-                let reg_data: Xlen64T = self.sext_xlen(data);
-                self.write_reg(rd, reg_data);
-            }
-            RiscvInstId::SLLI => {
-                let shamt_mask = if self.m_xlen == 32 { 0x1f } else { 0x3f };
-                let shamt: u32 = (Self::extract_shamt_field(inst) & shamt_mask) as u32;
-                let data = (self.read_reg(rs1) as UXlen64T).wrapping_shl(shamt) as Xlen64T;
-                let reg_data = self.sext_xlen(data);
-                self.write_reg(rd, reg_data as Xlen64T);
-            }
-            RiscvInstId::SRLI => {
-                let shamt_mask = if self.m_xlen == 32 { 0x1f } else { 0x3f };
-                let shamt: u32 = (Self::extract_shamt_field(inst) & shamt_mask) as u32;
-                let rs1_data_64 = self.read_reg(rs1) as UXlen64T;
-                let rs1_data = self.uext_xlen(rs1_data_64 as Xlen64T);
-                let data = rs1_data.wrapping_shr(shamt) as Xlen64T;
-                let reg_data = self.sext_xlen(data);
-                self.write_reg(rd, reg_data);
-            }
-            RiscvInstId::SRAI => {
-                let shamt_mask = if self.m_xlen == 32 { 0x1f } else { 0x3f };
-                let shamt: u32 = (Self::extract_shamt_field(inst) & shamt_mask) as u32;
-                let data = self.read_reg(rs1).wrapping_shr(shamt) as Xlen64T;
-                let reg_data = self.sext_xlen(data);
-                self.write_reg(rd, reg_data as Xlen64T);
-            }
-
-            RiscvInstId::ADD => {
-                let rs1_data = self.read_reg(rs1);
-                let rs2_data = self.read_reg(rs2);
-                let data = self.sext_xlen(rs1_data.wrapping_add(rs2_data)) as Xlen64T;
-                let reg_data = self.sext_xlen(data);
-                self.write_reg(rd, reg_data);
-            }
-            RiscvInstId::SUB => {
-                let rs1_data = self.read_reg(rs1);
-                let rs2_data = self.read_reg(rs2);
-                let data = self.sext_xlen(rs1_data.wrapping_sub(rs2_data)) as Xlen64T;
-                let reg_data: Xlen64T = self.sext_xlen(data);
-                self.write_reg(rd, reg_data);
-            }
-            RiscvInstId::SLL => {
-                let rs1_data = self.read_reg(rs1) as UXlen64T;
-                let rs2_data = self.read_reg(rs2) as UXlenT;
-                let data = rs1_data.wrapping_shl(rs2_data) as Xlen64T;
-                let reg_data = self.sext_xlen(data);
-                self.write_reg(rd, reg_data as Xlen64T);
-            }
-            RiscvInstId::SLT => {
-                let reg_data: bool = self.read_reg(rs1) < self.read_reg(rs2);
-                self.write_reg(rd, reg_data as Xlen64T);
-            }
-            RiscvInstId::SLTU => {
-                let reg_data: bool =
-                    (self.read_reg(rs1) as UXlen64T) < (self.read_reg(rs2) as UXlen64T);
-                self.write_reg(rd, reg_data as Xlen64T);
-            }
-            RiscvInstId::XOR => {
-                let data = self.read_reg(rs1) ^ self.read_reg(rs2) as Xlen64T;
-                let reg_data: Xlen64T = self.sext_xlen(data);
-                self.write_reg(rd, reg_data);
-            }
-            RiscvInstId::SRL => {
-                let rs1_data_64 = self.read_reg(rs1) as UXlen64T;
-                let rs1_data = self.uext_xlen(rs1_data_64 as Xlen64T);
-                let rs2_data = self.read_reg(rs2);
-                let data = rs1_data.wrapping_shr(rs2_data as u32) as Xlen64T;
-                let reg_data = self.sext_xlen(data);
-                self.write_reg(rd, reg_data);
-            }
-            RiscvInstId::SRA => {
-                let rs1_data = self.read_reg(rs1);
-                let rs2_data: UXlen64T = self.read_reg(rs2) as UXlen64T;
-                let data = rs1_data.wrapping_shr(rs2_data as u32) as Xlen64T;
-                let reg_data: Xlen64T = self.sext_xlen(data);
-                self.write_reg(rd, reg_data);
-            }
+            RiscvInstId::AUIPC => self.execute_auipc (inst),
+            RiscvInstId::LUI   => self.execute_lui   (inst),
+            RiscvInstId::ADDI  => self.execute_addi  (inst),
+            RiscvInstId::SLTI  => self.execute_slti  (inst),
+            RiscvInstId::SLTIU => self.execute_sltiu (inst),
+            RiscvInstId::XORI  => self.execute_xori  (inst),
+            RiscvInstId::ORI   => self.execute_ori   (inst),
+            RiscvInstId::ANDI  => self.execute_andi  (inst),
+            RiscvInstId::SLLI  => self.execute_slli  (inst),
+            RiscvInstId::SRLI  => self.execute_srli  (inst),
+            RiscvInstId::SRAI  => self.execute_srai  (inst),
+            RiscvInstId::ADD   => self.execute_add   (inst),
+            RiscvInstId::SUB   => self.execute_sub   (inst),
+            RiscvInstId::SLL   => self.execute_sll   (inst),
+            RiscvInstId::SLT   => self.execute_slt   (inst),
+            RiscvInstId::SLTU  => self.execute_sltu  (inst),
+            RiscvInstId::XOR   => self.execute_xor   (inst),
+            RiscvInstId::SRL   => self.execute_srl   (inst),
+            RiscvInstId::SRA   => self.execute_sra   (inst),
 
             RiscvInstId::MUL => {
                 let rs1_data = self.read_reg(rs1);
