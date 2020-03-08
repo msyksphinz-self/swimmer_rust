@@ -23,6 +23,7 @@ use crate::riscv_inst_id::RiscvInstId;
 use crate::riscv_insts_int::Riscv64InstsInt;
 use crate::riscv_insts_fpu::Riscv64InstsFpu;
 use crate::riscv_insts_amo::Riscv64InstsAmo;
+use crate::riscv_insts_mem::Riscv64InstsMem;
 
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_LSB;
 use crate::riscv_csr_bitdef::SYSREG_MSTATUS_SIE_MSB;
@@ -86,71 +87,19 @@ impl RiscvInsts for Riscv64Env {
                 let reg_data: Xlen64T = self.m_csr.csrrc(csr_addr, zimm);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInstId::LB => {
-                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                match self.read_bus_byte(addr as Addr64T) {
-                    Ok(reg_data) => {
-                        self.write_reg(rd, (reg_data as i8) as Xlen64T);
-                    },
-                    Err(_result) => {},
-                }
-            }
-            RiscvInstId::LH => {
-                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                match self.read_bus_hword(addr as Addr64T) {
-                    Ok(reg_data) => {
-                        self.write_reg(rd, (reg_data as i16) as Xlen64T);
-                    },
-                    Err(_result) => {},
-                }
-            }
-            RiscvInstId::LW => {
-                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                match self.read_bus_word(addr as Addr64T) {
-                    Ok(reg_data) => {
-                        self.write_reg(rd, (reg_data as XlenT) as Xlen64T);
-                    },
-                    Err(_result) => {},
-                }
-            }
-            RiscvInstId::LD => {
-                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                match self.read_bus_dword(addr as Addr64T) {
-                    Ok(reg_data) => {
-                        self.write_reg(rd, reg_data);
-                    },
-                    Err(_result) => {},
-                }
-            }
-            RiscvInstId::LBU => {
-                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                match self.read_bus_byte(addr as Addr64T) {
-                    Ok(reg_data) => {
-                        let reg_data_xlen = self.sext_xlen(reg_data);
-                        self.write_reg(rd, reg_data_xlen);
-                    },
-                    Err(_result) => {},
-                }
-            }
-            RiscvInstId::LHU => {
-                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                match self.read_bus_hword(addr as Addr64T) {
-                    Ok(reg_data) => {
-                        let reg_data_xlen = self.sext_xlen(reg_data);
-                        self.write_reg(rd, reg_data_xlen);
-                    },
-                    Err(_result) => {},
-                }
-            }
-            RiscvInstId::LWU => {
-                let addr = self.read_reg(rs1) + Self::extract_ifield(inst);
-                match self.read_bus_word(addr as Addr64T) {
-                    Ok(reg_data) => {
-                        self.write_reg(rd, reg_data & 0xffffffff);
-                    },
-                    Err(_result) => {},
-                }
-            }
+            RiscvInstId::LB =>  self.execute_lb  (inst),
+            RiscvInstId::LH =>  self.execute_lh  (inst),
+            RiscvInstId::LW =>  self.execute_lw  (inst),
+            RiscvInstId::LD =>  self.execute_ld  (inst),
+            RiscvInstId::LBU => self.execute_lbu (inst),
+            RiscvInstId::LHU => self.execute_lhu (inst),
+            RiscvInstId::LWU => self.execute_lwu (inst),
+
+            RiscvInstId::SB =>  self.execute_sb  (inst),
+            RiscvInstId::SH =>  self.execute_sh  (inst),
+            RiscvInstId::SW =>  self.execute_sw  (inst),
+            RiscvInstId::SD =>  self.execute_sd  (inst),
+
             RiscvInstId::AUIPC => self.execute_auipc (inst),
             RiscvInstId::LUI   => self.execute_lui   (inst),
             RiscvInstId::ADDI  => self.execute_addi  (inst),
@@ -284,26 +233,6 @@ impl RiscvInsts for Riscv64Env {
                 let reg_data: Xlen64T = self.sext_xlen(data);
                 self.write_reg(rd, reg_data);
             }
-            RiscvInstId::SB => {
-                let rs2_data = self.read_reg(rs2);
-                let addr: Addr64T = (self.read_reg(rs1) + Self::extract_sfield(inst)) as Addr64T;
-                self.write_bus_byte(addr as Addr64T, rs2_data);
-            }
-            RiscvInstId::SH => {
-                let rs2_data = self.read_reg(rs2);
-                let addr: Addr64T = (self.read_reg(rs1) + Self::extract_sfield(inst)) as Addr64T;
-                self.write_bus_hword(addr as Addr64T, rs2_data);
-            }
-            RiscvInstId::SW => {
-                let rs2_data = self.read_reg(rs2);
-                let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
-                self.write_bus_word(addr as Addr64T, rs2_data);
-            }
-            RiscvInstId::SD => {
-                let rs2_data = self.read_reg(rs2);
-                let addr = self.read_reg(rs1) + Self::extract_sfield(inst);
-                self.write_bus_dword(addr as Addr64T, rs2_data);
-            }
             RiscvInstId::JAL => {
                 let addr: Addr64T = Self::extract_uj_field(inst) as Addr64T;
                 self.write_reg(rd, (self.m_pc + 4) as Xlen64T);
@@ -410,62 +339,15 @@ impl RiscvInsts for Riscv64Env {
                 self.m_pc = mepc as Addr64T;
                 self.set_update_pc(true);
             }
-            RiscvInstId::ADDIW => {
-                let rs1_data = self.read_reg(rs1) as i32;
-                let imm_data = Self::extract_ifield(inst) as i32;
-                let reg_data = rs1_data.wrapping_add(imm_data) as Xlen64T;
-                self.write_reg(rd, reg_data);
-            }
-            RiscvInstId::SLLIW => {
-                let rs1_data = self.read_reg(rs1) as i32;
-                let imm_data = Self::extract_shamt_field(inst) & 0x01f;
-                let reg_data = rs1_data << imm_data;
-                self.write_reg(rd, reg_data as i64);
-            }
-            RiscvInstId::SRLIW => {
-                let rs1_data = self.read_reg(rs1) as u32;
-                let imm_data = Self::extract_shamt_field(inst) & 0x01f;
-                let reg_data = rs1_data >> imm_data;
-                self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
-            }
-            RiscvInstId::SRAIW => {
-                let rs1_data = self.read_reg(rs1) as i32;
-                let imm_data = Self::extract_shamt_field(inst) & 0x01f;
-                let reg_data = rs1_data >> imm_data;
-                self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
-            }
-            RiscvInstId::ADDW => {
-                let rs1_data = self.read_reg(rs1) as i32;
-                let rs2_data = self.read_reg(rs2) as i32;
-                let reg_data = rs1_data.wrapping_add(rs2_data);
-                self.write_reg(rd, reg_data.into());
-            }
-            RiscvInstId::SUBW => {
-                let rs1_data = self.read_reg(rs1) as i32;
-                let rs2_data = self.read_reg(rs2) as i32;
-                let reg_data = rs1_data.wrapping_sub(rs2_data);
-                self.write_reg(rd, reg_data.into());
-            }
-            RiscvInstId::SLLW => {
-                let rs1_data = self.read_reg(rs1) as UXlenT;
-                let rs2_data = self.read_reg(rs2) as UXlenT;
-                let reg_data = rs1_data.wrapping_shl(rs2_data);
-                self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
-            }
-            RiscvInstId::SRLW => {
-                let rs1_data = self.read_reg(rs1) as UXlenT;
-                let rs2_data = self.read_reg(rs2) as UXlenT;
-                let shamt: UXlenT = rs2_data & 0x1f;
-                let reg_data = rs1_data.wrapping_shr(shamt);
-                self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
-            }
-            RiscvInstId::SRAW => {
-                let rs1_data = self.read_reg(rs1) as XlenT;
-                let rs2_data = self.read_reg(rs2) as XlenT;
-                let shamt: UXlenT = (rs2_data & 0x1f) as UXlenT;
-                let reg_data = rs1_data.wrapping_shr(shamt);
-                self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
-            }
+            RiscvInstId::ADDIW => self.execute_addiw(inst),
+            RiscvInstId::SLLIW => self.execute_slliw(inst),
+            RiscvInstId::SRLIW => self.execute_srliw(inst),
+            RiscvInstId::SRAIW => self.execute_sraiw(inst),
+            RiscvInstId::ADDW  => self.execute_addw (inst),
+            RiscvInstId::SUBW  => self.execute_subw (inst),
+            RiscvInstId::SLLW  => self.execute_sllw (inst),
+            RiscvInstId::SRLW  => self.execute_srlw (inst),
+            RiscvInstId::SRAW  => self.execute_sraw (inst),
 
             RiscvInstId::MULW => {
                 let rs1_data = self.read_reg(rs1) as XlenT;

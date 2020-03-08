@@ -10,6 +10,7 @@ mod riscv_insts;
 mod riscv_insts_int;
 mod riscv_insts_fpu;
 mod riscv_insts_amo;
+mod riscv_insts_mem;
 mod riscv_csr;
 mod riscv_csr_bitdef;
 mod riscv_exception;

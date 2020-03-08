@@ -29,6 +29,17 @@ pub trait Riscv64InstsInt {
     fn execute_xor   (&mut self, inst: InstT);
     fn execute_srl   (&mut self, inst: InstT);
     fn execute_sra   (&mut self, inst: InstT);
+
+    fn execute_addiw (&mut self, inst: InstT);
+    fn execute_slliw (&mut self, inst: InstT);
+    fn execute_srliw (&mut self, inst: InstT);
+    fn execute_sraiw (&mut self, inst: InstT);
+    fn execute_addw  (&mut self, inst: InstT);
+    fn execute_subw  (&mut self, inst: InstT);
+    fn execute_sllw  (&mut self, inst: InstT);
+    fn execute_srlw  (&mut self, inst: InstT);
+    fn execute_sraw  (&mut self, inst: InstT);
+
 }
 
 impl Riscv64InstsInt for Riscv64Env {
@@ -231,5 +242,109 @@ impl Riscv64InstsInt for Riscv64Env {
         let data = rs1_data.wrapping_shr(rs2_data as u32) as Xlen64T;
         let reg_data: Xlen64T = self.sext_xlen(data);
         self.write_reg(rd, reg_data);
+    }
+
+
+    fn execute_addiw (&mut self, inst: InstT)
+    {
+        let rs1 = Self::get_rs1_addr(inst);
+        let rs2 = Self::get_rs2_addr(inst);
+        let rd = Self::get_rd_addr(inst);
+
+        let rs1_data = self.read_reg(rs1) as i32;
+        let imm_data = Self::extract_ifield(inst) as i32;
+        let reg_data = rs1_data.wrapping_add(imm_data) as Xlen64T;
+        self.write_reg(rd, reg_data);
+    }
+    fn execute_slliw (&mut self, inst: InstT)
+    {
+        let rs1 = Self::get_rs1_addr(inst);
+        let rs2 = Self::get_rs2_addr(inst);
+        let rd = Self::get_rd_addr(inst);
+
+        let rs1_data = self.read_reg(rs1) as i32;
+        let imm_data = Self::extract_shamt_field(inst) & 0x01f;
+        let reg_data = rs1_data << imm_data;
+        self.write_reg(rd, reg_data as i64);
+    }
+    fn execute_srliw (&mut self, inst: InstT)
+    {
+        let rs1 = Self::get_rs1_addr(inst);
+        let rs2 = Self::get_rs2_addr(inst);
+        let rd = Self::get_rd_addr(inst);
+
+        let rs1_data = self.read_reg(rs1) as u32;
+        let imm_data = Self::extract_shamt_field(inst) & 0x01f;
+        let reg_data = rs1_data >> imm_data;
+        self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
+    }
+    fn execute_sraiw (&mut self, inst: InstT)
+    {
+        let rs1 = Self::get_rs1_addr(inst);
+        let rs2 = Self::get_rs2_addr(inst);
+        let rd = Self::get_rd_addr(inst);
+
+        let rs1_data = self.read_reg(rs1) as i32;
+        let imm_data = Self::extract_shamt_field(inst) & 0x01f;
+        let reg_data = rs1_data >> imm_data;
+        self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
+    }
+    fn execute_addw (&mut self, inst: InstT)
+    {
+        let rs1 = Self::get_rs1_addr(inst);
+        let rs2 = Self::get_rs2_addr(inst);
+        let rd = Self::get_rd_addr(inst);
+
+        let rs1_data = self.read_reg(rs1) as i32;
+        let rs2_data = self.read_reg(rs2) as i32;
+        let reg_data = rs1_data.wrapping_add(rs2_data);
+        self.write_reg(rd, reg_data.into());
+    }
+    fn execute_subw (&mut self, inst: InstT)
+    {
+        let rs1 = Self::get_rs1_addr(inst);
+        let rs2 = Self::get_rs2_addr(inst);
+        let rd = Self::get_rd_addr(inst);
+
+        let rs1_data = self.read_reg(rs1) as i32;
+        let rs2_data = self.read_reg(rs2) as i32;
+        let reg_data = rs1_data.wrapping_sub(rs2_data);
+        self.write_reg(rd, reg_data.into());
+    }
+    fn execute_sllw (&mut self, inst: InstT)
+    {
+        let rs1 = Self::get_rs1_addr(inst);
+        let rs2 = Self::get_rs2_addr(inst);
+        let rd = Self::get_rd_addr(inst);
+
+        let rs1_data = self.read_reg(rs1) as UXlenT;
+        let rs2_data = self.read_reg(rs2) as UXlenT;
+        let reg_data = rs1_data.wrapping_shl(rs2_data);
+        self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
+    }
+    fn execute_srlw (&mut self, inst: InstT)
+    {
+        let rs1 = Self::get_rs1_addr(inst);
+        let rs2 = Self::get_rs2_addr(inst);
+        let rd = Self::get_rd_addr(inst);
+
+        let rs1_data = self.read_reg(rs1) as UXlenT;
+        let rs2_data = self.read_reg(rs2) as UXlenT;
+        let shamt: UXlenT = rs2_data & 0x1f;
+        let reg_data = rs1_data.wrapping_shr(shamt);
+        self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
+    }
+    fn execute_sraw (&mut self, inst: InstT)
+    {
+        let rs1 = Self::get_rs1_addr(inst);
+        let rs2 = Self::get_rs2_addr(inst);
+        let rd = Self::get_rd_addr(inst);
+
+        let rs1_data = self.read_reg(rs1) as XlenT;
+        let rs2_data = self.read_reg(rs2) as XlenT;
+        let shamt: UXlenT = (rs2_data & 0x1f) as UXlenT;
+        let reg_data = rs1_data.wrapping_shr(shamt);
+        self.write_reg(rd, Self::extend_sign(reg_data as Xlen64T, 31));
+
     }
 }

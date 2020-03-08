@@ -24,6 +24,7 @@ pub mod riscv_insts;
 pub mod riscv_insts_int;
 pub mod riscv_insts_fpu;
 pub mod riscv_insts_amo;
+pub mod riscv_insts_mem;
 pub mod riscv_decoder;
 pub mod riscv_mmu;
 pub mod riscv_inst_mnemonic;
